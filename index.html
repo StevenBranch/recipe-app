@@ -915,23 +915,23 @@ async function generate() {
     ? 'Use ONLY the listed ingredients — do not suggest any additional ones.'
     : `You may suggest up to ${extraOk} ingredients the user can easily pick up.`;
 
-  const prompt = `You are a professional chef. Generate exactly ${recipeCount} distinct, delicious recipe${recipeCount > 1 ? 's' : ''} based on the inputs below.
+  const prompt = `You are a professional chef. Generate exactly ${recipeCount} distinct recipe${recipeCount > 1 ? 's' : ''}.
 
-INGREDIENTS AVAILABLE: ${ingredients.join(', ')}
-${mood        ? 'MOOD / CRAVING: ' + mood : ''}
-${mealType    ? 'MEAL TYPE: '     + mealType : ''}
+INGREDIENTS: ${ingredients.join(', ')}
+${mood        ? 'CRAVING: ' + mood : ''}
+${mealType    ? 'MEAL: '     + mealType : ''}
 SERVINGS: ${servings}
-${cookTime    ? 'TIME AVAILABLE: '  + cookTime : ''}
-${cookMethod  ? 'COOKING METHOD: '  + cookMethod : ''}
+${cookTime    ? 'TIME: '  + cookTime : ''}
+${cookMethod  ? 'METHOD: '  + cookMethod : ''}
 ${diets.length    ? 'DIETARY: '   + diets.join(', ')    : ''}
 ${cuisines.length ? 'CUISINE: '   + cuisines.join(', ')  : ''}
-${frozen.length   ? 'FROZEN COMPONENTS OK: ' + frozen.join(', ') : ''}
-EXTRA INGREDIENTS: ${extraLine}
+${frozen.length   ? 'FROZEN OK: ' + frozen.join(', ') : ''}
+EXTRAS: ${extraLine}
 
-Mark each ingredient "have": true if it's in the available list above, "have": false if it's an extra you're recommending.
+Rules: Keep steps SHORT (max 6 steps, one sentence each). Max 8 ingredients per recipe. Mark "have":true if in INGREDIENTS list above, false if extra.
 
-Return ONLY a valid JSON array — no markdown fences, no explanation:
-[{"name":"...","description":"one sentence","servings":${servings},"prepTime":"10 min","cookTime":"20 min","method":"Stovetop","calories":500,"protein":40,"carbs":20,"fat":18,"ingredients":[{"item":"...","amount":"...","have":true}],"steps":["..."],"chefNote":"..."}]`;
+Return ONLY a JSON array, no markdown, no explanation. Be concise:
+[{"name":"X","description":"Y","servings":${servings},"prepTime":"10 min","cookTime":"20 min","method":"Z","calories":500,"protein":40,"carbs":20,"fat":18,"ingredients":[{"item":"x","amount":"1 cup","have":true}],"steps":["Step 1.","Step 2."],"chefNote":"Tip."}]`;
 
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -952,7 +952,17 @@ Return ONLY a valid JSON array — no markdown fences, no explanation:
     const data = await res.json();
     let raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     raw = raw.replace(/```json|```/g, '').trim();
-    genRecipes = JSON.parse(raw);
+    try {
+      genRecipes = JSON.parse(raw);
+    } catch(parseErr) {
+      const lastClose = raw.lastIndexOf('}');
+      if (lastClose > -1) {
+        let repaired = raw.substring(0, lastClose + 1);
+        if (!repaired.trim().startsWith('[')) repaired = '[' + repaired;
+        if (!repaired.trim().endsWith(']')) repaired = repaired + ']';
+        genRecipes = JSON.parse(repaired);
+      } else { throw parseErr; }
+    }
     if (!Array.isArray(genRecipes)) genRecipes = [genRecipes];
     renderRecipes(genRecipes);
 
