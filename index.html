@@ -915,23 +915,31 @@ async function generate() {
     ? 'Use ONLY the listed ingredients — do not suggest any additional ones.'
     : `You may suggest up to ${extraOk} ingredients the user can easily pick up.`;
 
-  const prompt = `You are a professional chef. Generate exactly ${recipeCount} distinct recipe${recipeCount > 1 ? 's' : ''}.
+  // Build one recipe template per count
+  const recipeTemplate = `{"name":"Recipe Name","description":"One sentence.","servings":${servings},"prepTime":"10 min","cookTime":"20 min","method":"Stovetop","calories":450,"protein":35,"carbs":20,"fat":15,"ingredients":[{"item":"ingredient","amount":"1 cup","have":true}],"steps":["Step 1.","Step 2.","Step 3."],"chefNote":"One tip."}`;
+  const arrayTemplate = '[' + Array(recipeCount).fill(recipeTemplate).join(',') + ']';
 
-INGREDIENTS: ${ingredients.join(', ')}
+  const prompt = `You are a chef. Generate exactly ${recipeCount} recipe${recipeCount > 1 ? 's' : ''} as a JSON array.
+
+INGREDIENTS ON HAND: ${ingredients.join(', ')}
 ${mood        ? 'CRAVING: ' + mood : ''}
-${mealType    ? 'MEAL: '     + mealType : ''}
-SERVINGS: ${servings}
+${mealType    ? 'MEAL TYPE: ' + mealType : ''}
+${servings    ? 'SERVINGS: ' + servings : ''}
 ${cookTime    ? 'TIME: '  + cookTime : ''}
 ${cookMethod  ? 'METHOD: '  + cookMethod : ''}
-${diets.length    ? 'DIETARY: '   + diets.join(', ')    : ''}
-${cuisines.length ? 'CUISINE: '   + cuisines.join(', ')  : ''}
+${diets.length    ? 'DIETARY: '   + diets.join(', ') : ''}
+${cuisines.length ? 'CUISINE: '   + cuisines.join(', ') : ''}
 ${frozen.length   ? 'FROZEN OK: ' + frozen.join(', ') : ''}
-EXTRAS: ${extraLine}
+EXTRA INGREDIENTS: ${extraLine}
 
-Rules: Keep steps SHORT (max 6 steps, one sentence each). Max 8 ingredients per recipe. Mark "have":true if in INGREDIENTS list above, false if extra.
+STRICT RULES:
+- Max 6 steps, each one short sentence
+- Max 7 ingredients per recipe  
+- "have": true only for ingredients in INGREDIENTS ON HAND list
+- Be concise — short field values only
+- Output ONLY the JSON array below, filled in. No other text.
 
-Return ONLY a JSON array, no markdown, no explanation. Be concise:
-[{"name":"X","description":"Y","servings":${servings},"prepTime":"10 min","cookTime":"20 min","method":"Z","calories":500,"protein":40,"carbs":20,"fat":18,"ingredients":[{"item":"x","amount":"1 cup","have":true}],"steps":["Step 1.","Step 2."],"chefNote":"Tip."}]`;
+${arrayTemplate}`;
 
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -940,7 +948,7 @@ Return ONLY a JSON array, no markdown, no explanation. Be concise:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: 8192 }
+        generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
       })
     });
 
@@ -951,18 +959,15 @@ Return ONLY a JSON array, no markdown, no explanation. Be concise:
 
     const data = await res.json();
     let raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    // Strip any markdown fences
     raw = raw.replace(/```json|```/g, '').trim();
-    try {
-      genRecipes = JSON.parse(raw);
-    } catch(parseErr) {
-      const lastClose = raw.lastIndexOf('}');
-      if (lastClose > -1) {
-        let repaired = raw.substring(0, lastClose + 1);
-        if (!repaired.trim().startsWith('[')) repaired = '[' + repaired;
-        if (!repaired.trim().endsWith(']')) repaired = repaired + ']';
-        genRecipes = JSON.parse(repaired);
-      } else { throw parseErr; }
+    // Extract the JSON array — find first [ and last ]
+    const arrStart = raw.indexOf('[');
+    const arrEnd   = raw.lastIndexOf(']');
+    if (arrStart > -1 && arrEnd > arrStart) {
+      raw = raw.substring(arrStart, arrEnd + 1);
     }
+    genRecipes = JSON.parse(raw);
     if (!Array.isArray(genRecipes)) genRecipes = [genRecipes];
     renderRecipes(genRecipes);
 
