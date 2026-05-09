@@ -26,121 +26,134 @@
 }
 html{font-size:15px}
 body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;gap:1.25rem;position:sticky;top:0;z-index:50}
-.logo{font-family:var(--display);font-size:1.8rem;letter-spacing:0.06em;background:linear-gradient(135deg,var(--gold),#fff8dc,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap}
-.progress-wrap{flex:1;display:flex;flex-direction:column;gap:4px}
-.progress-bar-bg{background:var(--bg4);border-radius:20px;height:6px;overflow:hidden}
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.85rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:50;flex-wrap:wrap}
+.logo{font-family:var(--display);font-size:1.7rem;letter-spacing:0.06em;background:linear-gradient(135deg,var(--gold),#fff8dc,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap}
+.header-mid{flex:1;display:flex;flex-direction:column;gap:3px;min-width:160px}
+.progress-bar-bg{background:var(--bg4);border-radius:20px;height:5px;overflow:hidden}
 .progress-bar{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:20px;transition:width 0.4s ease}
-.progress-label{font-size:0.78rem;color:var(--text2)}
+.progress-label{font-size:0.75rem;color:var(--text2)}
 .progress-label strong{color:var(--gold);font-weight:500}
-.api-status{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--text3);white-space:nowrap}
+.collection-value{background:var(--green-bg);border:1px solid rgba(76,175,125,0.3);border-radius:var(--radius);padding:4px 10px;font-size:0.75rem;color:var(--green);white-space:nowrap}
+.collection-value strong{font-weight:500}
+.api-status{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text3);white-space:nowrap}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
 .dot.loading{background:var(--gold);animation:pulse 1s infinite}
 .dot.done{background:var(--green)}
 .dot.err{background:var(--red)}
-.controls{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.65rem 1.5rem;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
-.search-wrap{position:relative;flex:1;min-width:180px;max-width:260px}
+.controls{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:250px}
 .search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:13px;height:13px}
-input[type=search]{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:0.82rem;padding:0.45rem 0.7rem 0.45rem 2.1rem;outline:none}
-input[type=search]:focus{border-color:var(--border2)}
-input[type=search]::placeholder{color:var(--text3)}
-.filter-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:var(--body);font-size:0.78rem;padding:0.4rem 0.85rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+input[type=search],input[type=text],input[type=number]{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:0.82rem;padding:0.45rem 0.7rem;outline:none}
+input[type=search]{width:100%;padding-left:2.1rem}
+input[type=search]:focus,input[type=text]:focus,input[type=number]:focus{border-color:var(--border2)}
+input::placeholder{color:var(--text3)}
+.filter-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:var(--body);font-size:0.78rem;padding:0.38rem 0.8rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
 .filter-btn:hover{border-color:var(--border2);color:var(--text)}
 .filter-btn.on{background:var(--gold-bg);border-color:var(--gold2);color:var(--gold)}
 .filter-btn.on-green{background:var(--green-bg);border-color:var(--green);color:var(--green)}
 .filter-btn.on-blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
-select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:var(--body);font-size:0.78rem;padding:0.4rem 0.7rem;outline:none;cursor:pointer;-webkit-appearance:none}
+select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:var(--body);font-size:0.78rem;padding:0.38rem 0.7rem;outline:none;cursor:pointer;-webkit-appearance:none}
 select option{background:var(--bg3);color:var(--text)}
 .view-toggle{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:2px;margin-left:auto}
 .view-btn{background:none;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;color:var(--text3);display:flex;align-items:center}
 .view-btn.active{background:var(--bg5);color:var(--text)}
 .view-btn svg{width:15px;height:15px}
-.legend{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.5rem 1.5rem;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.legend-label{font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-right:4px}
-.badge{font-size:0.67rem;padding:2px 6px;border-radius:4px;display:inline-block;font-weight:500;letter-spacing:0.04em;white-space:nowrap}
+.legend{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.45rem 1.5rem;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.legend-label{font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-right:3px}
+.badge{font-size:0.65rem;padding:2px 5px;border-radius:4px;display:inline-block;font-weight:500;letter-spacing:0.04em;white-space:nowrap}
 .b-sir{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(192,132,252,0.3)}
 .b-alt{background:var(--teal-bg);color:var(--teal);border:1px solid rgba(45,212,191,0.3)}
 .b-hr{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(240,192,64,0.3)}
 .b-rr{background:var(--pink-bg);color:var(--pink);border:1px solid rgba(244,114,182,0.3)}
+.b-sr{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
 .b-fa{background:var(--green-bg);color:var(--green);border:1px solid rgba(76,175,125,0.3)}
 .b-ar{background:var(--orange-bg);color:var(--orange);border:1px solid rgba(251,146,60,0.3)}
 .b-ir{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(96,165,250,0.3)}
-.b-sr{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
+.b-manual{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border)}
 .b-unk{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text3)}
-.main{padding:1.25rem 1.5rem 3rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:9px}
-.poke-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:0.7rem;color:var(--text3)}
+.main{padding:1.1rem 1.5rem 3rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:8px}
+.poke-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden}
 .poke-card:hover{border-color:var(--border2);transform:translateY(-1px)}
 .poke-card.collected{border-color:rgba(76,175,125,0.4);background:linear-gradient(135deg,var(--bg2),rgba(76,175,125,0.04))}
-.card-dex{font-size:0.68rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em;margin-bottom:3px}
-.card-name{font-family:var(--display);font-size:1.1rem;letter-spacing:0.04em;color:var(--text);margin-bottom:5px;line-height:1.1}
-.card-count{font-size:0.72rem;color:var(--text3);margin-bottom:6px}
+.card-dex{font-size:0.67rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em;margin-bottom:2px}
+.card-name{font-family:var(--display);font-size:1.05rem;letter-spacing:0.04em;color:var(--text);margin-bottom:4px;line-height:1.1}
+.card-count{font-size:0.7rem;color:var(--text3);margin-bottom:5px}
 .card-count span{color:var(--gold);font-weight:500}
-.card-best{font-size:0.75rem;color:var(--text2);line-height:1.4}
-.card-price{font-size:0.78rem;color:var(--text2);margin-top:4px}
+.card-best{font-size:0.73rem;color:var(--text2);line-height:1.4}
+.card-price{font-size:0.75rem;color:var(--text2);margin-top:3px}
 .card-price span{color:var(--gold);font-weight:500}
-.coll-badge{position:absolute;top:8px;right:8px;background:var(--green);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center}
-.coll-badge svg{width:10px;height:10px;color:#fff}
-.no-cards{font-size:0.75rem;color:var(--text3);font-style:italic}
-.gen-hdr{grid-column:1/-1;font-family:var(--display);font-size:0.95rem;letter-spacing:0.12em;color:var(--text3);padding:0.4rem 0 0.2rem;border-bottom:1px solid var(--border);margin-top:8px;margin-bottom:2px}
+.coll-badge{position:absolute;top:7px;right:7px;background:var(--green);border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center}
+.coll-badge svg{width:9px;height:9px;color:#fff}
+.no-cards{font-size:0.73rem;color:var(--text3);font-style:italic}
+.gen-hdr{grid-column:1/-1;font-family:var(--display);font-size:0.92rem;letter-spacing:0.12em;color:var(--text3);padding:0.35rem 0 0.15rem;border-bottom:1px solid var(--border);margin-top:6px;margin-bottom:1px}
 .list{display:flex;flex-direction:column;gap:3px}
-.list-hdr{display:grid;grid-template-columns:48px 150px 1fr 140px 105px 70px;gap:10px;padding:0.35rem 1rem;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:3px}
-.list-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 1rem;display:grid;grid-template-columns:48px 150px 1fr 140px 105px 70px;align-items:center;gap:10px;cursor:pointer;transition:all 0.15s;font-size:0.82rem}
+.list-hdr{display:grid;grid-template-columns:46px 145px 1fr 130px 100px 65px;gap:9px;padding:0.3rem 1rem;font-size:0.67rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:2px}
+.list-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.55rem 1rem;display:grid;grid-template-columns:46px 145px 1fr 130px 100px 65px;align-items:center;gap:9px;cursor:pointer;transition:all 0.15s;font-size:0.8rem}
 .list-row:hover{border-color:var(--border2)}
 .list-row.collected{border-color:rgba(76,175,125,0.35)}
-.list-dex{font-family:var(--display);font-size:0.82rem;color:var(--text3);letter-spacing:0.06em}
+.list-dex{font-family:var(--display);font-size:0.8rem;color:var(--text3);letter-spacing:0.06em}
 .list-name{font-weight:500}
-.list-card{color:var(--text2);font-size:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list-card{color:var(--text2);font-size:0.73rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .list-price{text-align:right;color:var(--gold);font-weight:500}
 .list-check{display:flex;justify-content:center}
-.chk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center}
+.chk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center}
 .chk.done{background:var(--green);border-color:var(--green)}
-.chk svg{width:11px;height:11px;color:#fff}
-.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:100;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.chk svg{width:10px;height:10px;color:#fff}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
 .backdrop.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.75rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;animation:mIn 0.2s ease both}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.6rem;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;animation:mIn 0.2s ease both}
 @keyframes mIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
-.modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem}
-.modal-dex{font-size:0.72rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em}
-.modal-name{font-family:var(--display);font-size:2rem;letter-spacing:0.04em;line-height:1}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.1rem;gap:1rem}
+.modal-dex{font-size:0.7rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em}
+.modal-name{font-family:var(--display);font-size:1.9rem;letter-spacing:0.04em;line-height:1}
 .modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.3rem;line-height:1;padding:4px;flex-shrink:0}
 .modal-close:hover{color:var(--text)}
-.mlabel{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:5px;display:block}
-.era-group{margin-bottom:1rem}
-.era-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:6px}
-.card-opt{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.7rem 0.85rem;margin-bottom:5px;cursor:pointer;transition:all 0.15s}
+.mlabel{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:4px;display:block}
+.era-group{margin-bottom:0.9rem}
+.era-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);padding:3px 0;border-bottom:1px solid var(--border);margin-bottom:5px}
+.card-opt{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.65rem 0.8rem;margin-bottom:4px;cursor:pointer;transition:all 0.15s}
 .card-opt:hover{border-color:var(--border2)}
 .card-opt.sel{border-color:var(--gold2);background:var(--gold-bg)}
-.opt-name{font-size:0.85rem;font-weight:500;margin-bottom:3px}
-.opt-meta{font-size:0.73rem;color:var(--text2);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.opt-price{font-size:0.78rem;color:var(--gold);margin-top:3px;display:flex;align-items:center;gap:8px}
-.notes-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:0.83rem;padding:0.55rem 0.75rem;outline:none;resize:vertical;min-height:56px}
+.opt-name{font-size:0.83rem;font-weight:500;margin-bottom:2px}
+.opt-meta{font-size:0.71rem;color:var(--text2);display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.opt-price{font-size:0.76rem;color:var(--gold);margin-top:2px;display:flex;align-items:center;gap:7px}
+.manual-section{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.9rem}
+.manual-section-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.manual-grid .full{grid-column:1/-1}
+.manual-grid label{display:block;font-size:0.67rem;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em}
+.manual-grid input,.manual-grid select{width:100%;font-size:0.8rem}
+.notes-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:0.82rem;padding:0.5rem 0.7rem;outline:none;resize:vertical;min-height:52px}
 .notes-input:focus{border-color:var(--border2)}
-.modal-actions{display:flex;gap:8px;margin-top:1.25rem}
-.btn-save{flex:1;padding:0.65rem;background:var(--green);color:#fff;font-family:var(--body);font-weight:500;font-size:0.85rem;border:none;border-radius:var(--radius);cursor:pointer}
+.price-input-wrap{display:flex;align-items:center;gap:6px;margin-top:6px}
+.price-input-wrap label{font-size:0.72rem;color:var(--text3);white-space:nowrap}
+.price-input-wrap input{width:100px;text-align:right}
+.modal-actions{display:flex;gap:7px;margin-top:1.1rem}
+.btn-save{flex:1;padding:0.62rem;background:var(--green);color:#fff;font-family:var(--body);font-weight:500;font-size:0.83rem;border:none;border-radius:var(--radius);cursor:pointer}
 .btn-save:hover{background:#5bbf8d}
-.btn-remove{padding:0.65rem 0.9rem;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-family:var(--body);font-size:0.85rem;border-radius:var(--radius);cursor:pointer}
+.btn-remove{padding:0.62rem 0.85rem;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-family:var(--body);font-size:0.83rem;border-radius:var(--radius);cursor:pointer}
 .btn-remove:hover{border-color:var(--red);color:var(--red)}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;gap:0.5rem;color:var(--text3);text-align:center}
 .empty-icon{font-size:2.5rem;margin-bottom:0.5rem}
-.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite}
+.spinner{display:inline-block;width:11px;height:11px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
 @media(max-width:800px){
-  .list-hdr,.list-row{grid-template-columns:42px 130px 1fr 100px 60px;gap:8px}
+  .list-hdr,.list-row{grid-template-columns:40px 125px 1fr 90px 55px;gap:7px}
   .list-col-set{display:none}
 }
 @media(max-width:560px){
-  .list-hdr,.list-row{grid-template-columns:38px 1fr 80px 50px;font-size:0.78rem;gap:6px}
+  .list-hdr,.list-row{grid-template-columns:36px 1fr 75px 48px;font-size:0.76rem;gap:5px}
   .list-col-rar{display:none}
-  .header{padding:0.75rem 1rem}
-  .controls,.legend{padding:0.5rem 1rem}
-  .main{padding:1rem 0.75rem 4rem}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:7px}
+  .header{padding:0.7rem 1rem}
+  .controls,.legend{padding:0.45rem 1rem}
+  .main{padding:0.9rem 0.75rem 4rem}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
 }
 </style>
 </head>
@@ -161,10 +174,11 @@ select option{background:var(--bg3);color:var(--text)}
 
 <header class="header">
   <div class="logo">Pokédex Binder</div>
-  <div class="progress-wrap">
+  <div class="header-mid">
     <div class="progress-bar-bg"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
     <div class="progress-label"><strong id="prog-n">0</strong><span id="prog-t"> / 1025 collected</span></div>
   </div>
+  <div class="collection-value">Collection: <strong id="coll-val">$0.00</strong></div>
   <div class="api-status">
     <div class="dot loading" id="api-dot"></div>
     <span id="api-txt">Loading…</span>
@@ -222,43 +236,22 @@ select option{background:var(--bg3);color:var(--text)}
   <span class="legend-label">Rarities:</span>
   <div class="legend-item"><span class="badge b-sir">SIR</span> Special Illustration Rare</div>
   <div class="legend-item"><span class="badge b-alt">ALT</span> Alternate Art</div>
-  <div class="legend-item"><span class="badge b-hr">HR</span> Hyper Rare (Gold)</div>
+  <div class="legend-item"><span class="badge b-hr">HR</span> Hyper Rare</div>
   <div class="legend-item"><span class="badge b-rr">RR</span> Rainbow Rare</div>
   <div class="legend-item"><span class="badge b-sr">SR</span> Secret Rare</div>
   <div class="legend-item"><span class="badge b-fa">FA</span> Full Art</div>
   <div class="legend-item"><span class="badge b-ar">AR</span> Amazing Rare</div>
   <div class="legend-item"><span class="badge b-ir">IR</span> Illustration Rare</div>
+  <div class="legend-item"><span class="badge b-manual">M</span> Manual Entry</div>
 </div>
 
 <main class="main" id="main"></main>
 
 <script>
 const API_BASE='https://api.pokemontcg.io/v2/cards';
-
-// Target rarities — now includes Secret Rare (SS era VMAX Rainbow equivalent)
-const TARGET_RARITIES=[
-  'Special Illustration Rare',
-  'Hyper Rare',
-  'Rainbow Rare',
-  'Secret Rare',
-  'Full Art',
-  'Amazing Rare',
-  'Illustration Rare'
-];
-
+const TARGET_RARITIES=['Special Illustration Rare','Hyper Rare','Rainbow Rare','Secret Rare','Full Art','Amazing Rare','Illustration Rare'];
 const VALID_SERIES=['Sun & Moon','Sword & Shield','Scarlet & Violet'];
-
-const RARITY_PRIORITY={
-  'Special Illustration Rare':0,
-  'Alternate Art':1,
-  'Hyper Rare':2,
-  'Rainbow Rare':3,
-  'Secret Rare':4,
-  'Full Art':5,
-  'Amazing Rare':6,
-  'Illustration Rare':7
-};
-
+const RARITY_PRIORITY={'Special Illustration Rare':0,'Alternate Art':1,'Hyper Rare':2,'Rainbow Rare':3,'Secret Rare':4,'Full Art':5,'Amazing Rare':6,'Illustration Rare':7,'Manual':8};
 const GEN_RANGES=[[1,151],[152,251],[252,386],[387,493],[494,649],[650,721],[722,809],[810,905],[906,1025]];
 const GEN_NAMES=['Gen 1 — Kanto','Gen 2 — Johto','Gen 3 — Hoenn','Gen 4 — Sinnoh','Gen 5 — Unova','Gen 6 — Kalos','Gen 7 — Alola','Gen 8 — Galar','Gen 9 — Paldea'];
 const ERA_ORDER={'Sun & Moon':0,'Sword & Shield':1,'Scarlet & Violet':2};
@@ -272,8 +265,8 @@ function isAlternateArt(card){
   if(card.number&&card.number.startsWith('TG'))return true;
   return false;
 }
-
 function getDisplayRarity(card){
+  if(card.rarity==='Manual')return 'Manual';
   if(isAlternateArt(card))return 'Alternate Art';
   return card.rarity;
 }
@@ -281,21 +274,12 @@ function getDisplayRarity(card){
 let cardDB={},collection={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
 
 function loadCollection(){try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v3')||'{}');}catch(e){collection={};}}
-function saveCollection(){localStorage.setItem('pokedex_binder_v3',JSON.stringify(collection));}
+function saveCollection(){localStorage.setItem('pokedex_binder_v3',JSON.stringify(collection));updateCollectionValue();}
 function dexStr(n){return '#'+String(n).padStart(4,'0');}
 function getGen(dex){for(let i=0;i<GEN_RANGES.length;i++)if(dex>=GEN_RANGES[i][0]&&dex<=GEN_RANGES[i][1])return i+1;return 9;}
 
 function rarityBadge(r){
-  const map={
-    'Special Illustration Rare':['b-sir','SIR'],
-    'Alternate Art':['b-alt','ALT'],
-    'Hyper Rare':['b-hr','HR'],
-    'Rainbow Rare':['b-rr','RR'],
-    'Secret Rare':['b-sr','SR'],
-    'Full Art':['b-fa','FA'],
-    'Amazing Rare':['b-ar','AR'],
-    'Illustration Rare':['b-ir','IR']
-  };
+  const map={'Special Illustration Rare':['b-sir','SIR'],'Alternate Art':['b-alt','ALT'],'Hyper Rare':['b-hr','HR'],'Rainbow Rare':['b-rr','RR'],'Secret Rare':['b-sr','SR'],'Full Art':['b-fa','FA'],'Amazing Rare':['b-ar','AR'],'Illustration Rare':['b-ir','IR'],'Manual':['b-manual','M']};
   const[cls,lbl]=map[r]||['b-unk',r||'?'];
   return `<span class="badge ${cls}">${lbl}</span>`;
 }
@@ -313,12 +297,28 @@ function bestCard(cards){
 }
 
 function getCardPrice(card){
+  if(!card)return null;
+  if(card.manualPrice!=null)return parseFloat(card.manualPrice);
   if(!card?.tcgplayer?.prices)return null;
   const p=card.tcgplayer.prices;
   return p.holofoil?.market??p.reverseHolofoil?.market??p.normal?.market??p['1stEditionHolofoil']?.market??null;
 }
 
 function fmtPrice(p){return p!=null?'$'+parseFloat(p).toFixed(2):'—';}
+
+function updateCollectionValue(){
+  let total=0;
+  for(const[dex,col]of Object.entries(collection)){
+    const price=col.manualPrice!=null?parseFloat(col.manualPrice):null;
+    if(price!=null&&!isNaN(price)){total+=price;continue;}
+    const cards=cardDB[parseInt(dex)]||[];
+    const selCard=col.cardId?cards.find(c=>c.id===col.cardId):null;
+    const card=selCard||bestCard(cards);
+    const p=card?getCardPrice(card):null;
+    if(p!=null)total+=p;
+  }
+  document.getElementById('coll-val').textContent='$'+total.toFixed(2);
+}
 
 function groupByEra(cards){
   const groups={};
@@ -330,15 +330,15 @@ function groupByEra(cards){
   return groups;
 }
 
+// NEW: wildcard search catches VMAX, GX, ex, VSTAR etc.
 async function loadAllCards(){
   setStatus('loading','Loading card data…');
-  // Use new cache key v6 to force fresh load with updated search logic
-  const cached=localStorage.getItem('pokedex_card_cache_v6');
-  const age=localStorage.getItem('pokedex_card_cache_age_v6');
+  const cached=localStorage.getItem('pokedex_card_cache_v7');
+  const age=localStorage.getItem('pokedex_card_cache_age_v7');
   if(cached&&age&&(Date.now()-parseInt(age))<86400000){
-    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');render();return;}catch(e){}
+    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateCollectionValue();render();return;}catch(e){}
   }
-  const BATCH=6,DELAY=400;
+  const BATCH=5,DELAY=450;
   const batches=[];
   for(let i=0;i<ALL_POKEMON.length;i+=BATCH)batches.push(ALL_POKEMON.slice(i,i+BATCH));
   for(const batch of batches){
@@ -349,29 +349,24 @@ async function loadAllCards(){
     await new Promise(r=>setTimeout(r,DELAY));
   }
   try{
-    localStorage.setItem('pokedex_card_cache_v6',JSON.stringify(cardDB));
-    localStorage.setItem('pokedex_card_cache_age_v6',String(Date.now()));
+    localStorage.setItem('pokedex_card_cache_v7',JSON.stringify(cardDB));
+    localStorage.setItem('pokedex_card_cache_age_v7',String(Date.now()));
   }catch(e){}
   setStatus('done','All cards loaded ✓');
+  updateCollectionValue();
   render();
 }
 
 async function fetchPokemon(dex,name){
   try{
-    // Use contains search (no quotes) for better matching
-    // Also search without rarity filter — filter client side for reliability
-    const escapedName=name.replace(/['"]/g,'');
+    const safeName=name.replace(/[♀♂]/g,'').replace(/'/g,'').trim();
     const rarQ=TARGET_RARITIES.map(r=>`rarity:"${r}"`).join(' OR ');
-    const q=encodeURIComponent(`name:"${escapedName}" (${rarQ}) OR name:"${escapedName} V" (${rarQ}) OR name:"${escapedName} VMAX" (${rarQ}) OR name:"${escapedName} VSTAR" (${rarQ}) OR name:"${escapedName} ex" (${rarQ}) OR name:"${escapedName} GX" (${rarQ})`);
+    // Wildcard search: name:Butterfree* finds Butterfree, Butterfree VMAX, Butterfree V etc.
+    const q=encodeURIComponent(`name:"${safeName}*" (${rarQ})`);
     const r=await fetch(`${API_BASE}?q=${q}&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=100`);
     if(!r.ok){cardDB[dex]=[];return;}
     const d=await r.json();
-    // Filter to valid series client-side — also accept cards where series might vary
-    const cards=(d.data||[]).filter(c=>{
-      const series=c.set?.series||'';
-      return VALID_SERIES.includes(series);
-    });
-    // Sort by priority
+    const cards=(d.data||[]).filter(c=>VALID_SERIES.includes(c.set?.series||''));
     cards.sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99));
     cardDB[dex]=cards;
   }catch(e){cardDB[dex]=[];}
@@ -426,17 +421,20 @@ function renderGrid(items,area){
     if(gen!==lastGen){html+=`<div class="gen-hdr">${GEN_NAMES[gen-1]}</div>`;lastGen=gen;}
     const cards=cardDB[dex];
     const isCol=!!collection[dex];
-    const best=cards?bestCard(cards):null;
+    const col=collection[dex];
+    const allCards=[...(cards||[])];
+    if(col?.manualCard){allCards.unshift(col.manualCard);}
+    const best=allCards.length?bestCard(allCards):null;
     const dispRar=best?getDisplayRarity(best):null;
-    const price=best?getCardPrice(best):null;
+    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getCardPrice(best):null);
     const isLoad=cards===undefined;
     let inner='';
     if(isLoad){
       inner=`<div class="card-count"><span class="spinner"></span></div>`;
-    }else if(!cards||!cards.length){
-      inner=`<div class="no-cards">No SM/SS/SV premium cards found</div>`;
+    }else if(!allCards.length){
+      inner=`<div class="no-cards">No cards found — tap to add manually</div>`;
     }else{
-      inner=`<div class="card-count"><span>${cards.length}</span> card${cards.length!==1?'s':''} available</div>${best?rarityBadge(dispRar):''}<div class="card-best" style="margin-top:5px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?best.set.name+' · #'+best.number:''}</div><div class="card-price" style="margin-top:6px">TCG: <span>${fmtPrice(price)}</span></div>`;
+      inner=`<div class="card-count"><span>${allCards.length}</span> card${allCards.length!==1?'s':''} available</div>${best?rarityBadge(dispRar):''}<div class="card-best" style="margin-top:4px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?(best.set?.name||'Manual')+' · #'+(best.number||'—'):''}</div><div class="card-price" style="margin-top:3px">TCG: <span>${fmtPrice(price)}</span></div>`;
     }
     html+=`<div class="poke-card${isCol?' collected':''}" onclick="openModal(${dex})">${isCol?`<div class="coll-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`:''}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
   }
@@ -445,15 +443,18 @@ function renderGrid(items,area){
 }
 
 function renderListView(items,area){
-  let html=`<div class="list-hdr"><span>#</span><span>Pokémon</span><span>Best Card</span><span class="list-col-rar">Rarity</span><span style="text-align:right">TCGPlayer</span><span style="text-align:center">Have</span></div><div class="list">`;
+  let html=`<div class="list-hdr"><span>#</span><span>Pokémon</span><span>Best Card</span><span class="list-col-rar">Rarity</span><span style="text-align:right">Price</span><span style="text-align:center">Have</span></div><div class="list">`;
   for(const[dex,name]of items){
     const cards=cardDB[dex];
     const isCol=!!collection[dex];
-    const best=cards?bestCard(cards):null;
+    const col=collection[dex];
+    const allCards=[...(cards||[])];
+    if(col?.manualCard)allCards.unshift(col.manualCard);
+    const best=allCards.length?bestCard(allCards):null;
     const dispRar=best?getDisplayRarity(best):null;
-    const price=best?getCardPrice(best):null;
+    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getCardPrice(best):null);
     const isLoad=cards===undefined;
-    html+=`<div class="list-row${isCol?' collected':''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${isLoad?'Loading…':(best?best.name+' · '+best.set.name:'No cards found')}</span><span class="list-col-rar">${best?rarityBadge(dispRar):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check"><div class="chk${isCol?' done':''}">${isCol?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div></span></div>`;
+    html+=`<div class="list-row${isCol?' collected':''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${isLoad?'Loading…':(best?best.name+' · '+(best.set?.name||'Manual'):'No cards — tap to add')}</span><span class="list-col-rar">${best?rarityBadge(dispRar):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check"><div class="chk${isCol?' done':''}">${isCol?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div></span></div>`;
   }
   html+='</div>';
   area.innerHTML=html;
@@ -466,17 +467,16 @@ function openModal(dex){
   selCardId=col?.cardId||null;
   document.getElementById('m-dex').textContent=dexStr(dex);
   document.getElementById('m-name').textContent=name;
-  const cards=cardDB[dex];
+  const cards=cardDB[dex]||[];
   let body='';
-  if(!cards||!cards.length){
-    body=`<div style="color:var(--text3);font-size:0.85rem;margin-bottom:1rem">No premium cards found for ${name} in the Sun &amp; Moon, Sword &amp; Shield, or Scarlet &amp; Violet eras.</div>`;
-  }else{
+
+  if(cards.length){
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
     const groups=groupByEra(cards);
     const eraOrder=['Scarlet & Violet','Sword & Shield','Sun & Moon'];
-    body=`<span class="mlabel" style="margin-bottom:8px">Select card for your binder (${cards.length} total)</span>`;
+    body+=`<span class="mlabel" style="margin-bottom:7px">Select card (${cards.length} found)</span>`;
     for(const era of eraOrder){
-      if(!groups[era]||!groups[era].length)continue;
+      if(!groups[era]?.length)continue;
       const eraCards=groups[era].sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99));
       body+=`<div class="era-group"><div class="era-title">${era}</div>`;
       for(const card of eraCards){
@@ -484,12 +484,71 @@ function openModal(dex){
         const dispRar=getDisplayRarity(card);
         const sel=card.id===selCardId;
         const tcgUrl=card.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card.name)}`;
-        body+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')"><div class="opt-name">${card.name}</div><div class="opt-meta">${rarityBadge(dispRar)}<span>${card.set.name}</span><span>#${card.number}</span></div><div class="opt-price">TCGPlayer: ${fmtPrice(p)}<a href="${tcgUrl}" target="_blank" style="color:var(--text3);font-size:0.7rem;margin-left:8px;text-decoration:none" onclick="event.stopPropagation()">View ↗</a></div></div>`;
+        body+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')"><div class="opt-name">${card.name}</div><div class="opt-meta">${rarityBadge(dispRar)}<span>${card.set.name}</span><span>#${card.number}</span></div><div class="opt-price">TCGPlayer: ${fmtPrice(p)}<a href="${tcgUrl}" target="_blank" style="color:var(--text3);font-size:0.68rem;margin-left:7px;text-decoration:none" onclick="event.stopPropagation()">View ↗</a></div></div>`;
       }
       body+='</div>';
     }
+  }else{
+    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No cards found in the API for this Pokémon. Use the manual entry below to add your card.</div>`;
   }
-  body+=`<div style="margin-top:1rem;margin-bottom:0.5rem"><span class="mlabel">Notes</span></div><textarea class="notes-input" id="m-notes" placeholder="Condition, price paid, where bought, which version…">${col?.notes||''}</textarea><div class="modal-actions"><button class="btn-save" onclick="saveEntry()">Mark as Collected</button>${col?`<button class="btn-remove" onclick="removeEntry()">Remove</button>`:''}</div>`;
+
+  // Manual entry section
+  const mc=col?.manualCard;
+  const mprice=col?.manualPrice!=null?col.manualPrice:'';
+  body+=`
+  <div class="manual-section">
+    <div class="manual-section-title">✦ Manual Card Entry</div>
+    <div class="manual-grid">
+      <div class="full">
+        <label>Card Name</label>
+        <input type="text" id="m-card-name" placeholder="e.g. Butterfree VMAX" value="${mc?.name||''}"/>
+      </div>
+      <div>
+        <label>Set Name</label>
+        <input type="text" id="m-set-name" placeholder="e.g. Darkness Ablaze" value="${mc?.set?.name||''}"/>
+      </div>
+      <div>
+        <label>Card Number</label>
+        <input type="text" id="m-card-num" placeholder="e.g. 190/189" value="${mc?.number||''}"/>
+      </div>
+      <div>
+        <label>Rarity</label>
+        <select id="m-card-rar">
+          <option value="">Select…</option>
+          <option value="Special Illustration Rare"${mc?.rarity==='Special Illustration Rare'?' selected':''}>Special Illustration Rare</option>
+          <option value="Hyper Rare"${mc?.rarity==='Hyper Rare'?' selected':''}>Hyper Rare</option>
+          <option value="Rainbow Rare"${mc?.rarity==='Rainbow Rare'?' selected':''}>Rainbow Rare</option>
+          <option value="Secret Rare"${mc?.rarity==='Secret Rare'?' selected':''}>Secret Rare</option>
+          <option value="Full Art"${mc?.rarity==='Full Art'?' selected':''}>Full Art</option>
+          <option value="Illustration Rare"${mc?.rarity==='Illustration Rare'?' selected':''}>Illustration Rare</option>
+          <option value="Amazing Rare"${mc?.rarity==='Amazing Rare'?' selected':''}>Amazing Rare</option>
+        </select>
+      </div>
+      <div>
+        <label>Era</label>
+        <select id="m-card-era">
+          <option value="Scarlet & Violet"${mc?.set?.series==='Scarlet & Violet'?' selected':''}>Scarlet &amp; Violet</option>
+          <option value="Sword & Shield"${mc?.set?.series==='Sword & Shield'?' selected':''}>Sword &amp; Shield</option>
+          <option value="Sun & Moon"${mc?.set?.series==='Sun & Moon'?' selected':''}>Sun &amp; Moon</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:0.9rem">
+    <span class="mlabel">Notes</span>
+    <textarea class="notes-input" id="m-notes" placeholder="Condition, where bought, graded, etc.">${col?.notes||''}</textarea>
+    <div class="price-input-wrap">
+      <label>Manual price override (USD):</label>
+      <input type="number" id="m-price" placeholder="0.00" step="0.01" min="0" value="${mprice}" style="width:90px;text-align:right"/>
+    </div>
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn-save" onclick="saveEntry()">Mark as Collected</button>
+    ${col?`<button class="btn-remove" onclick="removeEntry()">Remove</button>`:''}
+  </div>`;
+
   document.getElementById('m-body').innerHTML=body;
   document.getElementById('backdrop').classList.add('open');
 }
@@ -502,8 +561,34 @@ function selCard(id){
 }
 
 function closeModal(){document.getElementById('backdrop').classList.remove('open');currentDex=null;selCardId=null;}
-function saveEntry(){if(!currentDex)return;const notes=document.getElementById('m-notes')?.value.trim()||'';collection[currentDex]={cardId:selCardId,notes};saveCollection();closeModal();render();}
-function removeEntry(){if(!currentDex)return;delete collection[currentDex];saveCollection();closeModal();render();}
+
+function saveEntry(){
+  if(!currentDex)return;
+  const notes=document.getElementById('m-notes')?.value.trim()||'';
+  const priceStr=document.getElementById('m-price')?.value.trim();
+  const manualPrice=priceStr&&!isNaN(parseFloat(priceStr))?parseFloat(priceStr):null;
+
+  // Build manual card if fields filled
+  const mcName=document.getElementById('m-card-name')?.value.trim();
+  const mcSet=document.getElementById('m-set-name')?.value.trim();
+  const mcNum=document.getElementById('m-card-num')?.value.trim();
+  const mcRar=document.getElementById('m-card-rar')?.value;
+  const mcEra=document.getElementById('m-card-era')?.value;
+  const manualCard=(mcName||mcSet)?{id:'manual-'+currentDex,name:mcName||'Manual Entry',number:mcNum||'—',rarity:mcRar||'Manual',set:{name:mcSet||'Unknown Set',series:mcEra||'Scarlet & Violet'}}:null;
+
+  collection[currentDex]={cardId:selCardId,notes,manualPrice,manualCard};
+  saveCollection();
+  closeModal();
+  render();
+}
+
+function removeEntry(){
+  if(!currentDex)return;
+  delete collection[currentDex];
+  saveCollection();
+  closeModal();
+  render();
+}
 
 function setF(mode,btn){
   filterMode=mode;
