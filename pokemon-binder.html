@@ -362,7 +362,7 @@ async function fetchPokemon(dex,name){
     // Also search without rarity filter — filter client side for reliability
     const escapedName=name.replace(/['"]/g,'');
     const rarQ=TARGET_RARITIES.map(r=>`rarity:"${r}"`).join(' OR ');
-    const q=encodeURIComponent(`name:"${escapedName}" (${rarQ})`);
+    const q=encodeURIComponent(`name:"${escapedName}" (${rarQ}) OR name:"${escapedName} V" (${rarQ}) OR name:"${escapedName} VMAX" (${rarQ}) OR name:"${escapedName} VSTAR" (${rarQ}) OR name:"${escapedName} ex" (${rarQ}) OR name:"${escapedName} GX" (${rarQ})`);
     const r=await fetch(`${API_BASE}?q=${q}&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=100`);
     if(!r.ok){cardDB[dex]=[];return;}
     const d=await r.json();
