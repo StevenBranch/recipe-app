@@ -293,7 +293,7 @@ function getTcgPlayerId(card){
 // Build eBay sold search URL for a card
 function ebayUrl(cardName,setName,number){
   const q=encodeURIComponent(`${cardName} ${setName} ${number} pokemon card`);
-  return `https://www.ebay.com/sold/i.html?_nkw=${q}&LH_Complete=1&LH_Sold=1`;
+  return `https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Complete=1&LH_Sold=1&_sacat=0`;
 }
 
 let cardDB={},collection={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
