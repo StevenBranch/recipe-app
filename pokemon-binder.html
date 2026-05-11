@@ -45,7 +45,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:13px;height:13px}
 input[type=search],input[type=text],input[type=number]{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:0.82rem;padding:0.45rem 0.7rem;outline:none}
 input[type=search]{width:100%;padding-left:2.1rem}
-input[type=search]:focus,input[type=text]:focus,input[type=number]:focus{border-color:var(--border2)}
+input:focus{border-color:var(--border2)}
 input::placeholder{color:var(--text3)}
 .filter-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:var(--body);font-size:0.78rem;padding:0.38rem 0.8rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
 .filter-btn:hover{border-color:var(--border2);color:var(--text)}
@@ -103,7 +103,7 @@ select option{background:var(--bg3);color:var(--text)}
 .chk svg{width:10px;height:10px;color:#fff}
 .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
 .backdrop.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.6rem;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;animation:mIn 0.2s ease both}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.6rem;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;animation:mIn 0.2s ease both}
 @keyframes mIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
 .modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.1rem;gap:1rem}
 .modal-dex{font-size:0.7rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em}
@@ -116,11 +116,19 @@ select option{background:var(--bg3);color:var(--text)}
 .card-opt{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.65rem 0.8rem;margin-bottom:4px;cursor:pointer;transition:all 0.15s}
 .card-opt:hover{border-color:var(--border2)}
 .card-opt.sel{border-color:var(--gold2);background:var(--gold-bg)}
-.opt-name{font-size:0.83rem;font-weight:500;margin-bottom:2px}
-.opt-meta{font-size:0.71rem;color:var(--text2);display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-.opt-price{font-size:0.76rem;color:var(--gold);margin-top:2px;display:flex;align-items:center;gap:7px}
+.opt-name{font-size:0.83rem;font-weight:500;margin-bottom:3px}
+.opt-meta{font-size:0.71rem;color:var(--text2);display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:5px}
+/* Price comparison row */
+.price-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
+.price-source{background:var(--bg4);border-radius:6px;padding:5px 8px;text-align:center}
+.price-source-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:2px}
+.price-source-val{font-size:0.82rem;font-weight:500;color:var(--gold)}
+.price-source-val.loading{color:var(--text3);font-size:0.7rem}
+.price-source-val.na{color:var(--text3)}
+.ebay-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(0,112,186,0.12);border:1px solid rgba(0,112,186,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;color:#60a5fa;text-decoration:none;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.ebay-btn:hover{background:rgba(0,112,186,0.2);border-color:rgba(0,112,186,0.5)}
 .manual-section{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.9rem}
-.manual-section-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.manual-section-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--teal);margin-bottom:8px}
 .manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
 .manual-grid .full{grid-column:1/-1}
 .manual-grid label{display:block;font-size:0.67rem;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em}
@@ -129,7 +137,6 @@ select option{background:var(--bg3);color:var(--text)}
 .notes-input:focus{border-color:var(--border2)}
 .price-input-wrap{display:flex;align-items:center;gap:6px;margin-top:6px}
 .price-input-wrap label{font-size:0.72rem;color:var(--text3);white-space:nowrap}
-.price-input-wrap input{width:100px;text-align:right}
 .modal-actions{display:flex;gap:7px;margin-top:1.1rem}
 .btn-save{flex:1;padding:0.62rem;background:var(--green);color:#fff;font-family:var(--body);font-weight:500;font-size:0.83rem;border:none;border-radius:var(--radius);cursor:pointer}
 .btn-save:hover{background:#5bbf8d}
@@ -138,6 +145,7 @@ select option{background:var(--bg3);color:var(--text)}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;gap:0.5rem;color:var(--text3);text-align:center}
 .empty-icon{font-size:2.5rem;margin-bottom:0.5rem}
 .spinner{display:inline-block;width:11px;height:11px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite}
+.spinner-sm{display:inline-block;width:8px;height:8px;border:1.5px solid var(--border2);border-top-color:var(--text3);border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
 ::-webkit-scrollbar{width:5px}
@@ -154,6 +162,7 @@ select option{background:var(--bg3);color:var(--text)}
   .controls,.legend{padding:0.45rem 1rem}
   .main{padding:0.9rem 0.75rem 4rem}
   .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+  .price-row{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -242,13 +251,16 @@ select option{background:var(--bg3);color:var(--text)}
   <div class="legend-item"><span class="badge b-fa">FA</span> Full Art</div>
   <div class="legend-item"><span class="badge b-ar">AR</span> Amazing Rare</div>
   <div class="legend-item"><span class="badge b-ir">IR</span> Illustration Rare</div>
-  <div class="legend-item"><span class="badge b-manual">M</span> Manual Entry</div>
+  <div class="legend-item"><span class="badge b-manual">M</span> Manual</div>
 </div>
 
 <main class="main" id="main"></main>
 
 <script>
 const API_BASE='https://api.pokemontcg.io/v2/cards';
+const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
+const PPT_KEY='pokeprice_free_67fa19c5abd37709267bc7c6b977f4068110fb09d4a6185f';
+
 const TARGET_RARITIES=['Special Illustration Rare','Hyper Rare','Rainbow Rare','Secret Rare','Full Art','Amazing Rare','Illustration Rare'];
 const VALID_SERIES=['Sun & Moon','Sword & Shield','Scarlet & Violet'];
 const RARITY_PRIORITY={'Special Illustration Rare':0,'Alternate Art':1,'Hyper Rare':2,'Rainbow Rare':3,'Secret Rare':4,'Full Art':5,'Amazing Rare':6,'Illustration Rare':7,'Manual':8};
@@ -271,7 +283,21 @@ function getDisplayRarity(card){
   return card.rarity;
 }
 
+// Extract TCGPlayer numeric ID from URL
+function getTcgPlayerId(card){
+  const url=card?.tcgplayer?.url||'';
+  const match=url.match(/\/(\d+)$/);
+  return match?match[1]:null;
+}
+
+// Build eBay sold search URL for a card
+function ebayUrl(cardName,setName,number){
+  const q=encodeURIComponent(`${cardName} ${setName} ${number} pokemon card`);
+  return `https://www.ebay.com/sold/i.html?_nkw=${q}&LH_Complete=1&LH_Sold=1`;
+}
+
 let cardDB={},collection={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
+const pptCache={}; // Cache PriceTracker results by tcgPlayerId
 
 function loadCollection(){try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v3')||'{}');}catch(e){collection={};}}
 function saveCollection(){localStorage.setItem('pokedex_binder_v3',JSON.stringify(collection));updateCollectionValue();}
@@ -296,12 +322,16 @@ function bestCard(cards){
   })[0];
 }
 
-function getCardPrice(card){
-  if(!card)return null;
-  if(card.manualPrice!=null)return parseFloat(card.manualPrice);
+function getTcgPrice(card){
   if(!card?.tcgplayer?.prices)return null;
   const p=card.tcgplayer.prices;
   return p.holofoil?.market??p.reverseHolofoil?.market??p.normal?.market??p['1stEditionHolofoil']?.market??null;
+}
+
+function getCardPrice(card){
+  if(!card)return null;
+  if(card.manualPrice!=null)return parseFloat(card.manualPrice);
+  return getTcgPrice(card);
 }
 
 function fmtPrice(p){return p!=null?'$'+parseFloat(p).toFixed(2):'—';}
@@ -309,12 +339,11 @@ function fmtPrice(p){return p!=null?'$'+parseFloat(p).toFixed(2):'—';}
 function updateCollectionValue(){
   let total=0;
   for(const[dex,col]of Object.entries(collection)){
-    const price=col.manualPrice!=null?parseFloat(col.manualPrice):null;
-    if(price!=null&&!isNaN(price)){total+=price;continue;}
+    if(col.manualPrice!=null&&!isNaN(parseFloat(col.manualPrice))){total+=parseFloat(col.manualPrice);continue;}
     const cards=cardDB[parseInt(dex)]||[];
     const selCard=col.cardId?cards.find(c=>c.id===col.cardId):null;
     const card=selCard||bestCard(cards);
-    const p=card?getCardPrice(card):null;
+    const p=card?getTcgPrice(card):null;
     if(p!=null)total+=p;
   }
   document.getElementById('coll-val').textContent='$'+total.toFixed(2);
@@ -322,19 +351,29 @@ function updateCollectionValue(){
 
 function groupByEra(cards){
   const groups={};
-  for(const card of cards){
-    const era=card.set?.series||'Other';
-    if(!groups[era])groups[era]=[];
-    groups[era].push(card);
-  }
+  for(const card of cards){const era=card.set?.series||'Other';if(!groups[era])groups[era]=[];groups[era].push(card);}
   return groups;
 }
 
-// NEW: wildcard search catches VMAX, GX, ex, VSTAR etc.
+// Fetch PriceTracker data on demand (uses credits)
+async function fetchPptPrice(tcgPlayerId){
+  if(!tcgPlayerId)return null;
+  if(pptCache[tcgPlayerId]!==undefined)return pptCache[tcgPlayerId];
+  try{
+    const r=await fetch(`${PPT_BASE}?tcgPlayerId=${tcgPlayerId}`,{headers:{'Authorization':`Bearer ${PPT_KEY}`}});
+    if(!r.ok){pptCache[tcgPlayerId]=null;return null;}
+    const d=await r.json();
+    const card=d?.data?.[0];
+    const price=card?.prices?.market||card?.prices?.mid||null;
+    pptCache[tcgPlayerId]=price?parseFloat(price):null;
+    return pptCache[tcgPlayerId];
+  }catch(e){pptCache[tcgPlayerId]=null;return null;}
+}
+
 async function loadAllCards(){
   setStatus('loading','Loading card data…');
-  const cached=localStorage.getItem('pokedex_card_cache_v7');
-  const age=localStorage.getItem('pokedex_card_cache_age_v7');
+  const cached=localStorage.getItem('pokedex_card_cache_v8');
+  const age=localStorage.getItem('pokedex_card_cache_age_v8');
   if(cached&&age&&(Date.now()-parseInt(age))<86400000){
     try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateCollectionValue();render();return;}catch(e){}
   }
@@ -348,20 +387,15 @@ async function loadAllCards(){
     render();
     await new Promise(r=>setTimeout(r,DELAY));
   }
-  try{
-    localStorage.setItem('pokedex_card_cache_v7',JSON.stringify(cardDB));
-    localStorage.setItem('pokedex_card_cache_age_v7',String(Date.now()));
-  }catch(e){}
+  try{localStorage.setItem('pokedex_card_cache_v8',JSON.stringify(cardDB));localStorage.setItem('pokedex_card_cache_age_v8',String(Date.now()));}catch(e){}
   setStatus('done','All cards loaded ✓');
-  updateCollectionValue();
-  render();
+  updateCollectionValue();render();
 }
 
 async function fetchPokemon(dex,name){
   try{
     const safeName=name.replace(/[♀♂]/g,'').replace(/'/g,'').trim();
     const rarQ=TARGET_RARITIES.map(r=>`rarity:"${r}"`).join(' OR ');
-    // Wildcard search: name:Butterfree* finds Butterfree, Butterfree VMAX, Butterfree V etc.
     const q=encodeURIComponent(`name:"${safeName}*" (${rarQ})`);
     const r=await fetch(`${API_BASE}?q=${q}&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=100`);
     if(!r.ok){cardDB[dex]=[];return;}
@@ -372,10 +406,7 @@ async function fetchPokemon(dex,name){
   }catch(e){cardDB[dex]=[];}
 }
 
-function setStatus(state,txt){
-  document.getElementById('api-txt').textContent=txt;
-  document.getElementById('api-dot').className='dot '+state;
-}
+function setStatus(state,txt){document.getElementById('api-txt').textContent=txt;document.getElementById('api-dot').className='dot '+state;}
 
 function updateProgress(){
   const n=Object.keys(collection).length,t=ALL_POKEMON.length;
@@ -423,19 +454,15 @@ function renderGrid(items,area){
     const isCol=!!collection[dex];
     const col=collection[dex];
     const allCards=[...(cards||[])];
-    if(col?.manualCard){allCards.unshift(col.manualCard);}
+    if(col?.manualCard)allCards.unshift(col.manualCard);
     const best=allCards.length?bestCard(allCards):null;
     const dispRar=best?getDisplayRarity(best):null;
-    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getCardPrice(best):null);
+    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getTcgPrice(best):null);
     const isLoad=cards===undefined;
     let inner='';
-    if(isLoad){
-      inner=`<div class="card-count"><span class="spinner"></span></div>`;
-    }else if(!allCards.length){
-      inner=`<div class="no-cards">No cards found — tap to add manually</div>`;
-    }else{
-      inner=`<div class="card-count"><span>${allCards.length}</span> card${allCards.length!==1?'s':''} available</div>${best?rarityBadge(dispRar):''}<div class="card-best" style="margin-top:4px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?(best.set?.name||'Manual')+' · #'+(best.number||'—'):''}</div><div class="card-price" style="margin-top:3px">TCG: <span>${fmtPrice(price)}</span></div>`;
-    }
+    if(isLoad){inner=`<div class="card-count"><span class="spinner"></span></div>`;}
+    else if(!allCards.length){inner=`<div class="no-cards">No cards found — tap to add manually</div>`;}
+    else{inner=`<div class="card-count"><span>${allCards.length}</span> card${allCards.length!==1?'s':''} available</div>${best?rarityBadge(dispRar):''}<div class="card-best" style="margin-top:4px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?(best.set?.name||'Manual')+' · #'+(best.number||'—'):''}</div><div class="card-price" style="margin-top:3px">TCG: <span>${fmtPrice(price)}</span></div>`;}
     html+=`<div class="poke-card${isCol?' collected':''}" onclick="openModal(${dex})">${isCol?`<div class="coll-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`:''}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
   }
   html+='</div>';
@@ -443,7 +470,7 @@ function renderGrid(items,area){
 }
 
 function renderListView(items,area){
-  let html=`<div class="list-hdr"><span>#</span><span>Pokémon</span><span>Best Card</span><span class="list-col-rar">Rarity</span><span style="text-align:right">Price</span><span style="text-align:center">Have</span></div><div class="list">`;
+  let html=`<div class="list-hdr"><span>#</span><span>Pokémon</span><span>Best Card</span><span class="list-col-rar">Rarity</span><span style="text-align:right">TCGPlayer</span><span style="text-align:center">Have</span></div><div class="list">`;
   for(const[dex,name]of items){
     const cards=cardDB[dex];
     const isCol=!!collection[dex];
@@ -452,7 +479,7 @@ function renderListView(items,area){
     if(col?.manualCard)allCards.unshift(col.manualCard);
     const best=allCards.length?bestCard(allCards):null;
     const dispRar=best?getDisplayRarity(best):null;
-    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getCardPrice(best):null);
+    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getTcgPrice(best):null);
     const isLoad=cards===undefined;
     html+=`<div class="list-row${isCol?' collected':''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${isLoad?'Loading…':(best?best.name+' · '+(best.set?.name||'Manual'):'No cards — tap to add')}</span><span class="list-col-rar">${best?rarityBadge(dispRar):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check"><div class="chk${isCol?' done':''}">${isCol?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div></span></div>`;
   }
@@ -460,7 +487,7 @@ function renderListView(items,area){
   area.innerHTML=html;
 }
 
-function openModal(dex){
+async function openModal(dex){
   currentDex=dex;
   const name=ALL_POKEMON.find(p=>p[0]===dex)?.[1]||'';
   const col=collection[dex];
@@ -480,39 +507,50 @@ function openModal(dex){
       const eraCards=groups[era].sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99));
       body+=`<div class="era-group"><div class="era-title">${era}</div>`;
       for(const card of eraCards){
-        const p=getCardPrice(card);
+        const tcgPrice=getTcgPrice(card);
         const dispRar=getDisplayRarity(card);
         const sel=card.id===selCardId;
-        const tcgUrl=card.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card.name)}`;
-        body+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')"><div class="opt-name">${card.name}</div><div class="opt-meta">${rarityBadge(dispRar)}<span>${card.set.name}</span><span>#${card.number}</span></div><div class="opt-price">TCGPlayer: ${fmtPrice(p)}<a href="${tcgUrl}" target="_blank" style="color:var(--text3);font-size:0.68rem;margin-left:7px;text-decoration:none" onclick="event.stopPropagation()">View ↗</a></div></div>`;
+        const tcgId=getTcgPlayerId(card);
+        const ebUrl=ebayUrl(card.name,card.set.name,card.number);
+        body+=`
+        <div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
+          <div class="opt-name">${card.name}</div>
+          <div class="opt-meta">${rarityBadge(dispRar)}<span>${card.set.name}</span><span>#${card.number}</span></div>
+          <div class="price-row">
+            <div class="price-source">
+              <div class="price-source-label">TCGPlayer</div>
+              <div class="price-source-val">${fmtPrice(tcgPrice)}</div>
+            </div>
+            <div class="price-source" id="ppt-${card.id}">
+              <div class="price-source-label">PriceTracker</div>
+              <div class="price-source-val loading"><span class="spinner-sm"></span></div>
+            </div>
+            <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div class="price-source-label">eBay Sold</div>
+              <a class="ebay-btn" href="${ebUrl}" target="_blank" onclick="event.stopPropagation()">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                View sold
+              </a>
+            </div>
+          </div>
+        </div>`;
       }
       body+='</div>';
     }
   }else{
-    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No cards found in the API for this Pokémon. Use the manual entry below to add your card.</div>`;
+    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No cards found in the API. Use manual entry below.</div>`;
   }
 
-  // Manual entry section
   const mc=col?.manualCard;
   const mprice=col?.manualPrice!=null?col.manualPrice:'';
   body+=`
   <div class="manual-section">
     <div class="manual-section-title">✦ Manual Card Entry</div>
     <div class="manual-grid">
-      <div class="full">
-        <label>Card Name</label>
-        <input type="text" id="m-card-name" placeholder="e.g. Butterfree VMAX" value="${mc?.name||''}"/>
-      </div>
-      <div>
-        <label>Set Name</label>
-        <input type="text" id="m-set-name" placeholder="e.g. Darkness Ablaze" value="${mc?.set?.name||''}"/>
-      </div>
-      <div>
-        <label>Card Number</label>
-        <input type="text" id="m-card-num" placeholder="e.g. 190/189" value="${mc?.number||''}"/>
-      </div>
-      <div>
-        <label>Rarity</label>
+      <div class="full"><label>Card Name</label><input type="text" id="m-card-name" placeholder="e.g. Butterfree VMAX" value="${mc?.name||''}"/></div>
+      <div><label>Set Name</label><input type="text" id="m-set-name" placeholder="e.g. Darkness Ablaze" value="${mc?.set?.name||''}"/></div>
+      <div><label>Card Number</label><input type="text" id="m-card-num" placeholder="e.g. 190/189" value="${mc?.number||''}"/></div>
+      <div><label>Rarity</label>
         <select id="m-card-rar">
           <option value="">Select…</option>
           <option value="Special Illustration Rare"${mc?.rarity==='Special Illustration Rare'?' selected':''}>Special Illustration Rare</option>
@@ -524,8 +562,7 @@ function openModal(dex){
           <option value="Amazing Rare"${mc?.rarity==='Amazing Rare'?' selected':''}>Amazing Rare</option>
         </select>
       </div>
-      <div>
-        <label>Era</label>
+      <div><label>Era</label>
         <select id="m-card-era">
           <option value="Scarlet & Violet"${mc?.set?.series==='Scarlet & Violet'?' selected':''}>Scarlet &amp; Violet</option>
           <option value="Sword & Shield"${mc?.set?.series==='Sword & Shield'?' selected':''}>Sword &amp; Shield</option>
@@ -534,7 +571,6 @@ function openModal(dex){
       </div>
     </div>
   </div>
-
   <div style="margin-bottom:0.9rem">
     <span class="mlabel">Notes</span>
     <textarea class="notes-input" id="m-notes" placeholder="Condition, where bought, graded, etc.">${col?.notes||''}</textarea>
@@ -543,7 +579,6 @@ function openModal(dex){
       <input type="number" id="m-price" placeholder="0.00" step="0.01" min="0" value="${mprice}" style="width:90px;text-align:right"/>
     </div>
   </div>
-
   <div class="modal-actions">
     <button class="btn-save" onclick="saveEntry()">Mark as Collected</button>
     ${col?`<button class="btn-remove" onclick="removeEntry()">Remove</button>`:''}
@@ -551,6 +586,23 @@ function openModal(dex){
 
   document.getElementById('m-body').innerHTML=body;
   document.getElementById('backdrop').classList.add('open');
+
+  // Fetch PriceTracker prices async for each card shown
+  for(const card of cards){
+    const tcgId=getTcgPlayerId(card);
+    if(tcgId){
+      fetchPptPrice(tcgId).then(price=>{
+        const el=document.getElementById(`ppt-${card.id}`);
+        if(el){
+          el.querySelector('.price-source-val').className=`price-source-val${price?'':' na'}`;
+          el.querySelector('.price-source-val').textContent=fmtPrice(price);
+        }
+      });
+    }else{
+      const el=document.getElementById(`ppt-${card.id}`);
+      if(el)el.querySelector('.price-source-val').className='price-source-val na',el.querySelector('.price-source-val').textContent='—';
+    }
+  }
 }
 
 function selCard(id){
@@ -567,27 +619,20 @@ function saveEntry(){
   const notes=document.getElementById('m-notes')?.value.trim()||'';
   const priceStr=document.getElementById('m-price')?.value.trim();
   const manualPrice=priceStr&&!isNaN(parseFloat(priceStr))?parseFloat(priceStr):null;
-
-  // Build manual card if fields filled
   const mcName=document.getElementById('m-card-name')?.value.trim();
   const mcSet=document.getElementById('m-set-name')?.value.trim();
   const mcNum=document.getElementById('m-card-num')?.value.trim();
   const mcRar=document.getElementById('m-card-rar')?.value;
   const mcEra=document.getElementById('m-card-era')?.value;
   const manualCard=(mcName||mcSet)?{id:'manual-'+currentDex,name:mcName||'Manual Entry',number:mcNum||'—',rarity:mcRar||'Manual',set:{name:mcSet||'Unknown Set',series:mcEra||'Scarlet & Violet'}}:null;
-
   collection[currentDex]={cardId:selCardId,notes,manualPrice,manualCard};
-  saveCollection();
-  closeModal();
-  render();
+  saveCollection();closeModal();render();
 }
 
 function removeEntry(){
   if(!currentDex)return;
   delete collection[currentDex];
-  saveCollection();
-  closeModal();
-  render();
+  saveCollection();closeModal();render();
 }
 
 function setF(mode,btn){
@@ -608,9 +653,7 @@ function setView(v){
 
 document.getElementById('backdrop').addEventListener('click',e=>{if(e.target===document.getElementById('backdrop'))closeModal();});
 
-loadCollection();
-render();
-loadAllCards();
+loadCollection();render();loadAllCards();
 </script>
 </body>
 </html>
