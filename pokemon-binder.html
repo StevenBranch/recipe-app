@@ -20,6 +20,7 @@
   --orange:#fb923c;--orange-bg:rgba(251,146,60,0.1);
   --teal:#2dd4bf;--teal-bg:rgba(45,212,191,0.1);
   --red:#f87171;--red-bg:rgba(248,113,113,0.1);
+  --yellow:#fbbf24;--yellow-bg:rgba(251,191,36,0.1);
   --display:'Bebas Neue',sans-serif;
   --body:'DM Sans',system-ui,sans-serif;
   --radius:10px;--radius-lg:16px;
@@ -33,8 +34,11 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .progress-bar{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:20px;transition:width 0.4s ease}
 .progress-label{font-size:0.75rem;color:var(--text2)}
 .progress-label strong{color:var(--gold);font-weight:500}
-.collection-value{background:var(--green-bg);border:1px solid rgba(76,175,125,0.3);border-radius:var(--radius);padding:4px 10px;font-size:0.75rem;color:var(--green);white-space:nowrap}
-.collection-value strong{font-weight:500}
+.header-stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat-pill{border-radius:var(--radius);padding:4px 10px;font-size:0.75rem;white-space:nowrap}
+.stat-pill.green{background:var(--green-bg);border:1px solid rgba(76,175,125,0.3);color:var(--green)}
+.stat-pill.yellow{background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.3);color:var(--yellow)}
+.stat-pill strong{font-weight:500}
 .api-status{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text3);white-space:nowrap}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
 .dot.loading{background:var(--gold);animation:pulse 1s infinite}
@@ -52,6 +56,7 @@ input::placeholder{color:var(--text3)}
 .filter-btn.on{background:var(--gold-bg);border-color:var(--gold2);color:var(--gold)}
 .filter-btn.on-green{background:var(--green-bg);border-color:var(--green);color:var(--green)}
 .filter-btn.on-blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.filter-btn.on-yellow{background:var(--yellow-bg);border-color:var(--yellow);color:var(--yellow)}
 select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:var(--body);font-size:0.78rem;padding:0.38rem 0.7rem;outline:none;cursor:pointer;-webkit-appearance:none}
 select option{background:var(--bg3);color:var(--text)}
 .view-toggle{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:2px;margin-left:auto}
@@ -73,10 +78,44 @@ select option{background:var(--bg3);color:var(--text)}
 .b-unk{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:0.7rem;color:var(--text3)}
 .main{padding:1.1rem 1.5rem 3rem}
+
+/* WANT LIST SPECIFIC */
+.want-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.want-title{font-family:var(--display);font-size:1.4rem;letter-spacing:0.06em;color:var(--yellow)}
+.want-total{font-size:0.82rem;color:var(--text2)}
+.want-total strong{color:var(--yellow);font-weight:500}
+.want-sort{display:flex;gap:5px;align-items:center}
+.want-sort label{font-size:0.72rem;color:var(--text3)}
+.want-list{display:flex;flex-direction:column;gap:6px}
+.want-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem 1rem;display:grid;grid-template-columns:46px 160px 1fr auto;align-items:center;gap:12px;transition:all 0.15s}
+.want-item:hover{border-color:var(--border2)}
+.want-item.no-price{border-color:rgba(251,191,36,0.2)}
+.want-dex{font-family:var(--display);font-size:0.82rem;color:var(--text3);letter-spacing:0.06em}
+.want-name{font-family:var(--display);font-size:1rem;letter-spacing:0.04em}
+.want-card-info{display:flex;flex-direction:column;gap:2px}
+.want-card-name{font-size:0.82rem;font-weight:500;color:var(--text)}
+.want-card-meta{font-size:0.72rem;color:var(--text3)}
+.want-actions{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.want-price{font-size:1rem;font-weight:500;color:var(--yellow);text-align:right}
+.want-price.no-price{color:var(--text3);font-size:0.78rem}
+.want-btns{display:flex;gap:5px}
+.buy-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(76,175,125,0.12);border:1px solid rgba(76,175,125,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;color:var(--green);text-decoration:none;white-space:nowrap;transition:all 0.15s}
+.buy-btn:hover{background:rgba(76,175,125,0.22)}
+.ebay-btn{display:inline-flex;align-items:center;gap:4px;background:var(--blue-bg);border:1px solid rgba(96,165,250,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;color:var(--blue);text-decoration:none;white-space:nowrap;cursor:pointer;transition:all 0.15s}
+.ebay-btn:hover{background:rgba(96,165,250,0.18)}
+.remove-want-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:0.68rem;color:var(--text3);cursor:pointer;transition:all 0.15s}
+.remove-want-btn:hover{border-color:var(--red);color:var(--red)}
+@media(max-width:600px){
+  .want-item{grid-template-columns:38px 1fr auto;gap:8px}
+  .want-dex{display:none}
+}
+
+/* GRID */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:8px}
 .poke-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden}
 .poke-card:hover{border-color:var(--border2);transform:translateY(-1px)}
 .poke-card.collected{border-color:rgba(76,175,125,0.4);background:linear-gradient(135deg,var(--bg2),rgba(76,175,125,0.04))}
+.poke-card.wanted{border-color:rgba(251,191,36,0.4);background:linear-gradient(135deg,var(--bg2),rgba(251,191,36,0.04))}
 .card-dex{font-size:0.67rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em;margin-bottom:2px}
 .card-name{font-family:var(--display);font-size:1.05rem;letter-spacing:0.04em;color:var(--text);margin-bottom:4px;line-height:1.1}
 .card-count{font-size:0.7rem;color:var(--text3);margin-bottom:5px}
@@ -84,15 +123,21 @@ select option{background:var(--bg3);color:var(--text)}
 .card-best{font-size:0.73rem;color:var(--text2);line-height:1.4}
 .card-price{font-size:0.75rem;color:var(--text2);margin-top:3px}
 .card-price span{color:var(--gold);font-weight:500}
-.coll-badge{position:absolute;top:7px;right:7px;background:var(--green);border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center}
-.coll-badge svg{width:9px;height:9px;color:#fff}
+.status-badge{position:absolute;top:7px;right:7px;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center}
+.status-badge.collected{background:var(--green)}
+.status-badge.wanted{background:var(--yellow)}
+.status-badge svg{width:9px;height:9px;color:#fff}
+.status-badge span{font-size:9px;line-height:1}
 .no-cards{font-size:0.73rem;color:var(--text3);font-style:italic}
 .gen-hdr{grid-column:1/-1;font-family:var(--display);font-size:0.92rem;letter-spacing:0.12em;color:var(--text3);padding:0.35rem 0 0.15rem;border-bottom:1px solid var(--border);margin-top:6px;margin-bottom:1px}
+
+/* LIST */
 .list{display:flex;flex-direction:column;gap:3px}
 .list-hdr{display:grid;grid-template-columns:46px 145px 1fr 130px 100px 65px;gap:9px;padding:0.3rem 1rem;font-size:0.67rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:2px}
 .list-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.55rem 1rem;display:grid;grid-template-columns:46px 145px 1fr 130px 100px 65px;align-items:center;gap:9px;cursor:pointer;transition:all 0.15s;font-size:0.8rem}
 .list-row:hover{border-color:var(--border2)}
 .list-row.collected{border-color:rgba(76,175,125,0.35)}
+.list-row.wanted{border-color:rgba(251,191,36,0.35)}
 .list-dex{font-family:var(--display);font-size:0.8rem;color:var(--text3);letter-spacing:0.06em}
 .list-name{font-weight:500}
 .list-card{color:var(--text2);font-size:0.73rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -100,7 +145,11 @@ select option{background:var(--bg3);color:var(--text)}
 .list-check{display:flex;justify-content:center}
 .chk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center}
 .chk.done{background:var(--green);border-color:var(--green)}
+.chk.want{background:var(--yellow);border-color:var(--yellow)}
 .chk svg{width:10px;height:10px;color:#fff}
+.chk span{font-size:9px;line-height:1}
+
+/* MODAL */
 .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
 .backdrop.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.6rem;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;animation:mIn 0.2s ease both}
@@ -111,6 +160,10 @@ select option{background:var(--bg3);color:var(--text)}
 .modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.3rem;line-height:1;padding:4px;flex-shrink:0}
 .modal-close:hover{color:var(--text)}
 .mlabel{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:4px;display:block}
+.modal-action-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.btn-want{flex:1;padding:0.6rem;background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(251,191,36,0.3);font-family:var(--body);font-weight:500;font-size:0.82rem;border-radius:var(--radius);cursor:pointer;min-width:120px}
+.btn-want:hover{background:rgba(251,191,36,0.18)}
+.btn-want.active{background:rgba(251,191,36,0.25);border-color:var(--yellow)}
 .era-group{margin-bottom:0.9rem}
 .era-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);padding:3px 0;border-bottom:1px solid var(--border);margin-bottom:5px}
 .card-opt{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.65rem 0.8rem;margin-bottom:4px;cursor:pointer;transition:all 0.15s}
@@ -118,15 +171,12 @@ select option{background:var(--bg3);color:var(--text)}
 .card-opt.sel{border-color:var(--gold2);background:var(--gold-bg)}
 .opt-name{font-size:0.83rem;font-weight:500;margin-bottom:3px}
 .opt-meta{font-size:0.71rem;color:var(--text2);display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:5px}
-/* Price comparison row */
 .price-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
 .price-source{background:var(--bg4);border-radius:6px;padding:5px 8px;text-align:center}
 .price-source-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:2px}
 .price-source-val{font-size:0.82rem;font-weight:500;color:var(--gold)}
 .price-source-val.loading{color:var(--text3);font-size:0.7rem}
 .price-source-val.na{color:var(--text3)}
-.ebay-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(0,112,186,0.12);border:1px solid rgba(0,112,186,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;color:#60a5fa;text-decoration:none;cursor:pointer;transition:all 0.15s;white-space:nowrap}
-.ebay-btn:hover{background:rgba(0,112,186,0.2);border-color:rgba(0,112,186,0.5)}
 .manual-section{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.9rem}
 .manual-section-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--teal);margin-bottom:8px}
 .manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
@@ -187,7 +237,10 @@ select option{background:var(--bg3);color:var(--text)}
     <div class="progress-bar-bg"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
     <div class="progress-label"><strong id="prog-n">0</strong><span id="prog-t"> / 1025 collected</span></div>
   </div>
-  <div class="collection-value">Collection: <strong id="coll-val">$0.00</strong></div>
+  <div class="header-stats">
+    <div class="stat-pill green">Collection: <strong id="coll-val">$0.00</strong></div>
+    <div class="stat-pill yellow">Want List: <strong id="want-val">$0.00</strong> (<span id="want-count">0</span>)</div>
+  </div>
   <div class="api-status">
     <div class="dot loading" id="api-dot"></div>
     <span id="api-txt">Loading…</span>
@@ -201,6 +254,7 @@ select option{background:var(--bg3);color:var(--text)}
   </div>
   <button class="filter-btn on" id="fb-all" onclick="setF('all',this)">All</button>
   <button class="filter-btn" id="fb-col" onclick="setF('col',this)">Collected</button>
+  <button class="filter-btn" id="fb-want" onclick="setF('want',this)">⭐ Want List</button>
   <button class="filter-btn" id="fb-mis" onclick="setF('mis',this)">Missing</button>
   <select id="f-era" onchange="render()">
     <option value="">All Eras</option>
@@ -282,25 +336,29 @@ function getDisplayRarity(card){
   if(isAlternateArt(card))return 'Alternate Art';
   return card.rarity;
 }
-
-// Extract TCGPlayer numeric ID from URL
 function getTcgPlayerId(card){
   const url=card?.tcgplayer?.url||'';
   const match=url.match(/\/(\d+)$/);
   return match?match[1]:null;
 }
-
-// Build eBay sold search URL for a card
-function ebayUrl(cardName,setName,number){
+function tcgPlayerUrl(card){
+  if(card?.tcgplayer?.url)return card.tcgplayer.url;
+  return `https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;
+}
+function ebaySearchUrl(cardName,setName,number){
   const q=encodeURIComponent(`${cardName} ${setName} ${number} pokemon card`);
   return `https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Complete=1&LH_Sold=1&_sacat=0`;
 }
 
-let cardDB={},collection={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
-const pptCache={}; // Cache PriceTracker results by tcgPlayerId
+let cardDB={},collection={},wantList={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
+const pptCache={};
 
-function loadCollection(){try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v3')||'{}');}catch(e){collection={};}}
-function saveCollection(){localStorage.setItem('pokedex_binder_v3',JSON.stringify(collection));updateCollectionValue();}
+function loadData(){
+  try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v3')||'{}');}catch(e){collection={};}
+  try{wantList=JSON.parse(localStorage.getItem('pokedex_want_v1')||'{}');}catch(e){wantList={};}
+}
+function saveCollection(){localStorage.setItem('pokedex_binder_v3',JSON.stringify(collection));updateStats();}
+function saveWantList(){localStorage.setItem('pokedex_want_v1',JSON.stringify(wantList));updateStats();}
 function dexStr(n){return '#'+String(n).padStart(4,'0');}
 function getGen(dex){for(let i=0;i<GEN_RANGES.length;i++)if(dex>=GEN_RANGES[i][0]&&dex<=GEN_RANGES[i][1])return i+1;return 9;}
 
@@ -309,7 +367,6 @@ function rarityBadge(r){
   const[cls,lbl]=map[r]||['b-unk',r||'?'];
   return `<span class="badge ${cls}">${lbl}</span>`;
 }
-
 function bestCard(cards){
   if(!cards||!cards.length)return null;
   return[...cards].sort((a,b)=>{
@@ -321,32 +378,48 @@ function bestCard(cards){
     return eb-ea;
   })[0];
 }
-
 function getTcgPrice(card){
   if(!card?.tcgplayer?.prices)return null;
   const p=card.tcgplayer.prices;
   return p.holofoil?.market??p.reverseHolofoil?.market??p.normal?.market??p['1stEditionHolofoil']?.market??null;
 }
-
-function getCardPrice(card){
+function getCardPrice(card,col){
   if(!card)return null;
-  if(card.manualPrice!=null)return parseFloat(card.manualPrice);
+  if(col?.manualPrice!=null)return parseFloat(col.manualPrice);
   return getTcgPrice(card);
 }
-
 function fmtPrice(p){return p!=null?'$'+parseFloat(p).toFixed(2):'—';}
 
-function updateCollectionValue(){
-  let total=0;
+function updateStats(){
+  // Collection value
+  let collTotal=0;
   for(const[dex,col]of Object.entries(collection)){
-    if(col.manualPrice!=null&&!isNaN(parseFloat(col.manualPrice))){total+=parseFloat(col.manualPrice);continue;}
+    if(col.manualPrice!=null&&!isNaN(parseFloat(col.manualPrice))){collTotal+=parseFloat(col.manualPrice);continue;}
     const cards=cardDB[parseInt(dex)]||[];
     const selCard=col.cardId?cards.find(c=>c.id===col.cardId):null;
     const card=selCard||bestCard(cards);
     const p=card?getTcgPrice(card):null;
-    if(p!=null)total+=p;
+    if(p!=null)collTotal+=p;
   }
-  document.getElementById('coll-val').textContent='$'+total.toFixed(2);
+  document.getElementById('coll-val').textContent='$'+collTotal.toFixed(2);
+
+  // Want list value
+  let wantTotal=0,wantN=Object.keys(wantList).length;
+  for(const[dex,w]of Object.entries(wantList)){
+    const cards=cardDB[parseInt(dex)]||[];
+    const selCard=w.cardId?cards.find(c=>c.id===w.cardId):null;
+    const card=selCard||bestCard(cards);
+    const p=card?getTcgPrice(card):null;
+    if(p!=null)wantTotal+=p;
+  }
+  document.getElementById('want-val').textContent='$'+wantTotal.toFixed(2);
+  document.getElementById('want-count').textContent=wantN;
+
+  // Progress
+  const n=Object.keys(collection).length,t=ALL_POKEMON.length;
+  document.getElementById('prog-bar').style.width=(n/t*100).toFixed(1)+'%';
+  document.getElementById('prog-n').textContent=n;
+  document.getElementById('prog-t').textContent=' / '+t+' collected';
 }
 
 function groupByEra(cards){
@@ -355,7 +428,6 @@ function groupByEra(cards){
   return groups;
 }
 
-// Fetch PriceTracker data on demand (uses credits)
 async function fetchPptPrice(tcgPlayerId){
   if(!tcgPlayerId)return null;
   if(pptCache[tcgPlayerId]!==undefined)return pptCache[tcgPlayerId];
@@ -372,10 +444,10 @@ async function fetchPptPrice(tcgPlayerId){
 
 async function loadAllCards(){
   setStatus('loading','Loading card data…');
-  const cached=localStorage.getItem('pokedex_card_cache_v8');
-  const age=localStorage.getItem('pokedex_card_cache_age_v8');
+  const cached=localStorage.getItem('pokedex_card_cache_v9');
+  const age=localStorage.getItem('pokedex_card_cache_age_v9');
   if(cached&&age&&(Date.now()-parseInt(age))<86400000){
-    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateCollectionValue();render();return;}catch(e){}
+    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render();return;}catch(e){}
   }
   const BATCH=5,DELAY=450;
   const batches=[];
@@ -387,9 +459,9 @@ async function loadAllCards(){
     render();
     await new Promise(r=>setTimeout(r,DELAY));
   }
-  try{localStorage.setItem('pokedex_card_cache_v8',JSON.stringify(cardDB));localStorage.setItem('pokedex_card_cache_age_v8',String(Date.now()));}catch(e){}
+  try{localStorage.setItem('pokedex_card_cache_v9',JSON.stringify(cardDB));localStorage.setItem('pokedex_card_cache_age_v9',String(Date.now()));}catch(e){}
   setStatus('done','All cards loaded ✓');
-  updateCollectionValue();render();
+  updateStats();render();
 }
 
 async function fetchPokemon(dex,name){
@@ -408,13 +480,6 @@ async function fetchPokemon(dex,name){
 
 function setStatus(state,txt){document.getElementById('api-txt').textContent=txt;document.getElementById('api-dot').className='dot '+state;}
 
-function updateProgress(){
-  const n=Object.keys(collection).length,t=ALL_POKEMON.length;
-  document.getElementById('prog-bar').style.width=(n/t*100).toFixed(1)+'%';
-  document.getElementById('prog-n').textContent=n;
-  document.getElementById('prog-t').textContent=' / '+t+' collected';
-}
-
 function getFiltered(){
   const q=document.getElementById('search').value.toLowerCase().trim();
   const fE=document.getElementById('f-era').value;
@@ -423,8 +488,10 @@ function getFiltered(){
   return ALL_POKEMON.filter(([dex,name])=>{
     if(q&&!name.toLowerCase().includes(q)&&!String(dex).includes(q))return false;
     const isCol=!!collection[dex];
+    const isWant=!!wantList[dex];
     if(filterMode==='col'&&!isCol)return false;
-    if(filterMode==='mis'&&isCol)return false;
+    if(filterMode==='want'&&!isWant)return false;
+    if(filterMode==='mis'&&(isCol||isWant))return false;
     if(fG&&getGen(dex)!==fG)return false;
     const cards=cardDB[dex]||[];
     if(fE&&!cards.some(c=>c.set?.series===fE))return false;
@@ -437,11 +504,92 @@ function getFiltered(){
 }
 
 function render(){
-  updateProgress();
+  updateStats();
+  // Want list view is special
+  if(filterMode==='want'){renderWantList();return;}
   const items=getFiltered();
   const area=document.getElementById('main');
   if(!items.length){area.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div>No Pokémon match your filters</div></div>';return;}
   viewMode==='grid'?renderGrid(items,area):renderListView(items,area);
+}
+
+function renderWantList(){
+  const area=document.getElementById('main');
+  const wants=Object.entries(wantList);
+  if(!wants.length){
+    area.innerHTML='<div class="empty"><div class="empty-icon">⭐</div><div style="font-size:0.9rem">Your want list is empty</div><div style="font-size:0.8rem;margin-top:4px">Open any Pokémon and tap "Add to Want List"</div></div>';
+    return;
+  }
+
+  // Sort by price low to high by default
+  const sortEl=document.getElementById('want-sort-sel');
+  const sortMode=sortEl?sortEl.value:'price-asc';
+
+  // Build want items with prices
+  let items=wants.map(([dex,w])=>{
+    const d=parseInt(dex);
+    const name=ALL_POKEMON.find(p=>p[0]===d)?.[1]||'';
+    const cards=cardDB[d]||[];
+    const selCard=w.cardId?cards.find(c=>c.id===w.cardId):null;
+    const card=selCard||bestCard(cards)||w.manualCard||null;
+    const price=card?getTcgPrice(card):null;
+    return{dex:d,name,card,price,w};
+  });
+
+  if(sortMode==='price-asc') items.sort((a,b)=>(a.price??9999)-(b.price??9999));
+  else if(sortMode==='price-desc') items.sort((a,b)=>(b.price??-1)-(a.price??-1));
+  else if(sortMode==='dex') items.sort((a,b)=>a.dex-b.dex);
+  else if(sortMode==='name') items.sort((a,b)=>a.name.localeCompare(b.name));
+
+  let totalKnown=0,unknownCount=0;
+  items.forEach(i=>{if(i.price!=null)totalKnown+=i.price;else unknownCount++;});
+
+  let html=`
+  <div class="want-header">
+    <div>
+      <div class="want-title">⭐ Want List — ${items.length} cards</div>
+      <div class="want-total">Estimated total: <strong>$${totalKnown.toFixed(2)}</strong>${unknownCount>0?` + ${unknownCount} without price`:''}</div>
+    </div>
+    <div class="want-sort">
+      <label>Sort:</label>
+      <select id="want-sort-sel" onchange="renderWantList()" style="font-size:0.75rem;padding:4px 8px">
+        <option value="price-asc"${sortMode==='price-asc'?' selected':''}>Price: Low to High</option>
+        <option value="price-desc"${sortMode==='price-desc'?' selected':''}>Price: High to Low</option>
+        <option value="dex"${sortMode==='dex'?' selected':''}>Pokédex Order</option>
+        <option value="name"${sortMode==='name'?' selected':''}>Name A–Z</option>
+      </select>
+    </div>
+  </div>
+  <div class="want-list">`;
+
+  for(const{dex,name,card,price,w}of items){
+    const dispRar=card?getDisplayRarity(card):null;
+    const tcgUrl=card?tcgPlayerUrl(card):`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(name)}`;
+    const ebUrl=card?ebaySearchUrl(card.name,card.set?.name||'',card.number||''):`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(name+' pokemon card')}&LH_Complete=1&LH_Sold=1&_sacat=0`;
+
+    html+=`
+    <div class="want-item${price==null?' no-price':''}">
+      <span class="want-dex">${dexStr(dex)}</span>
+      <span class="want-name">${name}</span>
+      <div class="want-card-info">
+        ${card?`<div class="want-card-name">${card.name}</div><div class="want-card-meta">${card.set?.name||'Manual'} · #${card.number||'—'} · ${dispRar?rarityBadge(dispRar):''}</div>`:'<div class="want-card-name" style="color:var(--text3)">No card selected</div>'}
+      </div>
+      <div class="want-actions">
+        <div class="want-price${price==null?' no-price':''}">${price!=null?fmtPrice(price):'No price'}</div>
+        <div class="want-btns">
+          <a class="buy-btn" href="${tcgUrl}" target="_blank">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            TCGPlayer
+          </a>
+          <a class="ebay-btn" href="${ebUrl}" target="_blank">eBay</a>
+          <button class="remove-want-btn" onclick="removeWant(${dex})">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  html+='</div>';
+  area.innerHTML=html;
 }
 
 function renderGrid(items,area){
@@ -452,6 +600,7 @@ function renderGrid(items,area){
     if(gen!==lastGen){html+=`<div class="gen-hdr">${GEN_NAMES[gen-1]}</div>`;lastGen=gen;}
     const cards=cardDB[dex];
     const isCol=!!collection[dex];
+    const isWant=!!wantList[dex];
     const col=collection[dex];
     const allCards=[...(cards||[])];
     if(col?.manualCard)allCards.unshift(col.manualCard);
@@ -459,21 +608,26 @@ function renderGrid(items,area){
     const dispRar=best?getDisplayRarity(best):null;
     const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getTcgPrice(best):null);
     const isLoad=cards===undefined;
+    let statusBadge='';
+    if(isCol)statusBadge=`<div class="status-badge collected"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+    else if(isWant)statusBadge=`<div class="status-badge wanted"><span>⭐</span></div>`;
     let inner='';
     if(isLoad){inner=`<div class="card-count"><span class="spinner"></span></div>`;}
-    else if(!allCards.length){inner=`<div class="no-cards">No cards found — tap to add manually</div>`;}
+    else if(!allCards.length){inner=`<div class="no-cards">No cards found — tap to add</div>`;}
     else{inner=`<div class="card-count"><span>${allCards.length}</span> card${allCards.length!==1?'s':''} available</div>${best?rarityBadge(dispRar):''}<div class="card-best" style="margin-top:4px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?(best.set?.name||'Manual')+' · #'+(best.number||'—'):''}</div><div class="card-price" style="margin-top:3px">TCG: <span>${fmtPrice(price)}</span></div>`;}
-    html+=`<div class="poke-card${isCol?' collected':''}" onclick="openModal(${dex})">${isCol?`<div class="coll-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`:''}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
+    const cls=isCol?'collected':isWant?'wanted':'';
+    html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${statusBadge}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
   }
   html+='</div>';
   area.innerHTML=html;
 }
 
 function renderListView(items,area){
-  let html=`<div class="list-hdr"><span>#</span><span>Pokémon</span><span>Best Card</span><span class="list-col-rar">Rarity</span><span style="text-align:right">TCGPlayer</span><span style="text-align:center">Have</span></div><div class="list">`;
+  let html=`<div class="list-hdr"><span>#</span><span>Pokémon</span><span>Best Card</span><span class="list-col-rar">Rarity</span><span style="text-align:right">TCGPlayer</span><span style="text-align:center">Status</span></div><div class="list">`;
   for(const[dex,name]of items){
     const cards=cardDB[dex];
     const isCol=!!collection[dex];
+    const isWant=!!wantList[dex];
     const col=collection[dex];
     const allCards=[...(cards||[])];
     if(col?.manualCard)allCards.unshift(col.manualCard);
@@ -481,7 +635,11 @@ function renderListView(items,area){
     const dispRar=best?getDisplayRarity(best):null;
     const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getTcgPrice(best):null);
     const isLoad=cards===undefined;
-    html+=`<div class="list-row${isCol?' collected':''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${isLoad?'Loading…':(best?best.name+' · '+(best.set?.name||'Manual'):'No cards — tap to add')}</span><span class="list-col-rar">${best?rarityBadge(dispRar):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check"><div class="chk${isCol?' done':''}">${isCol?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div></span></div>`;
+    const cls=isCol?'collected':isWant?'wanted':'';
+    let chk='<div class="chk"></div>';
+    if(isCol)chk=`<div class="chk done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+    else if(isWant)chk=`<div class="chk want"><span>⭐</span></div>`;
+    html+=`<div class="list-row${cls?' '+cls:''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${isLoad?'Loading…':(best?best.name+' · '+(best.set?.name||'Manual'):'No cards')}</span><span class="list-col-rar">${best?rarityBadge(dispRar):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check">${chk}</span></div>`;
   }
   html+='</div>';
   area.innerHTML=html;
@@ -491,11 +649,18 @@ async function openModal(dex){
   currentDex=dex;
   const name=ALL_POKEMON.find(p=>p[0]===dex)?.[1]||'';
   const col=collection[dex];
-  selCardId=col?.cardId||null;
+  const want=wantList[dex];
+  selCardId=col?.cardId||want?.cardId||null;
   document.getElementById('m-dex').textContent=dexStr(dex);
   document.getElementById('m-name').textContent=name;
   const cards=cardDB[dex]||[];
   let body='';
+
+  // Action buttons row
+  const isWanted=!!wantList[dex];
+  body+=`<div class="modal-action-row">
+    <button class="btn-want${isWanted?' active':''}" onclick="toggleWant()">${isWanted?'⭐ On Want List':'⭐ Add to Want List'}</button>
+  </div>`;
 
   if(cards.length){
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
@@ -510,8 +675,8 @@ async function openModal(dex){
         const tcgPrice=getTcgPrice(card);
         const dispRar=getDisplayRarity(card);
         const sel=card.id===selCardId;
-        const tcgId=getTcgPlayerId(card);
-        const ebUrl=ebayUrl(card.name,card.set.name,card.number);
+        const tcgUrl=tcgPlayerUrl(card);
+        const ebUrl=ebaySearchUrl(card.name,card.set.name,card.number);
         body+=`
         <div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
           <div class="opt-name">${card.name}</div>
@@ -525,13 +690,16 @@ async function openModal(dex){
               <div class="price-source-label">PriceTracker</div>
               <div class="price-source-val loading"><span class="spinner-sm"></span></div>
             </div>
-            <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
               <div class="price-source-label">eBay Sold</div>
-              <a class="ebay-btn" href="${ebUrl}" target="_blank" onclick="event.stopPropagation()">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                View sold
-              </a>
+              <a class="ebay-btn" href="${ebUrl}" target="_blank" onclick="event.stopPropagation()">View ↗</a>
             </div>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:5px">
+            <a class="buy-btn" href="${tcgUrl}" target="_blank" onclick="event.stopPropagation()">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Buy on TCGPlayer
+            </a>
           </div>
         </div>`;
       }
@@ -541,7 +709,7 @@ async function openModal(dex){
     body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No cards found in the API. Use manual entry below.</div>`;
   }
 
-  const mc=col?.manualCard;
+  const mc=col?.manualCard||want?.manualCard;
   const mprice=col?.manualPrice!=null?col.manualPrice:'';
   body+=`
   <div class="manual-section">
@@ -573,7 +741,7 @@ async function openModal(dex){
   </div>
   <div style="margin-bottom:0.9rem">
     <span class="mlabel">Notes</span>
-    <textarea class="notes-input" id="m-notes" placeholder="Condition, where bought, graded, etc.">${col?.notes||''}</textarea>
+    <textarea class="notes-input" id="m-notes" placeholder="Condition, where to buy, target price…">${col?.notes||''}</textarea>
     <div class="price-input-wrap">
       <label>Manual price override (USD):</label>
       <input type="number" id="m-price" placeholder="0.00" step="0.01" min="0" value="${mprice}" style="width:90px;text-align:right"/>
@@ -587,7 +755,6 @@ async function openModal(dex){
   document.getElementById('m-body').innerHTML=body;
   document.getElementById('backdrop').classList.add('open');
 
-  // Fetch PriceTracker prices async for each card shown
   for(const card of cards){
     const tcgId=getTcgPlayerId(card);
     if(tcgId){
@@ -600,13 +767,39 @@ async function openModal(dex){
       });
     }else{
       const el=document.getElementById(`ppt-${card.id}`);
-      if(el)el.querySelector('.price-source-val').className='price-source-val na',el.querySelector('.price-source-val').textContent='—';
+      if(el){el.querySelector('.price-source-val').className='price-source-val na';el.querySelector('.price-source-val').textContent='—';}
     }
   }
 }
 
+function toggleWant(){
+  if(!currentDex)return;
+  if(wantList[currentDex]){
+    delete wantList[currentDex];
+    saveWantList();
+    document.querySelector('.btn-want').classList.remove('active');
+    document.querySelector('.btn-want').textContent='⭐ Add to Want List';
+  }else{
+    const cards=cardDB[currentDex]||[];
+    const best=bestCard(cards);
+    wantList[currentDex]={cardId:selCardId||best?.id||null};
+    saveWantList();
+    document.querySelector('.btn-want').classList.add('active');
+    document.querySelector('.btn-want').textContent='⭐ On Want List';
+  }
+  render();
+}
+
+function removeWant(dex){
+  delete wantList[dex];
+  saveWantList();
+  renderWantList();
+}
+
 function selCard(id){
   selCardId=id;
+  // Update want list card selection if wanted
+  if(wantList[currentDex]){wantList[currentDex].cardId=id;saveWantList();}
   document.querySelectorAll('.card-opt').forEach(el=>{
     el.classList.toggle('sel',(el.getAttribute('onclick')||'').includes(`'${id}'`));
   });
@@ -626,6 +819,8 @@ function saveEntry(){
   const mcEra=document.getElementById('m-card-era')?.value;
   const manualCard=(mcName||mcSet)?{id:'manual-'+currentDex,name:mcName||'Manual Entry',number:mcNum||'—',rarity:mcRar||'Manual',set:{name:mcSet||'Unknown Set',series:mcEra||'Scarlet & Violet'}}:null;
   collection[currentDex]={cardId:selCardId,notes,manualPrice,manualCard};
+  // Remove from want list when collected
+  if(wantList[currentDex]){delete wantList[currentDex];saveWantList();}
   saveCollection();closeModal();render();
 }
 
@@ -637,10 +832,11 @@ function removeEntry(){
 
 function setF(mode,btn){
   filterMode=mode;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on','on-green','on-blue'));
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on','on-green','on-blue','on-yellow'));
   if(mode==='all')btn.classList.add('on');
-  if(mode==='col')btn.classList.add('on-green');
-  if(mode==='mis')btn.classList.add('on-blue');
+  else if(mode==='col')btn.classList.add('on-green');
+  else if(mode==='want')btn.classList.add('on-yellow');
+  else if(mode==='mis')btn.classList.add('on-blue');
   render();
 }
 
@@ -653,7 +849,7 @@ function setView(v){
 
 document.getElementById('backdrop').addEventListener('click',e=>{if(e.target===document.getElementById('backdrop'))closeModal();});
 
-loadCollection();render();loadAllCards();
+loadData();render();loadAllCards();
 </script>
 </body>
 </html>
