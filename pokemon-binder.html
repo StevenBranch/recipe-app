@@ -149,17 +149,17 @@ select option{background:var(--bg3);color:var(--text)}
 .chk svg{width:10px;height:10px;color:#fff}
 .chk span{font-size:9px;line-height:1}
 /* MODAL */
-.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:flex-start;justify-content:center;padding:1rem;padding-top:env(safe-area-inset-top,1rem);backdrop-filter:blur(4px);overflow:hidden}
 .backdrop.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:560px;height:92vh;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;animation:mIn 0.2s ease both}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:560px;height:calc(100svh - 2rem);max-height:calc(100svh - 2rem);display:flex;flex-direction:column;overflow:hidden;animation:mIn 0.2s ease both}
 @keyframes mIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
 .modal-header{padding:1.4rem 1.4rem 0.8rem;flex-shrink:0}
-.modal-scroll{flex:1;overflow-y:auto;padding:0 1.4rem 0.5rem}
+.modal-scroll{flex:1;overflow-y:auto;padding:0 1.4rem 0.5rem;min-height:0}
 .modal-search{position:relative;margin-bottom:0.8rem}
 .modal-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:13px;height:13px}
 .modal-search input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:0.82rem;padding:0.45rem 0.7rem 0.45rem 2.1rem;outline:none;box-sizing:border-box}
 .modal-search input:focus{border-color:var(--border2)}
-.modal-sticky{flex-shrink:0;padding:0.75rem 1.4rem;background:var(--bg2);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.modal-sticky{flex-shrink:0;padding:0.6rem 1.4rem;background:var(--bg2);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
 .sticky-selected{font-size:0.75rem;color:var(--text2);min-height:16px;text-align:center}
 .sticky-selected strong{color:var(--text);font-weight:500}
 .sticky-btns{display:flex;gap:7px}
@@ -786,7 +786,7 @@ async function openModal(dex){
       body+='<div id="m-card-list">'+renderModalCards(ownedCards,selCardId)+'</div>';
     }
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another card:</div>';
-    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/></div><div id="m-card-list-all"></div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(wantEntries.length>0){
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>';
     var wantedCards=wantEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
@@ -795,13 +795,13 @@ async function openModal(dex){
       body+='<div id="m-card-list">'+renderModalCards(wantedCards,selCardId)+'</div>';
     }
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
-    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/></div><div id="m-card-list-all"></div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(cards.length){
     // All / Missing mode — full searchable list
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
     body+=`<div class="modal-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" id="m-card-search" placeholder="Search by name, set, or number…" oninput="filterModalCards(this.value)" autocomplete="off"/>
+      <input type="search" id="m-card-search" placeholder="Search by name, set, or number…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/>
     </div>`;
     body+='<div id="m-card-list">';
     body+=renderModalCards(cards, selCardId);
@@ -1036,6 +1036,20 @@ document.getElementById('backdrop').addEventListener('click',e=>{if(e.target===d
 loadData();render();loadAllCards();
 </script>
 
+<script>
+// Keep modal within visual viewport when keyboard opens on iOS
+if(window.visualViewport){
+  function adjustModal(){
+    const vh=window.visualViewport.height;
+    document.querySelectorAll('.modal').forEach(function(m){
+      m.style.height=(vh-32)+'px';
+      m.style.maxHeight=(vh-32)+'px';
+    });
+  }
+  window.visualViewport.addEventListener('resize',adjustModal);
+  window.visualViewport.addEventListener('scroll',adjustModal);
+}
+</script>
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
