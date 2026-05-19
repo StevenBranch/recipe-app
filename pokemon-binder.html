@@ -379,7 +379,7 @@ function getDisplayRarity(card){
 }
 function getTcgPlayerId(card){const m=(card?.tcgplayer?.url||'').match(/\/(\d+)$/);return m?m[1]:null;}
 function tcgPlayerUrl(card){return card?.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;}
-function ebaySearchUrl(n,s,num){return `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${n} ${s} ${num} pokemon card`)}&LH_Complete=1&LH_Sold=1&_sacat=0`;}
+function ebaySearchUrl(n,s,num){return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(n+' '+s+' '+num+' pokemon card')+'&LH_Complete=1&LH_Sold=1&_sacat=0';}
 
 let cardDB={},collection={},wantList={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
 const pptCache={};
@@ -466,7 +466,7 @@ async function fetchPptPrice(tcgId){
   if(!tcgId)return null;
   if(pptCache[tcgId]!==undefined)return pptCache[tcgId];
   try{
-    const r=await fetch(`${PPT_BASE}?tcgPlayerId=${tcgId}`,{headers:{'Authorization':`Bearer ${PPT_KEY}`}});
+    const r=await fetch(PPT_BASE+'?tcgPlayerId='+tcgId,{headers:{'Authorization':'Bearer '+PPT_KEY}});
     if(!r.ok){pptCache[tcgId]=null;return null;}
     const d=await r.json();
     const card=d?.data?.[0];
@@ -582,7 +582,7 @@ function renderWantList(){
   let known=0,unk=0;items.forEach(i=>i.price!=null?known+=i.price:unk++);
   let html=`<div class="want-header">
     <div><div class="want-title">⭐ Want List — ${items.length} cards</div>
-    <div class="want-total">Estimated total: <strong>$${known.toFixed(2)}</strong>${unk>0?` + ${unk} without price`:''}</div></div>
+    <div class="want-total">Estimated total: <strong>$${known.toFixed(2)}</strong>${unk>0?' + '+unk+' without price':''}</div></div>
     <div class="want-sort"><label>Sort:</label>
       <select id="want-sort-sel" onchange="renderWantList()" style="font-size:0.75rem;padding:4px 8px">
         <option value="price-asc"${sortMode==='price-asc'?' selected':''}>Price: Low → High</option>
@@ -600,7 +600,7 @@ function renderWantList(){
       <span class="want-dex">${dexStr(dex)}</span>
       <span class="want-name">${name}</span>
       <div class="want-card-info">
-        ${card?`<div class="want-card-name">${card.name}</div><div class="want-card-meta">${card.set?.name||'Manual'} · #${card.number||'—'} · ${dispRar?rarityBadge(dispRar):''}</div>`:'<div class="want-card-name" style="color:var(--text3)">No card selected</div>'}
+        ${card?('<div class="want-card-name">'+card.name+'</div><div class="want-card-meta">'+(card.set?.name||'Manual')+' · #'+(card.number||'—')+' · '+(dispRar?rarityBadge(dispRar):''  )+'</div>'):'<div class="want-card-name" style="color:var(--text3)">No card selected</div>'}
       </div>
       <div class="want-actions">
         <div class="want-price${price==null?' no-price':''}">${price!=null?fmtPrice(price):'No price'}</div>
@@ -636,10 +636,10 @@ function renderGrid(items,area){
     let sb='';
     if(isCol){
       const cnt=colEntries.length;
-      sb=`<div class="status-badge collected" style="${cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':''}"><${cnt>1?`span style="color:#fff"`:'svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"'}>${cnt>1?cnt+'×':'<polyline points="20 6 9 17 4 12"/>'}</${cnt>1?'span':'svg'}></div>`;
+      sb='<div class="status-badge collected" style="'+(cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':'')+'">'+( cnt>1?'<span style="color:#fff">'+cnt+'×</span>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>')+'</div>';
     }else if(isWant){
       const cnt=wantEntries.length;
-      sb=`<div class="status-badge wanted" style="${cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':''}"><span>${cnt>1?'⭐×'+cnt:'⭐'}</span></div>`;
+      sb='<div class="status-badge wanted" style="'+(cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':'')+'"><span>'+(cnt>1?'⭐×'+cnt:'⭐')+'</span></div>';
     }
     let inner=isLoad?`<div class="card-count"><span class="spinner"></span></div>`:
       !allCards.length?`<div class="no-cards">No cards found — tap to add manually</div>`:
@@ -666,7 +666,7 @@ function renderListView(items,area){
     const cls=isCol?'collected':isWant?'wanted':'';
     const colCnt=colEntries.length,wantCnt=wantEntries.length;
     let chk='<div class="chk"></div>';
-    if(isCol)chk=`<div class="chk done" style="${colCnt>1?'border-radius:6px;width:auto;padding:0 3px;font-size:8px;font-weight:600;color:#fff;':''}"><${colCnt>1?'span':'svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"'}>${colCnt>1?colCnt+'×':'<polyline points="20 6 9 17 4 12"/>'}</${colCnt>1?'span':'svg'}></div>`;
+    if(isCol)chk='<div class="chk done" style="'+(colCnt>1?'border-radius:6px;width:auto;padding:0 3px;font-size:8px;font-weight:600;color:#fff;':'')+'">'+( colCnt>1?'<span>'+colCnt+'×</span>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>')+'</div>';
     else if(isWant)chk=`<div class="chk want"><span>${wantCnt>1?'×'+wantCnt:'⭐'}</span></div>`;
     html+=`<div class="list-row${cls?' '+cls:''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${cards===undefined?'Loading…':(best?best.name+' · '+(best.set?.name||'Manual'):'No cards')}</span><span class="list-col-rar">${best?rarityBadge(getDisplayRarity(best)):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check">${chk}</span></div>`;
   }
@@ -695,7 +695,7 @@ async function openModal(dex){
       const p=entryPrice(e,cards);
       body+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;${i>0?'border-top:1px solid rgba(76,175,125,0.15);margin-top:3px':''}">`;
       body+=`<div><div style="font-size:0.8rem;font-weight:500;color:var(--text)">${card?card.name:'Unknown Card'}</div>`;
-      body+=`<div style="font-size:0.7rem;color:var(--text3)">${card?(card.set?.name||'Manual')+' · #'+(card.number||'—'):''}${e.notes?` · ${e.notes}`:''}</div></div>`;
+      body+='<div style="font-size:0.7rem;color:var(--text3)">'+(card?(card.set?.name||'Manual')+' · #'+(card.number||'—'):'')+( e.notes?' · '+e.notes:'')+'</div></div>';
       body+=`<div style="display:flex;align-items:center;gap:7px"><span style="font-size:0.82rem;color:var(--gold);font-weight:500">${fmtPrice(p)}</span>`;
       body+=`<button onclick="removeEntry(${i})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.65rem;color:var(--text3);cursor:pointer">✕</button></div>`;
       body+=`</div>`;
