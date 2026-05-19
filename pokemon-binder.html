@@ -149,9 +149,9 @@ select option{background:var(--bg3);color:var(--text)}
 .chk svg{width:10px;height:10px;color:#fff}
 .chk span{font-size:9px;line-height:1}
 /* MODAL */
-.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:flex-start;justify-content:center;padding:1rem;padding-top:env(safe-area-inset-top,1rem);backdrop-filter:blur(4px);overflow:hidden}
+.backdrop{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:100;align-items:flex-start;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow:hidden}
 .backdrop.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:560px;height:calc(100svh - 2rem);max-height:calc(100svh - 2rem);display:flex;flex-direction:column;overflow:hidden;animation:mIn 0.2s ease both}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;animation:mIn 0.2s ease both}
 @keyframes mIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
 .modal-header{padding:1.4rem 1.4rem 0.8rem;flex-shrink:0}
 .modal-scroll{flex:1;overflow-y:auto;padding:0 1.4rem 0.5rem;min-height:0}
@@ -571,10 +571,13 @@ function getFiltered(){
     if(filterMode==='mis'&&(isCol||isWant))return false;
     if(fG&&getGen(dex)!==fG)return false;
     const cards=cardDB[dex]||[];
-    if(fE&&!cards.some(c=>c.set?.series===fE))return false;
-    if(fR){
-      if(fR==='Alternate Art'){if(!cards.some(c=>isAlternateArt(c)))return false;}
-      else{if(!cards.some(c=>c.rarity===fR))return false;}
+    // Skip card-level filters in col/want mode — don't block based on unloaded cards
+    if(filterMode!=='col'&&filterMode!=='want'){
+      if(fE&&!cards.some(c=>c.set?.series===fE))return false;
+      if(fR){
+        if(fR==='Alternate Art'){if(!cards.some(c=>isAlternateArt(c)))return false;}
+        else{if(!cards.some(c=>c.rarity===fR))return false;}
+      }
     }
     return true;
   });
@@ -877,6 +880,8 @@ async function openModal(dex){
   document.getElementById('m-body').innerHTML=body;
   document.getElementById('backdrop').classList.add('open');
   updateStickyLabel();
+  if(window._lockBody)window._lockBody();
+  if(window._modalAdjust)window._modalAdjust();
   // Fire PriceTracker fetches for all cards (results cached, so safe to call all)
   for(const card of cards){
     const tcgId=getTcgPlayerId(card);
@@ -997,7 +1002,16 @@ function selCard(id){
   document.querySelectorAll('.card-opt').forEach(el=>el.classList.toggle('sel',(el.getAttribute('onclick')||'').includes(`'${id}'`)));
   updateStickyLabel();
 }
-function closeModal(){document.getElementById('backdrop').classList.remove('open');currentDex=null;selCardId=null;}
+function closeModal(){
+  var bd=document.getElementById('backdrop');
+  bd.classList.remove('open');
+  // Reset inline styles set by visualViewport handler
+  bd.style.top=''; bd.style.left=''; bd.style.width=''; bd.style.height='';
+  var modal=bd.querySelector('.modal');
+  if(modal){modal.style.height='';modal.style.maxHeight='';}
+  currentDex=null;selCardId=null;
+  if(window._unlockBody)window._unlockBody();
+}
 function saveEntry(){
   if(!currentDex)return;
   const entry=getManualEntry();
@@ -1037,18 +1051,61 @@ loadData();render();loadAllCards();
 </script>
 
 <script>
-// Keep modal within visual viewport when keyboard opens on iOS
-if(window.visualViewport){
-  function adjustModal(){
-    const vh=window.visualViewport.height;
-    document.querySelectorAll('.modal').forEach(function(m){
-      m.style.height=(vh-32)+'px';
-      m.style.maxHeight=(vh-32)+'px';
-    });
+// iOS Safari keyboard fix
+// When keyboard opens, visualViewport shrinks. We reanchor the backdrop
+// to the visual viewport offset so it doesn't shift with the page.
+(function(){
+  var bd=null;
+  var locked=false;
+
+  function getBackdrop(){ return bd||(bd=document.getElementById('backdrop')); }
+
+  function lockBody(){
+    if(locked)return;
+    locked=true;
+    document.body.style.overflow='hidden';
+    document.body.style.position='fixed';
+    document.body.style.width='100%';
   }
-  window.visualViewport.addEventListener('resize',adjustModal);
-  window.visualViewport.addEventListener('scroll',adjustModal);
-}
+
+  function unlockBody(){
+    if(!locked)return;
+    locked=false;
+    document.body.style.overflow='';
+    document.body.style.position='';
+    document.body.style.width='';
+  }
+
+  function adjust(){
+    var el=getBackdrop();
+    if(!el||!el.classList.contains('open'))return;
+    if(window.visualViewport){
+      var vp=window.visualViewport;
+      // Pin backdrop to visual viewport coordinates
+      el.style.top=vp.offsetTop+'px';
+      el.style.left=vp.offsetLeft+'px';
+      el.style.width=vp.width+'px';
+      el.style.height=vp.height+'px';
+      // Size modal to fit
+      var modal=el.querySelector('.modal');
+      if(modal){
+        var h=Math.min(vp.height-32, vp.height*0.92);
+        modal.style.maxHeight=h+'px';
+        modal.style.height=h+'px';
+      }
+    }
+  }
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',adjust);
+    window.visualViewport.addEventListener('scroll',adjust);
+  }
+
+  // Expose so openModal/closeModal can call
+  window._modalAdjust=adjust;
+  window._lockBody=lockBody;
+  window._unlockBody=unlockBody;
+})();
 </script>
 <script>
 if('serviceWorker' in navigator){
