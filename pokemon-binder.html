@@ -151,8 +151,21 @@ select option{background:var(--bg3);color:var(--text)}
 /* MODAL */
 .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
 .backdrop.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.6rem;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;animation:mIn 0.2s ease both}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;animation:mIn 0.2s ease both}
 @keyframes mIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:1.4rem 1.4rem 0.8rem;flex-shrink:0}
+.modal-scroll{flex:1;overflow-y:auto;padding:0 1.4rem 0.5rem}
+.modal-search{position:relative;margin-bottom:0.8rem}
+.modal-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:13px;height:13px}
+.modal-search input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:0.82rem;padding:0.45rem 0.7rem 0.45rem 2.1rem;outline:none;box-sizing:border-box}
+.modal-search input:focus{border-color:var(--border2)}
+.modal-sticky{flex-shrink:0;padding:0.75rem 1.4rem;background:var(--bg2);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.sticky-selected{font-size:0.75rem;color:var(--text2);min-height:16px;text-align:center}
+.sticky-selected strong{color:var(--text);font-weight:500}
+.sticky-btns{display:flex;gap:7px}
+.sticky-btns .btn-save{flex:1;padding:0.65rem;font-size:0.83rem}
+.no-results{font-size:0.78rem;color:var(--text3);text-align:center;padding:1rem 0;font-style:italic}
+
 .modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.1rem;gap:1rem}
 .modal-dex{font-size:0.7rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em}
 .modal-name{font-family:var(--display);font-size:1.9rem;letter-spacing:0.04em;line-height:1}
@@ -206,11 +219,20 @@ select option{background:var(--bg3);color:var(--text)}
 
 <div class="backdrop" id="backdrop">
   <div class="modal">
-    <div class="modal-top">
-      <div><div class="modal-dex" id="m-dex"></div><div class="modal-name" id="m-name"></div></div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <div class="modal-top" style="margin-bottom:0">
+        <div><div class="modal-dex" id="m-dex"></div><div class="modal-name" id="m-name"></div></div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
     </div>
-    <div id="m-body"></div>
+    <div class="modal-scroll" id="m-body"></div>
+    <div class="modal-sticky" id="m-sticky">
+      <div class="sticky-selected" id="sticky-label">No card selected</div>
+      <div class="sticky-btns">
+        <button class="btn-save" onclick="saveEntry()">✓ Mark Collected</button>
+        <button class="btn-save" onclick="saveWant()" style="background:var(--yellow)">⭐ Add to Want</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -702,29 +724,16 @@ async function openModal(dex){
   </div>`;
   if(cards.length){
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
-    const groups=groupByEra(cards);
-    body+=`<span class="mlabel" style="margin-bottom:7px">Select card (${cards.length} found)</span>`;
-    for(const era of['Scarlet & Violet','Sword & Shield','Sun & Moon','XY','Black & White','HeartGold & SoulSilver','Platinum','Diamond & Pearl','EX','Neo','Gym','Base','Other']){
-      if(!groups[era]?.length)continue;
-      const eraCards=groups[era].sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99));
-      body+=`<div class="era-group"><div class="era-title">${era}</div>`;
-      for(const card of eraCards){
-        const sel=card.id===selCardId;
-        body+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
-          <div class="opt-name">${card.name}</div>
-          <div class="opt-meta">${rarityBadge(getDisplayRarity(card))}<span>${card.set.name}</span><span>#${card.number}</span></div>
-          <div class="price-row">
-            <div class="price-source"><div class="price-source-label">TCGPlayer</div><div class="price-source-val">${fmtPrice(getTcgPrice(card))}</div></div>
-            <div class="price-source" id="ppt-${card.id}"><div class="price-source-label">PriceTracker</div><div class="price-source-val loading"><span class="spinner-sm"></span></div></div>
-            <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div class="price-source-label">eBay Sold</div><a class="ebay-btn" href="${ebaySearchUrl(card.name,card.set.name,card.number)}" target="_blank" onclick="event.stopPropagation()">View ↗</a></div>
-          </div>
-          <div style="margin-top:6px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy on TCGPlayer</a></div>
-        </div>`;
-      }
-      body+='</div>';
-    }
+    // Search bar — filters card list live
+    body+=`<div class="modal-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="m-card-search" placeholder="Search by name, set, or number…" oninput="filterModalCards(this.value)" autocomplete="off"/>
+    </div>`;
+    body+=`<div id="m-card-list">`;
+    body+=renderModalCards(cards, selCardId);
+    body+=`</div>`;
   }else{
-    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No premium cards found for this Pokémon. Use manual entry below.</div>`;
+    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No cards found for this Pokémon. Use manual entry below.</div>`;
   }
   const mc=null,mp=''; // Always blank for new entry
   body+=`<div class="manual-section"><div class="manual-section-title">✦ Manual Card Entry</div>
@@ -785,12 +794,11 @@ async function openModal(dex){
     <textarea class="notes-input" id="m-notes" placeholder="Condition, target price, where to buy…">${colEntries[0]?.notes||''}</textarea>
     <div class="price-input-wrap"><label>Manual price override (USD):</label><input type="number" id="m-price" placeholder="0.00" step="0.01" min="0" value="${mp}" style="width:90px;text-align:right"/></div>
   </div>
-  <div class="modal-actions">
-    <button class="btn-save" onclick="saveEntry()">Mark as Collected</button>
-    <button class="btn-save" onclick="saveWant()" style="background:var(--yellow);margin-left:4px">⭐ Add to Want</button>
-  </div>`;
+  <div style="height:0.5rem"></div>\`;
   document.getElementById('m-body').innerHTML=body;
   document.getElementById('backdrop').classList.add('open');
+  updateStickyLabel();
+  // Fire PriceTracker fetches for all cards (results cached, so safe to call all)
   for(const card of cards){
     const tcgId=getTcgPlayerId(card);
     fetchPptPrice(tcgId).then(price=>{
@@ -800,6 +808,75 @@ async function openModal(dex){
   }
 }
 
+function renderModalCards(cards, selectedId, filter=''){
+  const q=filter.toLowerCase().trim();
+  let html='';
+  const eras=['Scarlet & Violet','Sword & Shield','Sun & Moon','XY','Black & White','HeartGold & SoulSilver','Platinum','Diamond & Pearl','EX','Neo','Gym','Base','Other'];
+  const groups=groupByEra(cards);
+  let totalShown=0;
+  for(const era of eras){
+    if(!groups[era]?.length)continue;
+    const eraCards=groups[era]
+      .sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99))
+      .filter(c=>{
+        if(!q)return true;
+        return(
+          c.name.toLowerCase().includes(q)||
+          c.set?.name?.toLowerCase().includes(q)||
+          c.number?.toLowerCase().includes(q)||
+          getDisplayRarity(c).toLowerCase().includes(q)
+        );
+      });
+    if(!eraCards.length)continue;
+    totalShown+=eraCards.length;
+    html+=`<div class="era-group"><div class="era-title">${era} (${eraCards.length})</div>`;
+    for(const card of eraCards){
+      const sel=card.id===selectedId;
+      html+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
+        <div class="opt-name">${card.name}</div>
+        <div class="opt-meta">${rarityBadge(getDisplayRarity(card))}<span>${card.set.name}</span><span>#${card.number}</span></div>
+        <div class="price-row">
+          <div class="price-source"><div class="price-source-label">TCGPlayer</div><div class="price-source-val">${fmtPrice(getTcgPrice(card))}</div></div>
+          <div class="price-source" id="ppt-${card.id}"><div class="price-source-label">PriceTracker</div><div class="price-source-val loading"><span class="spinner-sm"></span></div></div>
+          <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div class="price-source-label">eBay Sold</div><a class="ebay-btn" href="${ebaySearchUrl(card.name,card.set.name,card.number)}" target="_blank" onclick="event.stopPropagation()">View ↗</a></div>
+        </div>
+        <div style="margin-top:6px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy on TCGPlayer</a></div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+  if(q&&totalShown===0)html=`<div class="no-results">No cards match "${filter}"</div>`;
+  return html;
+}
+function filterModalCards(val){
+  const cards=cardDB[currentDex]||[];
+  const list=document.getElementById('m-card-list');
+  if(list)list.innerHTML=renderModalCards(cards,selCardId,val);
+  // Re-attach PriceTracker fetches for newly visible cards
+  const q=val.toLowerCase().trim();
+  cards.forEach(card=>{
+    const el=document.getElementById(`ppt-${card.id}`);
+    if(el&&el.querySelector('.loading')){
+      const tcgId=getTcgPlayerId(card);
+      fetchPptPrice(tcgId).then(price=>{
+        const e2=document.getElementById(`ppt-${card.id}`);
+        if(e2){e2.querySelector('.price-source-val').className=`price-source-val${price?'':' na'}`;e2.querySelector('.price-source-val').textContent=fmtPrice(price);}
+      });
+    }
+  });
+}
+function updateStickyLabel(){
+  const lbl=document.getElementById('sticky-label');
+  if(!lbl)return;
+  if(!selCardId){lbl.textContent='No card selected';return;}
+  const cards=cardDB[currentDex]||[];
+  const card=cards.find(c=>c.id===selCardId);
+  if(card){
+    lbl.innerHTML=`<strong>${card.name}</strong> · ${card.set?.name||''} #${card.number||''} · ${fmtPrice(getTcgPrice(card))}`;
+  }else{
+    lbl.textContent='Manual card selected';
+  }
+}
 function getManualEntry(){
   const notes=document.getElementById('m-notes')?.value.trim()||'';
   const ps=document.getElementById('m-price')?.value.trim();
@@ -836,6 +913,7 @@ function removeWantEntry(idx){
 function selCard(id){
   selCardId=id;
   document.querySelectorAll('.card-opt').forEach(el=>el.classList.toggle('sel',(el.getAttribute('onclick')||'').includes(`'${id}'`)));
+  updateStickyLabel();
 }
 function closeModal(){document.getElementById('backdrop').classList.remove('open');currentDex=null;selCardId=null;}
 function saveEntry(){
