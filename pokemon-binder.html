@@ -345,10 +345,10 @@ select option{background:var(--bg3);color:var(--text)}
 const API_BASE='https://api.pokemontcg.io/v2/cards';
 const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
 const PPT_KEY='pokeprice_free_67fa19c5abd37709267bc7c6b977f4068110fb09d4a6185f';
-const CACHE_KEY='pokedex_card_cache_v11';
-const CACHE_AGE_KEY='pokedex_card_cache_age_v11';
+const CACHE_KEY='pokedex_card_cache_v12';
+const CACHE_AGE_KEY='pokedex_card_cache_age_v12';
 
-const TARGET_RARITIES=null; // null = fetch ALL rarities
+const TARGET_RARITIES=['Special Illustration Rare','Hyper Rare','Rainbow Rare','Secret Rare','Full Art','Amazing Rare','Illustration Rare','Rare Holo Star','Rare Holo EX','Rare Holo GX','Rare Holo V','Rare Holo VMAX','Rare Holo VSTAR','Double Rare','Ultra Rare','Shiny Rare','Shiny Ultra Rare','Rare BREAK'];
 const VALID_SERIES=null; // null = all series
 const RARITY_PRIORITY={
   'Special Illustration Rare':0,'Alternate Art':1,'Hyper Rare':2,'Rainbow Rare':3,
@@ -481,18 +481,34 @@ async function fetchPptPrice(tcgId){
 // Catches every card variant: ex, VMAX, V, GX, etc.
 // Cache bumped to v10 — forces a fresh fetch for all 1025 Pokémon.
 // ─────────────────────────────────────────────────────────────────
-async function fetchPokemon(dex){
+async function fetchPokemon(dex,allRarities=false){
   try{
-    // No rarity filter — fetch everything, all sets, all eras
-    const q=encodeURIComponent(`nationalPokedexNumbers:${dex}`);
-    const r=await fetch(`${API_BASE}?q=${q}&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=250`);
+    let q;
+    if(allRarities){
+      // Full fetch — all rarities, all sets (triggered on demand per Pokémon)
+      q=encodeURIComponent('nationalPokedexNumbers:'+dex);
+    }else{
+      // Fast fetch — premium/notable rarities only
+      const rarQ=TARGET_RARITIES.map(r=>'rarity:"'+r+'"').join(' OR ');
+      q=encodeURIComponent('nationalPokedexNumbers:'+dex+' ('+rarQ+')');
+    }
+    const r=await fetch(API_BASE+'?q='+q+'&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=250');
     if(!r.ok){cardDB[dex]=[];return;}
     const d=await r.json();
-    // No series filter — keep all cards
     const cards=d.data||[];
     cards.sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99));
-    cardDB[dex]=cards;
+    if(allRarities)cardDB[dex+'_full']=cards; // cache full separately
+    else cardDB[dex]=cards;
   }catch(e){cardDB[dex]=[];}
+}
+// Load all cards for a specific Pokémon on demand (called from modal)
+async function loadAllForDex(dex){
+  const btn=document.getElementById('load-all-btn-'+dex);
+  if(btn){btn.textContent='Loading…';btn.disabled=true;}
+  await fetchPokemon(dex,true);
+  // Replace cardDB entry with full set
+  if(cardDB[dex+'_full']){cardDB[dex]=cardDB[dex+'_full'];}
+  openModal(dex); // re-render modal with full card list
 }
 
 async function loadAllCards(){
@@ -503,7 +519,7 @@ async function loadAllCards(){
     try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render();return;}catch(e){}
   }
   // Purge all old cache versions
-  for(let v=1;v<=10;v++){
+  for(let v=1;v<=11;v++){
     localStorage.removeItem(`pokedex_card_cache_v${v}`);
     localStorage.removeItem(`pokedex_card_cache_age_v${v}`);
   }
@@ -641,9 +657,24 @@ function renderGrid(items,area){
       const cnt=wantEntries.length;
       sb='<div class="status-badge wanted" style="'+(cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':'')+'"><span>'+(cnt>1?'⭐×'+cnt:'⭐')+'</span></div>';
     }
-    let inner=isLoad?`<div class="card-count"><span class="spinner"></span></div>`:
-      !allCards.length?`<div class="no-cards">No cards found — tap to add manually</div>`:
-      `<div class="card-count"><span>${allCards.length}</span> card${allCards.length!==1?'s':''}</div>${best?rarityBadge(getDisplayRarity(best)):''}<div class="card-best" style="margin-top:4px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?(best.set?.name||'Manual')+' · #'+(best.number||'—'):''}</div><div class="card-price">TCG: <span>${price!=null?fmtPrice(price):'—'}</span></div>`;
+    // In collected mode show actual owned card(s), in want mode show wanted card(s)
+    let displayCard=null;
+    let displayLabel='';
+    if(isCol&&colEntries.length>0){
+      const e=colEntries[0];
+      displayCard=e.cardId?(dbCards.find(c=>c.id===e.cardId)||e.manualCard):e.manualCard;
+      displayLabel=colEntries.length>1?' + '+(colEntries.length-1)+' more':'';
+    }else if(isWant&&wantEntries.length>0){
+      const e=wantEntries[0];
+      displayCard=e.cardId?(dbCards.find(c=>c.id===e.cardId)||e.manualCard):e.manualCard;
+      displayLabel=wantEntries.length>1?' + '+(wantEntries.length-1)+' more':'';
+    }else{
+      displayCard=best;
+    }
+    const showCard=displayCard||best;
+    let inner=isLoad?'<div class="card-count"><span class="spinner"></span></div>':
+      !allCards.length&&!isCol&&!isWant?'<div class="no-cards">No cards found — tap to add</div>':
+      '<div class="card-count">'+(isCol?'<span style="color:var(--green)">Owned</span>':isWant?'<span style="color:var(--yellow)">Wanted</span>':'<span>'+allCards.length+'</span> card'+(allCards.length!==1?'s':''))+'</div>'+(showCard?rarityBadge(getDisplayRarity(showCard)):'')+'<div class="card-best" style="margin-top:4px">'+(showCard?showCard.name:'')+'</div><div class="card-best" style="color:var(--text3)">'+(showCard?(showCard.set?.name||'Manual')+' · #'+(showCard.number||'—'):'')+(displayLabel?'<span style="color:var(--text3)"> '+displayLabel+'</span>':'')+'</div><div class="card-price">TCG: <span>'+(price!=null?fmtPrice(price):'—')+'</span></div>';
     const cls=isCol?'collected':isWant?'wanted':'';
     html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
   }
@@ -767,11 +798,16 @@ async function openModal(dex){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="search" id="m-card-search" placeholder="Search by name, set, or number…" oninput="filterModalCards(this.value)" autocomplete="off"/>
     </div>`;
-    body+=`<div id="m-card-list">`;
+    body+='<div id="m-card-list">';
     body+=renderModalCards(cards, selCardId);
-    body+=`</div>`;
+    body+='</div>';
+    // Show "load all rarities" button if we only have premium cards loaded
+    if(!cardDB[dex+'_full']){
+      body+='<div style="text-align:center;margin:8px 0"><button id="load-all-btn-'+dex+'" onclick="loadAllForDex('+dex+')" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text3);font-family:var(--body);font-size:0.75rem;padding:5px 14px;cursor:pointer">Show all cards (holos, commons…)</button></div>';
+    }
   }else{
-    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No cards found for this Pokémon. Use manual entry below.</div>`;
+    body+='<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No premium cards found. Use manual entry or tap below to load all cards.</div>';
+    body+='<div style="text-align:center;margin:8px 0"><button id="load-all-btn-'+dex+'" onclick="loadAllForDex('+dex+')" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text3);font-family:var(--body);font-size:0.75rem;padding:5px 14px;cursor:pointer">Load all cards for this Pokémon</button></div>';
   }
   const mc=null,mp=''; // Always blank for new entry
   body+=`<div class="manual-section"><div class="manual-section-title">✦ Manual Card Entry</div>
