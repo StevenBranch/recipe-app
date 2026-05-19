@@ -78,8 +78,7 @@ select option{background:var(--bg3);color:var(--text)}
 .b-unk{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:0.7rem;color:var(--text3)}
 .main{padding:1.1rem 1.5rem 3rem}
-
-/* WANT LIST SPECIFIC */
+/* WANT LIST */
 .want-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
 .want-title{font-family:var(--display);font-size:1.4rem;letter-spacing:0.06em;color:var(--yellow)}
 .want-total{font-size:0.82rem;color:var(--text2)}
@@ -89,7 +88,6 @@ select option{background:var(--bg3);color:var(--text)}
 .want-list{display:flex;flex-direction:column;gap:6px}
 .want-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem 1rem;display:grid;grid-template-columns:46px 160px 1fr auto;align-items:center;gap:12px;transition:all 0.15s}
 .want-item:hover{border-color:var(--border2)}
-.want-item.no-price{border-color:rgba(251,191,36,0.2)}
 .want-dex{font-family:var(--display);font-size:0.82rem;color:var(--text3);letter-spacing:0.06em}
 .want-name{font-family:var(--display);font-size:1rem;letter-spacing:0.04em}
 .want-card-info{display:flex;flex-direction:column;gap:2px}
@@ -105,11 +103,7 @@ select option{background:var(--bg3);color:var(--text)}
 .ebay-btn:hover{background:rgba(96,165,250,0.18)}
 .remove-want-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:0.68rem;color:var(--text3);cursor:pointer;transition:all 0.15s}
 .remove-want-btn:hover{border-color:var(--red);color:var(--red)}
-@media(max-width:600px){
-  .want-item{grid-template-columns:38px 1fr auto;gap:8px}
-  .want-dex{display:none}
-}
-
+@media(max-width:600px){.want-item{grid-template-columns:38px 1fr auto;gap:8px}.want-dex{display:none}}
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:8px}
 .poke-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden}
@@ -130,7 +124,6 @@ select option{background:var(--bg3);color:var(--text)}
 .status-badge span{font-size:9px;line-height:1}
 .no-cards{font-size:0.73rem;color:var(--text3);font-style:italic}
 .gen-hdr{grid-column:1/-1;font-family:var(--display);font-size:0.92rem;letter-spacing:0.12em;color:var(--text3);padding:0.35rem 0 0.15rem;border-bottom:1px solid var(--border);margin-top:6px;margin-bottom:1px}
-
 /* LIST */
 .list{display:flex;flex-direction:column;gap:3px}
 .list-hdr{display:grid;grid-template-columns:46px 145px 1fr 130px 100px 65px;gap:9px;padding:0.3rem 1rem;font-size:0.67rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:2px}
@@ -148,7 +141,6 @@ select option{background:var(--bg3);color:var(--text)}
 .chk.want{background:var(--yellow);border-color:var(--yellow)}
 .chk svg{width:10px;height:10px;color:#fff}
 .chk span{font-size:9px;line-height:1}
-
 /* MODAL */
 .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
 .backdrop.open{display:flex}
@@ -198,22 +190,9 @@ select option{background:var(--bg3);color:var(--text)}
 .spinner-sm{display:inline-block;width:8px;height:8px;border:1.5px solid var(--border2);border-top-color:var(--text3);border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
-@media(max-width:800px){
-  .list-hdr,.list-row{grid-template-columns:40px 125px 1fr 90px 55px;gap:7px}
-  .list-col-set{display:none}
-}
-@media(max-width:560px){
-  .list-hdr,.list-row{grid-template-columns:36px 1fr 75px 48px;font-size:0.76rem;gap:5px}
-  .list-col-rar{display:none}
-  .header{padding:0.7rem 1rem}
-  .controls,.legend{padding:0.45rem 1rem}
-  .main{padding:0.9rem 0.75rem 4rem}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
-  .price-row{grid-template-columns:1fr 1fr}
-}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+@media(max-width:800px){.list-hdr,.list-row{grid-template-columns:40px 125px 1fr 90px 55px;gap:7px}.list-col-set{display:none}}
+@media(max-width:560px){.list-hdr,.list-row{grid-template-columns:36px 1fr 75px 48px;font-size:0.76rem;gap:5px}.list-col-rar{display:none}.header{padding:0.7rem 1rem}.controls,.legend{padding:0.45rem 1rem}.main{padding:0.9rem 0.75rem 4rem}.grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}.price-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -221,10 +200,7 @@ select option{background:var(--bg3);color:var(--text)}
 <div class="backdrop" id="backdrop">
   <div class="modal">
     <div class="modal-top">
-      <div>
-        <div class="modal-dex" id="m-dex"></div>
-        <div class="modal-name" id="m-name"></div>
-      </div>
+      <div><div class="modal-dex" id="m-dex"></div><div class="modal-name" id="m-name"></div></div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div id="m-body"></div>
@@ -241,10 +217,7 @@ select option{background:var(--bg3);color:var(--text)}
     <div class="stat-pill green">Collection: <strong id="coll-val">$0.00</strong></div>
     <div class="stat-pill yellow">Want List: <strong id="want-val">$0.00</strong> (<span id="want-count">0</span>)</div>
   </div>
-  <div class="api-status">
-    <div class="dot loading" id="api-dot"></div>
-    <span id="api-txt">Loading…</span>
-  </div>
+  <div class="api-status"><div class="dot loading" id="api-dot"></div><span id="api-txt">Loading…</span></div>
 </header>
 
 <div class="controls">
@@ -258,20 +231,49 @@ select option{background:var(--bg3);color:var(--text)}
   <button class="filter-btn" id="fb-mis" onclick="setF('mis',this)">Missing</button>
   <select id="f-era" onchange="render()">
     <option value="">All Eras</option>
-    <option value="Sun & Moon">Sun &amp; Moon</option>
-    <option value="Sword & Shield">Sword &amp; Shield</option>
     <option value="Scarlet & Violet">Scarlet &amp; Violet</option>
+    <option value="Sword & Shield">Sword &amp; Shield</option>
+    <option value="Sun & Moon">Sun &amp; Moon</option>
+    <option value="XY">XY</option>
+    <option value="Black & White">Black &amp; White</option>
+    <option value="HeartGold & SoulSilver">HeartGold &amp; SoulSilver</option>
+    <option value="Platinum">Platinum</option>
+    <option value="Diamond & Pearl">Diamond &amp; Pearl</option>
+    <option value="EX">EX Series</option>
+    <option value="Neo">Neo</option>
+    <option value="Gym">Gym</option>
+    <option value="Base">Base</option>
   </select>
   <select id="f-rar" onchange="render()">
     <option value="">All Rarities</option>
-    <option value="Special Illustration Rare">Special Illustration Rare</option>
-    <option value="Alternate Art">Alternate Art</option>
-    <option value="Hyper Rare">Hyper Rare</option>
-    <option value="Rainbow Rare">Rainbow Rare</option>
-    <option value="Secret Rare">Secret Rare</option>
-    <option value="Full Art">Full Art</option>
-    <option value="Amazing Rare">Amazing Rare</option>
-    <option value="Illustration Rare">Illustration Rare</option>
+    <optgroup label="Modern (SV)">
+      <option value="Special Illustration Rare">Special Illustration Rare</option>
+      <option value="Hyper Rare">Hyper Rare</option>
+      <option value="Illustration Rare">Illustration Rare</option>
+      <option value="Double Rare">Double Rare</option>
+      <option value="Shiny Rare">Shiny Rare</option>
+      <option value="Shiny Ultra Rare">Shiny Ultra Rare</option>
+    </optgroup>
+    <optgroup label="SwSh / Sun &amp; Moon">
+      <option value="Alternate Art">Alternate Art</option>
+      <option value="Amazing Rare">Amazing Rare</option>
+      <option value="Rainbow Rare">Rainbow Rare</option>
+      <option value="Full Art">Full Art</option>
+      <option value="Ultra Rare">Ultra Rare</option>
+      <option value="Rare Holo VMAX">Rare Holo VMAX</option>
+      <option value="Rare Holo VSTAR">Rare Holo VSTAR</option>
+      <option value="Rare Holo V">Rare Holo V</option>
+      <option value="Rare Holo GX">Rare Holo GX</option>
+      <option value="Rare BREAK">Rare BREAK</option>
+    </optgroup>
+    <optgroup label="Older Sets">
+      <option value="Secret Rare">Secret Rare</option>
+      <option value="Rare Holo EX">Rare Holo EX</option>
+      <option value="Rare Holo Star">Rare Holo Star ✦</option>
+      <option value="Rare Holo">Rare Holo</option>
+      <option value="Rare">Rare</option>
+      <option value="Promo">Promo</option>
+    </optgroup>
   </select>
   <select id="f-gen" onchange="render()">
     <option value="">All Generations</option>
@@ -314,10 +316,20 @@ select option{background:var(--bg3);color:var(--text)}
 const API_BASE='https://api.pokemontcg.io/v2/cards';
 const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
 const PPT_KEY='pokeprice_free_67fa19c5abd37709267bc7c6b977f4068110fb09d4a6185f';
+const CACHE_KEY='pokedex_card_cache_v11';
+const CACHE_AGE_KEY='pokedex_card_cache_age_v11';
 
-const TARGET_RARITIES=['Special Illustration Rare','Hyper Rare','Rainbow Rare','Secret Rare','Full Art','Amazing Rare','Illustration Rare'];
-const VALID_SERIES=['Sun & Moon','Sword & Shield','Scarlet & Violet'];
-const RARITY_PRIORITY={'Special Illustration Rare':0,'Alternate Art':1,'Hyper Rare':2,'Rainbow Rare':3,'Secret Rare':4,'Full Art':5,'Amazing Rare':6,'Illustration Rare':7,'Manual':8};
+const TARGET_RARITIES=null; // null = fetch ALL rarities
+const VALID_SERIES=null; // null = all series
+const RARITY_PRIORITY={
+  'Special Illustration Rare':0,'Alternate Art':1,'Hyper Rare':2,'Rainbow Rare':3,
+  'Secret Rare':4,'Full Art':5,'Amazing Rare':6,'Illustration Rare':7,
+  'Shiny Rare':8,'Shiny Ultra Rare':9,'Double Rare':10,'Ultra Rare':11,
+  'Rare BREAK':12,'Rare Holo VMAX':13,'Rare Holo VSTAR':14,'Rare Holo V':15,
+  'Rare Holo GX':16,'Rare Holo EX':17,'Rare Holo LV.X':18,
+  'Rare Holo Star':19,'Rare Holo':20,'Rare':21,
+  'Promo':22,'Classic Collection':23,'Common':24,'Uncommon':25,'Manual':26
+};
 const GEN_RANGES=[[1,151],[152,251],[252,386],[387,493],[494,649],[650,721],[722,809],[810,905],[906,1025]];
 const GEN_NAMES=['Gen 1 — Kanto','Gen 2 — Johto','Gen 3 — Hoenn','Gen 4 — Sinnoh','Gen 5 — Unova','Gen 6 — Kalos','Gen 7 — Alola','Gen 8 — Galar','Gen 9 — Paldea'];
 const ERA_ORDER={'Sun & Moon':0,'Sword & Shield':1,'Scarlet & Violet':2};
@@ -325,10 +337,10 @@ const ERA_ORDER={'Sun & Moon':0,'Sword & Shield':1,'Scarlet & Violet':2};
 const ALL_POKEMON=[[1,'Bulbasaur'],[2,'Ivysaur'],[3,'Venusaur'],[4,'Charmander'],[5,'Charmeleon'],[6,'Charizard'],[7,'Squirtle'],[8,'Wartortle'],[9,'Blastoise'],[10,'Caterpie'],[11,'Metapod'],[12,'Butterfree'],[13,'Weedle'],[14,'Kakuna'],[15,'Beedrill'],[16,'Pidgey'],[17,'Pidgeotto'],[18,'Pidgeot'],[19,'Rattata'],[20,'Raticate'],[21,'Spearow'],[22,'Fearow'],[23,'Ekans'],[24,'Arbok'],[25,'Pikachu'],[26,'Raichu'],[27,'Sandshrew'],[28,'Sandslash'],[29,'Nidoran♀'],[30,'Nidorina'],[31,'Nidoqueen'],[32,'Nidoran♂'],[33,'Nidorino'],[34,'Nidoking'],[35,'Clefairy'],[36,'Clefable'],[37,'Vulpix'],[38,'Ninetales'],[39,'Jigglypuff'],[40,'Wigglytuff'],[41,'Zubat'],[42,'Golbat'],[43,'Oddish'],[44,'Gloom'],[45,'Vileplume'],[46,'Paras'],[47,'Parasect'],[48,'Venonat'],[49,'Venomoth'],[50,'Diglett'],[51,'Dugtrio'],[52,'Meowth'],[53,'Persian'],[54,'Psyduck'],[55,'Golduck'],[56,'Mankey'],[57,'Primeape'],[58,'Growlithe'],[59,'Arcanine'],[60,'Poliwag'],[61,'Poliwhirl'],[62,'Poliwrath'],[63,'Abra'],[64,'Kadabra'],[65,'Alakazam'],[66,'Machop'],[67,'Machoke'],[68,'Machamp'],[69,'Bellsprout'],[70,'Weepinbell'],[71,'Victreebel'],[72,'Tentacool'],[73,'Tentacruel'],[74,'Geodude'],[75,'Graveler'],[76,'Golem'],[77,'Ponyta'],[78,'Rapidash'],[79,'Slowpoke'],[80,'Slowbro'],[81,'Magnemite'],[82,'Magneton'],[83,"Farfetch'd"],[84,'Doduo'],[85,'Dodrio'],[86,'Seel'],[87,'Dewgong'],[88,'Grimer'],[89,'Muk'],[90,'Shellder'],[91,'Cloyster'],[92,'Gastly'],[93,'Haunter'],[94,'Gengar'],[95,'Onix'],[96,'Drowzee'],[97,'Hypno'],[98,'Krabby'],[99,'Kingler'],[100,'Voltorb'],[101,'Electrode'],[102,'Exeggcute'],[103,'Exeggutor'],[104,'Cubone'],[105,'Marowak'],[106,'Hitmonlee'],[107,'Hitmonchan'],[108,'Lickitung'],[109,'Koffing'],[110,'Weezing'],[111,'Rhyhorn'],[112,'Rhydon'],[113,'Chansey'],[114,'Tangela'],[115,'Kangaskhan'],[116,'Horsea'],[117,'Seadra'],[118,'Goldeen'],[119,'Seaking'],[120,'Staryu'],[121,'Starmie'],[122,'Mr. Mime'],[123,'Scyther'],[124,'Jynx'],[125,'Electabuzz'],[126,'Magmar'],[127,'Pinsir'],[128,'Tauros'],[129,'Magikarp'],[130,'Gyarados'],[131,'Lapras'],[132,'Ditto'],[133,'Eevee'],[134,'Vaporeon'],[135,'Jolteon'],[136,'Flareon'],[137,'Porygon'],[138,'Omanyte'],[139,'Omastar'],[140,'Kabuto'],[141,'Kabutops'],[142,'Aerodactyl'],[143,'Snorlax'],[144,'Articuno'],[145,'Zapdos'],[146,'Moltres'],[147,'Dratini'],[148,'Dragonair'],[149,'Dragonite'],[150,'Mewtwo'],[151,'Mew'],[152,'Chikorita'],[153,'Bayleef'],[154,'Meganium'],[155,'Cyndaquil'],[156,'Quilava'],[157,'Typhlosion'],[158,'Totodile'],[159,'Croconaw'],[160,'Feraligatr'],[161,'Sentret'],[162,'Furret'],[163,'Hoothoot'],[164,'Noctowl'],[165,'Ledyba'],[166,'Ledian'],[167,'Spinarak'],[168,'Ariados'],[169,'Crobat'],[170,'Chinchou'],[171,'Lanturn'],[172,'Pichu'],[173,'Cleffa'],[174,'Igglybuff'],[175,'Togepi'],[176,'Togetic'],[177,'Natu'],[178,'Xatu'],[179,'Mareep'],[180,'Flaaffy'],[181,'Ampharos'],[182,'Bellossom'],[183,'Marill'],[184,'Azumarill'],[185,'Sudowoodo'],[186,'Politoed'],[187,'Hoppip'],[188,'Skiploom'],[189,'Jumpluff'],[190,'Aipom'],[191,'Sunkern'],[192,'Sunflora'],[193,'Yanma'],[194,'Wooper'],[195,'Quagsire'],[196,'Espeon'],[197,'Umbreon'],[198,'Murkrow'],[199,'Slowking'],[200,'Misdreavus'],[201,'Unown'],[202,'Wobbuffet'],[203,'Girafarig'],[204,'Pineco'],[205,'Forretress'],[206,'Dunsparce'],[207,'Gligar'],[208,'Steelix'],[209,'Snubbull'],[210,'Granbull'],[211,'Qwilfish'],[212,'Scizor'],[213,'Shuckle'],[214,'Heracross'],[215,'Sneasel'],[216,'Teddiursa'],[217,'Ursaring'],[218,'Slugma'],[219,'Magcargo'],[220,'Swinub'],[221,'Piloswine'],[222,'Corsola'],[223,'Remoraid'],[224,'Octillery'],[225,'Delibird'],[226,'Mantine'],[227,'Skarmory'],[228,'Houndour'],[229,'Houndoom'],[230,'Kingdra'],[231,'Phanpy'],[232,'Donphan'],[233,'Porygon2'],[234,'Stantler'],[235,'Smeargle'],[236,'Tyrogue'],[237,'Hitmontop'],[238,'Smoochum'],[239,'Elekid'],[240,'Magby'],[241,'Miltank'],[242,'Blissey'],[243,'Raikou'],[244,'Entei'],[245,'Suicune'],[246,'Larvitar'],[247,'Pupitar'],[248,'Tyranitar'],[249,'Lugia'],[250,'Ho-Oh'],[251,'Celebi'],[252,'Treecko'],[253,'Grovyle'],[254,'Sceptile'],[255,'Torchic'],[256,'Combusken'],[257,'Blaziken'],[258,'Mudkip'],[259,'Marshtomp'],[260,'Swampert'],[261,'Poochyena'],[262,'Mightyena'],[263,'Zigzagoon'],[264,'Linoone'],[265,'Wurmple'],[266,'Silcoon'],[267,'Beautifly'],[268,'Cascoon'],[269,'Dustox'],[270,'Lotad'],[271,'Lombre'],[272,'Ludicolo'],[273,'Seedot'],[274,'Nuzleaf'],[275,'Shiftry'],[276,'Taillow'],[277,'Swellow'],[278,'Wingull'],[279,'Pelipper'],[280,'Ralts'],[281,'Kirlia'],[282,'Gardevoir'],[283,'Surskit'],[284,'Masquerain'],[285,'Shroomish'],[286,'Breloom'],[287,'Slakoth'],[288,'Vigoroth'],[289,'Slaking'],[290,'Nincada'],[291,'Ninjask'],[292,'Shedinja'],[293,'Whismur'],[294,'Loudred'],[295,'Exploud'],[296,'Makuhita'],[297,'Hariyama'],[298,'Azurill'],[299,'Nosepass'],[300,'Skitty'],[301,'Delcatty'],[302,'Sableye'],[303,'Mawile'],[304,'Aron'],[305,'Lairon'],[306,'Aggron'],[307,'Meditite'],[308,'Medicham'],[309,'Electrike'],[310,'Manectric'],[311,'Plusle'],[312,'Minun'],[313,'Volbeat'],[314,'Illumise'],[315,'Roselia'],[316,'Gulpin'],[317,'Swalot'],[318,'Carvanha'],[319,'Sharpedo'],[320,'Wailmer'],[321,'Wailord'],[322,'Numel'],[323,'Camerupt'],[324,'Torkoal'],[325,'Spoink'],[326,'Grumpig'],[327,'Spinda'],[328,'Trapinch'],[329,'Vibrava'],[330,'Flygon'],[331,'Cacnea'],[332,'Cacturne'],[333,'Swablu'],[334,'Altaria'],[335,'Zangoose'],[336,'Seviper'],[337,'Lunatone'],[338,'Solrock'],[339,'Barboach'],[340,'Whiscash'],[341,'Corphish'],[342,'Crawdaunt'],[343,'Baltoy'],[344,'Claydol'],[345,'Lileep'],[346,'Cradily'],[347,'Anorith'],[348,'Armaldo'],[349,'Feebas'],[350,'Milotic'],[351,'Castform'],[352,'Kecleon'],[353,'Shuppet'],[354,'Banette'],[355,'Duskull'],[356,'Dusclops'],[357,'Tropius'],[358,'Chimecho'],[359,'Absol'],[360,'Wynaut'],[361,'Snorunt'],[362,'Glalie'],[363,'Spheal'],[364,'Sealeo'],[365,'Walrein'],[366,'Clamperl'],[367,'Huntail'],[368,'Gorebyss'],[369,'Relicanth'],[370,'Luvdisc'],[371,'Bagon'],[372,'Shelgon'],[373,'Salamence'],[374,'Beldum'],[375,'Metang'],[376,'Metagross'],[377,'Regirock'],[378,'Regice'],[379,'Registeel'],[380,'Latias'],[381,'Latios'],[382,'Kyogre'],[383,'Groudon'],[384,'Rayquaza'],[385,'Jirachi'],[386,'Deoxys'],[387,'Turtwig'],[388,'Grotle'],[389,'Torterra'],[390,'Chimchar'],[391,'Monferno'],[392,'Infernape'],[393,'Piplup'],[394,'Prinplup'],[395,'Empoleon'],[396,'Starly'],[397,'Staravia'],[398,'Staraptor'],[399,'Bidoof'],[400,'Bibarel'],[401,'Kricketot'],[402,'Kricketune'],[403,'Shinx'],[404,'Luxio'],[405,'Luxray'],[406,'Budew'],[407,'Roserade'],[408,'Cranidos'],[409,'Rampardos'],[410,'Shieldon'],[411,'Bastiodon'],[412,'Burmy'],[413,'Wormadam'],[414,'Mothim'],[415,'Combee'],[416,'Vespiquen'],[417,'Pachirisu'],[418,'Buizel'],[419,'Floatzel'],[420,'Cherubi'],[421,'Cherrim'],[422,'Shellos'],[423,'Gastrodon'],[424,'Ambipom'],[425,'Drifloon'],[426,'Drifblim'],[427,'Buneary'],[428,'Lopunny'],[429,'Mismagius'],[430,'Honchkrow'],[431,'Glameow'],[432,'Purugly'],[433,'Chingling'],[434,'Stunky'],[435,'Skuntank'],[436,'Bronzor'],[437,'Bronzong'],[438,'Bonsly'],[439,'Mime Jr.'],[440,'Happiny'],[441,'Chatot'],[442,'Spiritomb'],[443,'Gible'],[444,'Gabite'],[445,'Garchomp'],[446,'Munchlax'],[447,'Riolu'],[448,'Lucario'],[449,'Hippopotas'],[450,'Hippowdon'],[451,'Skorupi'],[452,'Drapion'],[453,'Croagunk'],[454,'Toxicroak'],[455,'Carnivine'],[456,'Finneon'],[457,'Lumineon'],[458,'Mantyke'],[459,'Snover'],[460,'Abomasnow'],[461,'Weavile'],[462,'Magnezone'],[463,'Lickilicky'],[464,'Rhyperior'],[465,'Tangrowth'],[466,'Electivire'],[467,'Magmortar'],[468,'Togekiss'],[469,'Yanmega'],[470,'Leafeon'],[471,'Glaceon'],[472,'Gliscor'],[473,'Mamoswine'],[474,'Porygon-Z'],[475,'Gallade'],[476,'Probopass'],[477,'Dusknoir'],[478,'Froslass'],[479,'Rotom'],[480,'Uxie'],[481,'Mesprit'],[482,'Azelf'],[483,'Dialga'],[484,'Palkia'],[485,'Heatran'],[486,'Regigigas'],[487,'Giratina'],[488,'Cresselia'],[489,'Phione'],[490,'Manaphy'],[491,'Darkrai'],[492,'Shaymin'],[493,'Arceus'],[494,'Victini'],[495,'Snivy'],[496,'Servine'],[497,'Serperior'],[498,'Tepig'],[499,'Pignite'],[500,'Emboar'],[501,'Oshawott'],[502,'Dewott'],[503,'Samurott'],[504,'Patrat'],[505,'Watchog'],[506,'Lillipup'],[507,'Herdier'],[508,'Stoutland'],[509,'Purrloin'],[510,'Liepard'],[511,'Pansage'],[512,'Simisage'],[513,'Pansear'],[514,'Simisear'],[515,'Panpour'],[516,'Simipour'],[517,'Munna'],[518,'Musharna'],[519,'Pidove'],[520,'Tranquill'],[521,'Unfezant'],[522,'Blitzle'],[523,'Zebstrika'],[524,'Roggenrola'],[525,'Boldore'],[526,'Gigalith'],[527,'Woobat'],[528,'Swoobat'],[529,'Drilbur'],[530,'Excadrill'],[531,'Audino'],[532,'Timburr'],[533,'Gurdurr'],[534,'Conkeldurr'],[535,'Tympole'],[536,'Palpitoad'],[537,'Seismitoad'],[538,'Throh'],[539,'Sawk'],[540,'Sewaddle'],[541,'Swadloon'],[542,'Leavanny'],[543,'Venipede'],[544,'Whirlipede'],[545,'Scolipede'],[546,'Cottonee'],[547,'Whimsicott'],[548,'Petilil'],[549,'Lilligant'],[550,'Basculin'],[551,'Sandile'],[552,'Krokorok'],[553,'Krookodile'],[554,'Darumaka'],[555,'Darmanitan'],[556,'Maractus'],[557,'Dwebble'],[558,'Crustle'],[559,'Scraggy'],[560,'Scrafty'],[561,'Sigilyph'],[562,'Yamask'],[563,'Cofagrigus'],[564,'Tirtouga'],[565,'Carracosta'],[566,'Archen'],[567,'Archeops'],[568,'Trubbish'],[569,'Garbodor'],[570,'Zorua'],[571,'Zoroark'],[572,'Minccino'],[573,'Cinccino'],[574,'Gothita'],[575,'Gothorita'],[576,'Gothitelle'],[577,'Solosis'],[578,'Duosion'],[579,'Reuniclus'],[580,'Ducklett'],[581,'Swanna'],[582,'Vanillite'],[583,'Vanillish'],[584,'Vanilluxe'],[585,'Deerling'],[586,'Sawsbuck'],[587,'Emolga'],[588,'Karrablast'],[589,'Escavalier'],[590,'Foongus'],[591,'Amoonguss'],[592,'Frillish'],[593,'Jellicent'],[594,'Alomomola'],[595,'Joltik'],[596,'Galvantula'],[597,'Ferroseed'],[598,'Ferrothorn'],[599,'Klink'],[600,'Klang'],[601,'Klinklang'],[602,'Tynamo'],[603,'Eelektrik'],[604,'Eelektross'],[605,'Elgyem'],[606,'Beheeyem'],[607,'Litwick'],[608,'Lampent'],[609,'Chandelure'],[610,'Axew'],[611,'Fraxure'],[612,'Haxorus'],[613,'Cubchoo'],[614,'Beartic'],[615,'Cryogonal'],[616,'Shelmet'],[617,'Accelgor'],[618,'Stunfisk'],[619,'Mienfoo'],[620,'Mienshao'],[621,'Druddigon'],[622,'Golett'],[623,'Golurk'],[624,'Pawniard'],[625,'Bisharp'],[626,'Bouffalant'],[627,'Rufflet'],[628,'Braviary'],[629,'Vullaby'],[630,'Mandibuzz'],[631,'Heatmor'],[632,'Durant'],[633,'Deino'],[634,'Zweilous'],[635,'Hydreigon'],[636,'Larvesta'],[637,'Volcarona'],[638,'Cobalion'],[639,'Terrakion'],[640,'Virizion'],[641,'Tornadus'],[642,'Thundurus'],[643,'Reshiram'],[644,'Zekrom'],[645,'Landorus'],[646,'Kyurem'],[647,'Keldeo'],[648,'Meloetta'],[649,'Genesect'],[650,'Chespin'],[651,'Quilladin'],[652,'Chesnaught'],[653,'Fennekin'],[654,'Braixen'],[655,'Delphox'],[656,'Froakie'],[657,'Frogadier'],[658,'Greninja'],[659,'Bunnelby'],[660,'Diggersby'],[661,'Fletchling'],[662,'Fletchinder'],[663,'Talonflame'],[664,'Scatterbug'],[665,'Spewpa'],[666,'Vivillon'],[667,'Litleo'],[668,'Pyroar'],[669,'Flabébé'],[670,'Floette'],[671,'Florges'],[672,'Skiddo'],[673,'Gogoat'],[674,'Pancham'],[675,'Pangoro'],[676,'Furfrou'],[677,'Espurr'],[678,'Meowstic'],[679,'Honedge'],[680,'Doublade'],[681,'Aegislash'],[682,'Spritzee'],[683,'Aromatisse'],[684,'Swirlix'],[685,'Slurpuff'],[686,'Inkay'],[687,'Malamar'],[688,'Binacle'],[689,'Barbaracle'],[690,'Skrelp'],[691,'Dragalge'],[692,'Clauncher'],[693,'Clawitzer'],[694,'Helioptile'],[695,'Heliolisk'],[696,'Tyrunt'],[697,'Tyrantrum'],[698,'Amaura'],[699,'Aurorus'],[700,'Sylveon'],[701,'Hawlucha'],[702,'Dedenne'],[703,'Carbink'],[704,'Goomy'],[705,'Sliggoo'],[706,'Goodra'],[707,'Klefki'],[708,'Phantump'],[709,'Trevenant'],[710,'Pumpkaboo'],[711,'Gourgeist'],[712,'Bergmite'],[713,'Avalugg'],[714,'Noibat'],[715,'Noivern'],[716,'Xerneas'],[717,'Yveltal'],[718,'Zygarde'],[719,'Diancie'],[720,'Hoopa'],[721,'Volcanion'],[722,'Rowlet'],[723,'Dartrix'],[724,'Decidueye'],[725,'Litten'],[726,'Torracat'],[727,'Incineroar'],[728,'Popplio'],[729,'Brionne'],[730,'Primarina'],[731,'Pikipek'],[732,'Trumbeak'],[733,'Toucannon'],[734,'Yungoos'],[735,'Gumshoos'],[736,'Grubbin'],[737,'Charjabug'],[738,'Vikavolt'],[739,'Crabrawler'],[740,'Crabominable'],[741,'Oricorio'],[742,'Cutiefly'],[743,'Ribombee'],[744,'Rockruff'],[745,'Lycanroc'],[746,'Wishiwashi'],[747,'Mareanie'],[748,'Toxapex'],[749,'Mudbray'],[750,'Mudsdale'],[751,'Dewpider'],[752,'Araquanid'],[753,'Fomantis'],[754,'Lurantis'],[755,'Morelull'],[756,'Shiinotic'],[757,'Salandit'],[758,'Salazzle'],[759,'Stufful'],[760,'Bewear'],[761,'Bounsweet'],[762,'Steenee'],[763,'Tsareena'],[764,'Comfey'],[765,'Oranguru'],[766,'Passimian'],[767,'Wimpod'],[768,'Golisopod'],[769,'Sandygast'],[770,'Palossand'],[771,'Pyukumuku'],[772,'Type: Null'],[773,'Silvally'],[774,'Minior'],[775,'Komala'],[776,'Turtonator'],[777,'Togedemaru'],[778,'Mimikyu'],[779,'Bruxish'],[780,'Drampa'],[781,'Dhelmise'],[782,'Jangmo-o'],[783,'Hakamo-o'],[784,'Kommo-o'],[785,'Tapu Koko'],[786,'Tapu Lele'],[787,'Tapu Bulu'],[788,'Tapu Fini'],[789,'Cosmog'],[790,'Cosmoem'],[791,'Solgaleo'],[792,'Lunala'],[793,'Nihilego'],[794,'Buzzwole'],[795,'Pheromosa'],[796,'Xurkitree'],[797,'Celesteela'],[798,'Kartana'],[799,'Guzzlord'],[800,'Necrozma'],[801,'Magearna'],[802,'Marshadow'],[803,'Poipole'],[804,'Naganadel'],[805,'Stakataka'],[806,'Blacephalon'],[807,'Zeraora'],[808,'Meltan'],[809,'Melmetal'],[810,'Grookey'],[811,'Thwackey'],[812,'Rillaboom'],[813,'Scorbunny'],[814,'Raboot'],[815,'Cinderace'],[816,'Sobble'],[817,'Drizzile'],[818,'Inteleon'],[819,'Skwovet'],[820,'Greedent'],[821,'Rookidee'],[822,'Corvisquire'],[823,'Corviknight'],[824,'Blipbug'],[825,'Dottler'],[826,'Orbeetle'],[827,'Nickit'],[828,'Thievul'],[829,'Gossifleur'],[830,'Eldegoss'],[831,'Wooloo'],[832,'Dubwool'],[833,'Chewtle'],[834,'Drednaw'],[835,'Yamper'],[836,'Boltund'],[837,'Rolycoly'],[838,'Carkol'],[839,'Coalossal'],[840,'Applin'],[841,'Flapple'],[842,'Appletun'],[843,'Silicobra'],[844,'Sandaconda'],[845,'Cramorant'],[846,'Arrokuda'],[847,'Barraskewda'],[848,'Toxel'],[849,'Toxtricity'],[850,'Sizzlipede'],[851,'Centiskorch'],[852,'Clobbopus'],[853,'Grapploct'],[854,'Sinistea'],[855,'Polteageist'],[856,'Hatenna'],[857,'Hattrem'],[858,'Hatterene'],[859,'Impidimp'],[860,'Morgrem'],[861,'Grimmsnarl'],[862,'Obstagoon'],[863,'Perrserker'],[864,'Cursola'],[865,"Sirfetch'd"],[866,'Mr. Rime'],[867,'Runerigus'],[868,'Milcery'],[869,'Alcremie'],[870,'Falinks'],[871,'Pincurchin'],[872,'Snom'],[873,'Frosmoth'],[874,'Stonjourner'],[875,'Eiscue'],[876,'Indeedee'],[877,'Morpeko'],[878,'Cufant'],[879,'Copperajah'],[880,'Dracozolt'],[881,'Arctozolt'],[882,'Dracovish'],[883,'Arctovish'],[884,'Duraludon'],[885,'Dreepy'],[886,'Drakloak'],[887,'Dragapult'],[888,'Zacian'],[889,'Zamazenta'],[890,'Eternatus'],[891,'Kubfu'],[892,'Urshifu'],[893,'Zarude'],[894,'Regieleki'],[895,'Regidrago'],[896,'Glastrier'],[897,'Spectrier'],[898,'Calyrex'],[899,'Wyrdeer'],[900,'Kleavor'],[901,'Ursaluna'],[902,'Basculegion'],[903,'Sneasler'],[904,'Overqwil'],[905,'Enamorus'],[906,'Sprigatito'],[907,'Floragato'],[908,'Meowscarada'],[909,'Fuecoco'],[910,'Crocalor'],[911,'Skeledirge'],[912,'Quaxly'],[913,'Quaxwell'],[914,'Quaquaval'],[915,'Lechonk'],[916,'Oinkologne'],[917,'Tarountula'],[918,'Spidops'],[919,'Nymble'],[920,'Lokix'],[921,'Pawmi'],[922,'Pawmo'],[923,'Pawmot'],[924,'Tandemaus'],[925,'Maushold'],[926,'Fidough'],[927,'Dachsbun'],[928,'Smoliv'],[929,'Dolliv'],[930,'Arboliva'],[931,'Squawkabilly'],[932,'Nacli'],[933,'Naclstack'],[934,'Garganacl'],[935,'Charcadet'],[936,'Armarouge'],[937,'Ceruledge'],[938,'Tadbulb'],[939,'Bellibolt'],[940,'Wattrel'],[941,'Kilowattrel'],[942,'Maschiff'],[943,'Mabosstiff'],[944,'Shroodle'],[945,'Grafaiai'],[946,'Bramblin'],[947,'Brambleghast'],[948,'Toedscool'],[949,'Toedscruel'],[950,'Klawf'],[951,'Capsakid'],[952,'Scovillain'],[953,'Rellor'],[954,'Rabsca'],[955,'Flittle'],[956,'Espathra'],[957,'Tinkatink'],[958,'Tinkatuff'],[959,'Tinkaton'],[960,'Wiglett'],[961,'Wugtrio'],[962,'Bombirdier'],[963,'Finizen'],[964,'Palafin'],[965,'Varoom'],[966,'Revavroom'],[967,'Cyclizar'],[968,'Orthworm'],[969,'Glimmet'],[970,'Glimmora'],[971,'Greavard'],[972,'Houndstone'],[973,'Flamigo'],[974,'Cetoddle'],[975,'Cetitan'],[976,'Veluza'],[977,'Dondozo'],[978,'Tatsugiri'],[979,'Annihilape'],[980,'Clodsire'],[981,'Farigiraf'],[982,'Dudunsparce'],[983,'Kingambit'],[984,'Great Tusk'],[985,'Scream Tail'],[986,'Brute Bonnet'],[987,'Flutter Mane'],[988,'Slither Wing'],[989,'Sandy Shocks'],[990,'Iron Treads'],[991,'Iron Bundle'],[992,'Iron Hands'],[993,'Iron Jugulis'],[994,'Iron Moth'],[995,'Iron Thorns'],[996,'Frigibax'],[997,'Arctibax'],[998,'Baxcalibur'],[999,'Gimmighoul'],[1000,'Gholdengo'],[1001,'Wo-Chien'],[1002,'Chien-Pao'],[1003,'Ting-Lu'],[1004,'Chi-Yu'],[1005,'Roaring Moon'],[1006,'Iron Valiant'],[1007,'Koraidon'],[1008,'Miraidon'],[1009,'Walking Wake'],[1010,'Iron Leaves'],[1011,'Dipplin'],[1012,'Poltchageist'],[1013,'Sinistcha'],[1014,'Okidogi'],[1015,'Munkidori'],[1016,'Fezandipiti'],[1017,'Ogerpon'],[1018,'Archaludon'],[1019,'Hydrapple'],[1020,'Gouging Fire'],[1021,'Raging Bolt'],[1022,'Iron Boulder'],[1023,'Iron Crown'],[1024,'Terapagos'],[1025,'Pecharunt']];
 
 function isAlternateArt(card){
-  const num=parseInt(card.number);
-  const total=card.set?.total||999;
+  const num=parseInt(card.number);const total=card.set?.total||999;
   if(card.set?.series==='Sword & Shield'&&num>total)return true;
-  if(card.number&&card.number.startsWith('TG'))return true;
+  if(card.number?.startsWith('TG'))return true;
+  if(card.number?.startsWith('SH'))return true; // Shiny Vault
   return false;
 }
 function getDisplayRarity(card){
@@ -336,46 +348,52 @@ function getDisplayRarity(card){
   if(isAlternateArt(card))return 'Alternate Art';
   return card.rarity;
 }
-function getTcgPlayerId(card){
-  const url=card?.tcgplayer?.url||'';
-  const match=url.match(/\/(\d+)$/);
-  return match?match[1]:null;
-}
-function tcgPlayerUrl(card){
-  if(card?.tcgplayer?.url)return card.tcgplayer.url;
-  return `https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;
-}
-function ebaySearchUrl(cardName,setName,number){
-  const q=encodeURIComponent(`${cardName} ${setName} ${number} pokemon card`);
-  return `https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Complete=1&LH_Sold=1&_sacat=0`;
-}
+function getTcgPlayerId(card){const m=(card?.tcgplayer?.url||'').match(/\/(\d+)$/);return m?m[1]:null;}
+function tcgPlayerUrl(card){return card?.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;}
+function ebaySearchUrl(n,s,num){return `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${n} ${s} ${num} pokemon card`)}&LH_Complete=1&LH_Sold=1&_sacat=0`;}
 
 let cardDB={},collection={},wantList={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
 const pptCache={};
 
+// v4 storage: collection[dex] = [{cardId,notes,manualPrice,manualCard}, ...]
+// v2 want:    wantList[dex]  = [{cardId,manualPrice,manualCard}, ...]
+function migrateEntry(e){return Array.isArray(e)?e:(e?[e]:[]);}
 function loadData(){
-  try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v3')||'{}');}catch(e){collection={};}
-  try{wantList=JSON.parse(localStorage.getItem('pokedex_want_v1')||'{}');}catch(e){wantList={};}
+  // Try new format first
+  let rawCol=localStorage.getItem('pokedex_binder_v4');
+  let rawWant=localStorage.getItem('pokedex_want_v2');
+  // Migrate old single-entry format (v3/v1)
+  if(!rawCol){
+    try{
+      const old=JSON.parse(localStorage.getItem('pokedex_binder_v3')||'{}');
+      collection={};
+      for(const[k,v]of Object.entries(old)) collection[k]=migrateEntry(v);
+      localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));
+    }catch(e){collection={};}
+  }else{try{collection=JSON.parse(rawCol);}catch(e){collection={};}}
+  if(!rawWant){
+    try{
+      const old=JSON.parse(localStorage.getItem('pokedex_want_v1')||'{}');
+      wantList={};
+      for(const[k,v]of Object.entries(old)) wantList[k]=migrateEntry(v);
+      localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));
+    }catch(e){wantList={};}
+  }else{try{wantList=JSON.parse(rawWant);}catch(e){wantList={};}}
 }
-function saveCollection(){localStorage.setItem('pokedex_binder_v3',JSON.stringify(collection));updateStats();}
-function saveWantList(){localStorage.setItem('pokedex_want_v1',JSON.stringify(wantList));updateStats();}
+function saveCollection(){localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));updateStats();}
+function saveWantList(){localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));updateStats();}
 function dexStr(n){return '#'+String(n).padStart(4,'0');}
-function getGen(dex){for(let i=0;i<GEN_RANGES.length;i++)if(dex>=GEN_RANGES[i][0]&&dex<=GEN_RANGES[i][1])return i+1;return 9;}
-
+function getGen(d){for(let i=0;i<GEN_RANGES.length;i++)if(d>=GEN_RANGES[i][0]&&d<=GEN_RANGES[i][1])return i+1;return 9;}
 function rarityBadge(r){
-  const map={'Special Illustration Rare':['b-sir','SIR'],'Alternate Art':['b-alt','ALT'],'Hyper Rare':['b-hr','HR'],'Rainbow Rare':['b-rr','RR'],'Secret Rare':['b-sr','SR'],'Full Art':['b-fa','FA'],'Amazing Rare':['b-ar','AR'],'Illustration Rare':['b-ir','IR'],'Manual':['b-manual','M']};
-  const[cls,lbl]=map[r]||['b-unk',r||'?'];
-  return `<span class="badge ${cls}">${lbl}</span>`;
+  const m={'Special Illustration Rare':['b-sir','SIR'],'Alternate Art':['b-alt','ALT'],'Hyper Rare':['b-hr','HR'],'Rainbow Rare':['b-rr','RR'],'Secret Rare':['b-sr','SR'],'Full Art':['b-fa','FA'],'Amazing Rare':['b-ar','AR'],'Illustration Rare':['b-ir','IR'],'Manual':['b-manual','M']};
+  const[c,l]=m[r]||['b-unk',r||'?'];return `<span class="badge ${c}">${l}</span>`;
 }
 function bestCard(cards){
-  if(!cards||!cards.length)return null;
+  if(!cards?.length)return null;
   return[...cards].sort((a,b)=>{
-    const ra=RARITY_PRIORITY[getDisplayRarity(a)]??99;
-    const rb=RARITY_PRIORITY[getDisplayRarity(b)]??99;
+    const ra=RARITY_PRIORITY[getDisplayRarity(a)]??99,rb=RARITY_PRIORITY[getDisplayRarity(b)]??99;
     if(ra!==rb)return ra-rb;
-    const ea=ERA_ORDER[a.set?.series]??99;
-    const eb=ERA_ORDER[b.set?.series]??99;
-    return eb-ea;
+    return (ERA_ORDER[b.set?.series]??99)-(ERA_ORDER[a.set?.series]??99);
   })[0];
 }
 function getTcgPrice(card){
@@ -383,39 +401,28 @@ function getTcgPrice(card){
   const p=card.tcgplayer.prices;
   return p.holofoil?.market??p.reverseHolofoil?.market??p.normal?.market??p['1stEditionHolofoil']?.market??null;
 }
-function getCardPrice(card,col){
-  if(!card)return null;
-  if(col?.manualPrice!=null)return parseFloat(col.manualPrice);
-  return getTcgPrice(card);
-}
 function fmtPrice(p){return p!=null?'$'+parseFloat(p).toFixed(2):'—';}
 
+function entryPrice(entry,cards){
+  if(entry.manualPrice!=null&&!isNaN(+entry.manualPrice))return +entry.manualPrice;
+  const card=entry.cardId?cards.find(c=>c.id===entry.cardId):null;
+  const eff=card||(entry.cardId?null:bestCard(cards));
+  return eff?getTcgPrice(eff):null;
+}
 function updateStats(){
-  // Collection value
-  let collTotal=0;
-  for(const[dex,col]of Object.entries(collection)){
-    if(col.manualPrice!=null&&!isNaN(parseFloat(col.manualPrice))){collTotal+=parseFloat(col.manualPrice);continue;}
-    const cards=cardDB[parseInt(dex)]||[];
-    const selCard=col.cardId?cards.find(c=>c.id===col.cardId):null;
-    const card=selCard||bestCard(cards);
-    const p=card?getTcgPrice(card):null;
-    if(p!=null)collTotal+=p;
+  let ct=0;
+  for(const[d,entries]of Object.entries(collection)){
+    const cards=cardDB[+d]||[];
+    for(const entry of entries){const p=entryPrice(entry,cards);if(p!=null)ct+=p;}
   }
-  document.getElementById('coll-val').textContent='$'+collTotal.toFixed(2);
-
-  // Want list value
-  let wantTotal=0,wantN=Object.keys(wantList).length;
-  for(const[dex,w]of Object.entries(wantList)){
-    const cards=cardDB[parseInt(dex)]||[];
-    const selCard=w.cardId?cards.find(c=>c.id===w.cardId):null;
-    const card=selCard||bestCard(cards);
-    const p=card?getTcgPrice(card):null;
-    if(p!=null)wantTotal+=p;
+  document.getElementById('coll-val').textContent='$'+ct.toFixed(2);
+  let wt=0,wn=0;
+  for(const[d,entries]of Object.entries(wantList)){
+    const cards=cardDB[+d]||[];
+    for(const entry of entries){wn++;const p=entryPrice(entry,cards);if(p!=null)wt+=p;}
   }
-  document.getElementById('want-val').textContent='$'+wantTotal.toFixed(2);
-  document.getElementById('want-count').textContent=wantN;
-
-  // Progress
+  document.getElementById('want-val').textContent='$'+wt.toFixed(2);
+  document.getElementById('want-count').textContent=wn;
   const n=Object.keys(collection).length,t=ALL_POKEMON.length;
   document.getElementById('prog-bar').style.width=(n/t*100).toFixed(1)+'%';
   document.getElementById('prog-n').textContent=n;
@@ -423,72 +430,78 @@ function updateStats(){
 }
 
 function groupByEra(cards){
-  const groups={};
-  for(const card of cards){const era=card.set?.series||'Other';if(!groups[era])groups[era]=[];groups[era].push(card);}
-  return groups;
+  const g={};for(const c of cards){const e=c.set?.series||'Other';if(!g[e])g[e]=[];g[e].push(c);}return g;
 }
 
-async function fetchPptPrice(tcgPlayerId){
-  if(!tcgPlayerId)return null;
-  if(pptCache[tcgPlayerId]!==undefined)return pptCache[tcgPlayerId];
+async function fetchPptPrice(tcgId){
+  if(!tcgId)return null;
+  if(pptCache[tcgId]!==undefined)return pptCache[tcgId];
   try{
-    const r=await fetch(`${PPT_BASE}?tcgPlayerId=${tcgPlayerId}`,{headers:{'Authorization':`Bearer ${PPT_KEY}`}});
-    if(!r.ok){pptCache[tcgPlayerId]=null;return null;}
+    const r=await fetch(`${PPT_BASE}?tcgPlayerId=${tcgId}`,{headers:{'Authorization':`Bearer ${PPT_KEY}`}});
+    if(!r.ok){pptCache[tcgId]=null;return null;}
     const d=await r.json();
     const card=d?.data?.[0];
     const price=card?.prices?.market||card?.prices?.mid||null;
-    pptCache[tcgPlayerId]=price?parseFloat(price):null;
-    return pptCache[tcgPlayerId];
-  }catch(e){pptCache[tcgPlayerId]=null;return null;}
+    pptCache[tcgId]=price?+price:null;return pptCache[tcgId];
+  }catch(e){pptCache[tcgId]=null;return null;}
 }
 
-async function loadAllCards(){
-  setStatus('loading','Loading card data…');
-  const cached=localStorage.getItem('pokedex_card_cache_v9');
-  const age=localStorage.getItem('pokedex_card_cache_age_v9');
-  if(cached&&age&&(Date.now()-parseInt(age))<86400000){
-    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render();return;}catch(e){}
-  }
-  const BATCH=5,DELAY=450;
-  const batches=[];
-  for(let i=0;i<ALL_POKEMON.length;i+=BATCH)batches.push(ALL_POKEMON.slice(i,i+BATCH));
-  for(const batch of batches){
-    await Promise.all(batch.map(([dex,name])=>fetchPokemon(dex,name)));
-    loadedCount=Math.min(loadedCount+batch.length,ALL_POKEMON.length);
-    setStatus('loading',`Loading… ${loadedCount}/${ALL_POKEMON.length}`);
-    render();
-    await new Promise(r=>setTimeout(r,DELAY));
-  }
-  try{localStorage.setItem('pokedex_card_cache_v9',JSON.stringify(cardDB));localStorage.setItem('pokedex_card_cache_age_v9',String(Date.now()));}catch(e){}
-  setStatus('done','All cards loaded ✓');
-  updateStats();render();
-}
-
-async function fetchPokemon(dex,name){
+// ─────────────────────────────────────────────────────────────────
+// THE FIX: search by nationalPokedexNumbers instead of card name.
+// No more encoding issues with ♀ ♂ apostrophes or spaces.
+// Catches every card variant: ex, VMAX, V, GX, etc.
+// Cache bumped to v10 — forces a fresh fetch for all 1025 Pokémon.
+// ─────────────────────────────────────────────────────────────────
+async function fetchPokemon(dex){
   try{
-    const safeName=name.replace(/[♀♂]/g,'').replace(/'/g,'').trim();
-    const rarQ=TARGET_RARITIES.map(r=>`rarity:"${r}"`).join(' OR ');
-    const q=encodeURIComponent(`name:"${safeName}*" (${rarQ})`);
-    const r=await fetch(`${API_BASE}?q=${q}&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=100`);
+    // No rarity filter — fetch everything, all sets, all eras
+    const q=encodeURIComponent(`nationalPokedexNumbers:${dex}`);
+    const r=await fetch(`${API_BASE}?q=${q}&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=250`);
     if(!r.ok){cardDB[dex]=[];return;}
     const d=await r.json();
-    const cards=(d.data||[]).filter(c=>VALID_SERIES.includes(c.set?.series||''));
+    // No series filter — keep all cards
+    const cards=d.data||[];
     cards.sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99));
     cardDB[dex]=cards;
   }catch(e){cardDB[dex]=[];}
 }
 
-function setStatus(state,txt){document.getElementById('api-txt').textContent=txt;document.getElementById('api-dot').className='dot '+state;}
+async function loadAllCards(){
+  setStatus('loading','Loading card data…');
+  const cached=localStorage.getItem(CACHE_KEY);
+  const age=localStorage.getItem(CACHE_AGE_KEY);
+  if(cached&&age&&(Date.now()-+age)<86400000){
+    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render();return;}catch(e){}
+  }
+  // Purge all old cache versions
+  for(let v=1;v<=10;v++){
+    localStorage.removeItem(`pokedex_card_cache_v${v}`);
+    localStorage.removeItem(`pokedex_card_cache_age_v${v}`);
+  }
+  const BATCH=5,DELAY=450;
+  const batches=[];
+  for(let i=0;i<ALL_POKEMON.length;i+=BATCH)batches.push(ALL_POKEMON.slice(i,i+BATCH));
+  for(const batch of batches){
+    await Promise.all(batch.map(([dex])=>fetchPokemon(dex)));
+    loadedCount=Math.min(loadedCount+batch.length,ALL_POKEMON.length);
+    setStatus('loading',`Loading… ${loadedCount}/${ALL_POKEMON.length}`);
+    render();
+    await new Promise(r=>setTimeout(r,DELAY));
+  }
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(cardDB));localStorage.setItem(CACHE_AGE_KEY,String(Date.now()));}catch(e){}
+  setStatus('done','All cards loaded ✓');updateStats();render();
+}
+
+function setStatus(s,t){document.getElementById('api-txt').textContent=t;document.getElementById('api-dot').className='dot '+s;}
 
 function getFiltered(){
   const q=document.getElementById('search').value.toLowerCase().trim();
   const fE=document.getElementById('f-era').value;
   const fR=document.getElementById('f-rar').value;
-  const fG=parseInt(document.getElementById('f-gen').value)||0;
+  const fG=+document.getElementById('f-gen').value||0;
   return ALL_POKEMON.filter(([dex,name])=>{
     if(q&&!name.toLowerCase().includes(q)&&!String(dex).includes(q))return false;
-    const isCol=!!collection[dex];
-    const isWant=!!wantList[dex];
+    const isCol=!!(collection[dex]?.length),isWant=!!(wantList[dex]?.length);
     if(filterMode==='col'&&!isCol)return false;
     if(filterMode==='want'&&!isWant)return false;
     if(filterMode==='mis'&&(isCol||isWant))return false;
@@ -497,7 +510,7 @@ function getFiltered(){
     if(fE&&!cards.some(c=>c.set?.series===fE))return false;
     if(fR){
       if(fR==='Alternate Art'){if(!cards.some(c=>isAlternateArt(c)))return false;}
-      else{if(!cards.some(c=>c.rarity===fR&&!isAlternateArt(c)))return false;}
+      else{if(!cards.some(c=>c.rarity===fR))return false;}
     }
     return true;
   });
@@ -505,7 +518,6 @@ function getFiltered(){
 
 function render(){
   updateStats();
-  // Want list view is special
   if(filterMode==='want'){renderWantList();return;}
   const items=getFiltered();
   const area=document.getElementById('main');
@@ -520,55 +532,42 @@ function renderWantList(){
     area.innerHTML='<div class="empty"><div class="empty-icon">⭐</div><div style="font-size:0.9rem">Your want list is empty</div><div style="font-size:0.8rem;margin-top:4px">Open any Pokémon and tap "Add to Want List"</div></div>';
     return;
   }
-
-  // Sort by price low to high by default
   const sortEl=document.getElementById('want-sort-sel');
   const sortMode=sortEl?sortEl.value:'price-asc';
-
-  // Build want items with prices
-  let items=wants.map(([dex,w])=>{
-    const d=parseInt(dex);
-    const name=ALL_POKEMON.find(p=>p[0]===d)?.[1]||'';
+  // Flatten array: each want entry becomes its own row
+  let items=[];
+  for(const[dex,entries]of wants){
+    const d=+dex,name=ALL_POKEMON.find(p=>p[0]===d)?.[1]||'';
     const cards=cardDB[d]||[];
-    const selCard=w.cardId?cards.find(c=>c.id===w.cardId):null;
-    const card=selCard||bestCard(cards)||w.manualCard||null;
-    const price=card?getTcgPrice(card):null;
-    return{dex:d,name,card,price,w};
-  });
-
-  if(sortMode==='price-asc') items.sort((a,b)=>(a.price??9999)-(b.price??9999));
-  else if(sortMode==='price-desc') items.sort((a,b)=>(b.price??-1)-(a.price??-1));
-  else if(sortMode==='dex') items.sort((a,b)=>a.dex-b.dex);
-  else if(sortMode==='name') items.sort((a,b)=>a.name.localeCompare(b.name));
-
-  let totalKnown=0,unknownCount=0;
-  items.forEach(i=>{if(i.price!=null)totalKnown+=i.price;else unknownCount++;});
-
-  let html=`
-  <div class="want-header">
-    <div>
-      <div class="want-title">⭐ Want List — ${items.length} cards</div>
-      <div class="want-total">Estimated total: <strong>$${totalKnown.toFixed(2)}</strong>${unknownCount>0?` + ${unknownCount} without price`:''}</div>
-    </div>
-    <div class="want-sort">
-      <label>Sort:</label>
+    for(let idx=0;idx<entries.length;idx++){
+      const w=entries[idx];
+      const card=(w.cardId?cards.find(c=>c.id===w.cardId):null)||w.manualCard||null;
+      const price=w.manualPrice!=null&&!isNaN(+w.manualPrice)?+w.manualPrice:(card?getTcgPrice(card):null);
+      items.push({dex:d,name,card,price,w,idx});
+    }
+  }
+  if(sortMode==='price-asc')items.sort((a,b)=>(a.price??9999)-(b.price??9999));
+  else if(sortMode==='price-desc')items.sort((a,b)=>(b.price??-1)-(a.price??-1));
+  else if(sortMode==='dex')items.sort((a,b)=>a.dex-b.dex);
+  else items.sort((a,b)=>a.name.localeCompare(b.name));
+  let known=0,unk=0;items.forEach(i=>i.price!=null?known+=i.price:unk++);
+  let html=`<div class="want-header">
+    <div><div class="want-title">⭐ Want List — ${items.length} cards</div>
+    <div class="want-total">Estimated total: <strong>$${known.toFixed(2)}</strong>${unk>0?` + ${unk} without price`:''}</div></div>
+    <div class="want-sort"><label>Sort:</label>
       <select id="want-sort-sel" onchange="renderWantList()" style="font-size:0.75rem;padding:4px 8px">
-        <option value="price-asc"${sortMode==='price-asc'?' selected':''}>Price: Low to High</option>
-        <option value="price-desc"${sortMode==='price-desc'?' selected':''}>Price: High to Low</option>
+        <option value="price-asc"${sortMode==='price-asc'?' selected':''}>Price: Low → High</option>
+        <option value="price-desc"${sortMode==='price-desc'?' selected':''}>Price: High → Low</option>
         <option value="dex"${sortMode==='dex'?' selected':''}>Pokédex Order</option>
         <option value="name"${sortMode==='name'?' selected':''}>Name A–Z</option>
       </select>
     </div>
-  </div>
-  <div class="want-list">`;
-
-  for(const{dex,name,card,price,w}of items){
+  </div><div class="want-list">`;
+  for(const{dex,name,card,price}of items){
     const dispRar=card?getDisplayRarity(card):null;
     const tcgUrl=card?tcgPlayerUrl(card):`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(name)}`;
     const ebUrl=card?ebaySearchUrl(card.name,card.set?.name||'',card.number||''):`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(name+' pokemon card')}&LH_Complete=1&LH_Sold=1&_sacat=0`;
-
-    html+=`
-    <div class="want-item${price==null?' no-price':''}">
+    html+=`<div class="want-item${price==null?' no-price':''}">
       <span class="want-dex">${dexStr(dex)}</span>
       <span class="want-name">${name}</span>
       <div class="want-card-info">
@@ -577,278 +576,290 @@ function renderWantList(){
       <div class="want-actions">
         <div class="want-price${price==null?' no-price':''}">${price!=null?fmtPrice(price):'No price'}</div>
         <div class="want-btns">
-          <a class="buy-btn" href="${tcgUrl}" target="_blank">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            TCGPlayer
-          </a>
+          <a class="buy-btn" href="${tcgUrl}" target="_blank"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>TCGPlayer</a>
           <a class="ebay-btn" href="${ebUrl}" target="_blank">eBay</a>
-          <button class="remove-want-btn" onclick="removeWant(${dex})">✕</button>
+          <button class="remove-want-btn" onclick="removeWant(${dex},${idx})">✕</button>
         </div>
       </div>
     </div>`;
   }
-
-  html+='</div>';
-  area.innerHTML=html;
+  html+='</div>';area.innerHTML=html;
 }
 
 function renderGrid(items,area){
-  let html='<div class="grid">';
-  let lastGen=-1;
+  let html='<div class="grid">',lastGen=-1;
   for(const[dex,name]of items){
     const gen=getGen(dex);
     if(gen!==lastGen){html+=`<div class="gen-hdr">${GEN_NAMES[gen-1]}</div>`;lastGen=gen;}
     const cards=cardDB[dex];
-    const isCol=!!collection[dex];
-    const isWant=!!wantList[dex];
-    const col=collection[dex];
+    const colEntries=collection[dex]||[];
+    const wantEntries=wantList[dex]||[];
+    const isCol=colEntries.length>0,isWant=wantEntries.length>0;
+    // Gather all API cards plus any manual cards from collection entries
     const allCards=[...(cards||[])];
-    if(col?.manualCard)allCards.unshift(col.manualCard);
+    colEntries.forEach(e=>{if(e.manualCard)allCards.unshift(e.manualCard);});
     const best=allCards.length?bestCard(allCards):null;
-    const dispRar=best?getDisplayRarity(best):null;
-    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getTcgPrice(best):null);
+    // Show total value of all owned entries for this Pokémon
+    const dbCards=cards||[];
+    const totalColVal=colEntries.reduce((sum,e)=>{const p=entryPrice(e,dbCards);return sum+(p||0);},0);
+    const price=colEntries.length?totalColVal:null;
     const isLoad=cards===undefined;
-    let statusBadge='';
-    if(isCol)statusBadge=`<div class="status-badge collected"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`;
-    else if(isWant)statusBadge=`<div class="status-badge wanted"><span>⭐</span></div>`;
-    let inner='';
-    if(isLoad){inner=`<div class="card-count"><span class="spinner"></span></div>`;}
-    else if(!allCards.length){inner=`<div class="no-cards">No cards found — tap to add</div>`;}
-    else{inner=`<div class="card-count"><span>${allCards.length}</span> card${allCards.length!==1?'s':''} available</div>${best?rarityBadge(dispRar):''}<div class="card-best" style="margin-top:4px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?(best.set?.name||'Manual')+' · #'+(best.number||'—'):''}</div><div class="card-price" style="margin-top:3px">TCG: <span>${fmtPrice(price)}</span></div>`;}
+    let sb='';
+    if(isCol){
+      const cnt=colEntries.length;
+      sb=`<div class="status-badge collected" style="${cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':''}"><${cnt>1?`span style="color:#fff"`:'svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"'}>${cnt>1?cnt+'×':'<polyline points="20 6 9 17 4 12"/>'}</${cnt>1?'span':'svg'}></div>`;
+    }else if(isWant){
+      const cnt=wantEntries.length;
+      sb=`<div class="status-badge wanted" style="${cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':''}"><span>${cnt>1?'⭐×'+cnt:'⭐'}</span></div>`;
+    }
+    let inner=isLoad?`<div class="card-count"><span class="spinner"></span></div>`:
+      !allCards.length?`<div class="no-cards">No cards found — tap to add manually</div>`:
+      `<div class="card-count"><span>${allCards.length}</span> card${allCards.length!==1?'s':''}</div>${best?rarityBadge(getDisplayRarity(best)):''}<div class="card-best" style="margin-top:4px">${best?best.name:''}</div><div class="card-best" style="color:var(--text3)">${best?(best.set?.name||'Manual')+' · #'+(best.number||'—'):''}</div><div class="card-price">TCG: <span>${price!=null?fmtPrice(price):'—'}</span></div>`;
     const cls=isCol?'collected':isWant?'wanted':'';
-    html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${statusBadge}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
+    html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
   }
-  html+='</div>';
-  area.innerHTML=html;
+  html+='</div>';area.innerHTML=html;
 }
 
 function renderListView(items,area){
   let html=`<div class="list-hdr"><span>#</span><span>Pokémon</span><span>Best Card</span><span class="list-col-rar">Rarity</span><span style="text-align:right">TCGPlayer</span><span style="text-align:center">Status</span></div><div class="list">`;
   for(const[dex,name]of items){
     const cards=cardDB[dex];
-    const isCol=!!collection[dex];
-    const isWant=!!wantList[dex];
-    const col=collection[dex];
+    const colEntries=collection[dex]||[];
+    const wantEntries=wantList[dex]||[];
+    const isCol=colEntries.length>0,isWant=wantEntries.length>0;
     const allCards=[...(cards||[])];
-    if(col?.manualCard)allCards.unshift(col.manualCard);
+    colEntries.forEach(e=>{if(e.manualCard)allCards.unshift(e.manualCard);});
     const best=allCards.length?bestCard(allCards):null;
-    const dispRar=best?getDisplayRarity(best):null;
-    const price=col?.manualPrice!=null?parseFloat(col.manualPrice):(best?getTcgPrice(best):null);
-    const isLoad=cards===undefined;
+    const dbCards=cards||[];
+    const totalColVal=colEntries.reduce((sum,e)=>{const p=entryPrice(e,dbCards);return sum+(p||0);},0);
+    const price=colEntries.length?totalColVal:null;
     const cls=isCol?'collected':isWant?'wanted':'';
+    const colCnt=colEntries.length,wantCnt=wantEntries.length;
     let chk='<div class="chk"></div>';
-    if(isCol)chk=`<div class="chk done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`;
-    else if(isWant)chk=`<div class="chk want"><span>⭐</span></div>`;
-    html+=`<div class="list-row${cls?' '+cls:''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${isLoad?'Loading…':(best?best.name+' · '+(best.set?.name||'Manual'):'No cards')}</span><span class="list-col-rar">${best?rarityBadge(dispRar):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check">${chk}</span></div>`;
+    if(isCol)chk=`<div class="chk done" style="${colCnt>1?'border-radius:6px;width:auto;padding:0 3px;font-size:8px;font-weight:600;color:#fff;':''}"><${colCnt>1?'span':'svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"'}>${colCnt>1?colCnt+'×':'<polyline points="20 6 9 17 4 12"/>'}</${colCnt>1?'span':'svg'}></div>`;
+    else if(isWant)chk=`<div class="chk want"><span>${wantCnt>1?'×'+wantCnt:'⭐'}</span></div>`;
+    html+=`<div class="list-row${cls?' '+cls:''}" onclick="openModal(${dex})"><span class="list-dex">${dexStr(dex)}</span><span class="list-name">${name}</span><span class="list-card">${cards===undefined?'Loading…':(best?best.name+' · '+(best.set?.name||'Manual'):'No cards')}</span><span class="list-col-rar">${best?rarityBadge(getDisplayRarity(best)):''}</span><span class="list-price">${fmtPrice(price)}</span><span class="list-check">${chk}</span></div>`;
   }
-  html+='</div>';
-  area.innerHTML=html;
+  html+='</div>';area.innerHTML=html;
 }
 
 async function openModal(dex){
   currentDex=dex;
   const name=ALL_POKEMON.find(p=>p[0]===dex)?.[1]||'';
-  const col=collection[dex];
-  const want=wantList[dex];
-  selCardId=col?.cardId||want?.cardId||null;
+  const colEntries=collection[dex]||[];
+  const wantEntries=wantList[dex]||[];
+  selCardId=colEntries[0]?.cardId||wantEntries[0]?.cardId||null;
   document.getElementById('m-dex').textContent=dexStr(dex);
   document.getElementById('m-name').textContent=name;
   const cards=cardDB[dex]||[];
+  const isWanted=wantEntries.length>0;
+  // Show owned cards summary
   let body='';
-
-  // Action buttons row
-  const isWanted=!!wantList[dex];
-  body+=`<div class="modal-action-row">
-    <button class="btn-want${isWanted?' active':''}" onclick="toggleWant()">${isWanted?'⭐ On Want List':'⭐ Add to Want List'}</button>
+  if(colEntries.length>0){
+    body+=`<div style="margin-bottom:0.75rem;padding:0.7rem;background:var(--green-bg);border:1px solid rgba(76,175,125,0.25);border-radius:var(--radius)">`;
+    body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--green);margin-bottom:5px">✓ In Your Collection (${colEntries.length})</div>`;
+    for(let i=0;i<colEntries.length;i++){
+      const e=colEntries[i];
+      const apiCard=e.cardId?cards.find(c=>c.id===e.cardId):null;
+      const card=apiCard||e.manualCard;
+      const p=entryPrice(e,cards);
+      body+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;${i>0?'border-top:1px solid rgba(76,175,125,0.15);margin-top:3px':''}">`;
+      body+=`<div><div style="font-size:0.8rem;font-weight:500;color:var(--text)">${card?card.name:'Unknown Card'}</div>`;
+      body+=`<div style="font-size:0.7rem;color:var(--text3)">${card?(card.set?.name||'Manual')+' · #'+(card.number||'—'):''}${e.notes?` · ${e.notes}`:''}</div></div>`;
+      body+=`<div style="display:flex;align-items:center;gap:7px"><span style="font-size:0.82rem;color:var(--gold);font-weight:500">${fmtPrice(p)}</span>`;
+      body+=`<button onclick="removeEntry(${i})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.65rem;color:var(--text3);cursor:pointer">✕</button></div>`;
+      body+=`</div>`;
+    }
+    body+=`</div>`;
+  }
+  if(wantEntries.length>0){
+    body+=`<div style="margin-bottom:0.75rem;padding:0.7rem;background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.25);border-radius:var(--radius)">`;
+    body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--yellow);margin-bottom:5px">⭐ Want List (${wantEntries.length})</div>`;
+    for(let i=0;i<wantEntries.length;i++){
+      const e=wantEntries[i];
+      const apiCard=e.cardId?cards.find(c=>c.id===e.cardId):null;
+      const card=apiCard||e.manualCard;
+      const p=entryPrice(e,cards);
+      body+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;${i>0?'border-top:1px solid rgba(251,191,36,0.15);margin-top:3px':''}">`;
+      body+=`<div style="font-size:0.8rem;font-weight:500;color:var(--text)">${card?card.name:'Any card'}</div>`;
+      body+=`<div style="display:flex;align-items:center;gap:7px"><span style="font-size:0.82rem;color:var(--yellow);font-weight:500">${fmtPrice(p)}</span>`;
+      body+=`<button onclick="removeWantEntry(${i})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.65rem;color:var(--text3);cursor:pointer">✕</button></div>`;
+      body+=`</div>`;
+    }
+    body+=`</div>`;
+  }
+  body+=`<div class="modal-action-row" style="gap:6px;margin-bottom:0.9rem">
+    <button class="btn-want" onclick="toggleWant()" style="flex:1">⭐ Add to Want List</button>
   </div>`;
-
   if(cards.length){
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
     const groups=groupByEra(cards);
-    const eraOrder=['Scarlet & Violet','Sword & Shield','Sun & Moon'];
     body+=`<span class="mlabel" style="margin-bottom:7px">Select card (${cards.length} found)</span>`;
-    for(const era of eraOrder){
+    for(const era of['Scarlet & Violet','Sword & Shield','Sun & Moon','XY','Black & White','HeartGold & SoulSilver','Platinum','Diamond & Pearl','EX','Neo','Gym','Base','Other']){
       if(!groups[era]?.length)continue;
       const eraCards=groups[era].sort((a,b)=>(RARITY_PRIORITY[getDisplayRarity(a)]??99)-(RARITY_PRIORITY[getDisplayRarity(b)]??99));
       body+=`<div class="era-group"><div class="era-title">${era}</div>`;
       for(const card of eraCards){
-        const tcgPrice=getTcgPrice(card);
-        const dispRar=getDisplayRarity(card);
         const sel=card.id===selCardId;
-        const tcgUrl=tcgPlayerUrl(card);
-        const ebUrl=ebaySearchUrl(card.name,card.set.name,card.number);
-        body+=`
-        <div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
+        body+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
           <div class="opt-name">${card.name}</div>
-          <div class="opt-meta">${rarityBadge(dispRar)}<span>${card.set.name}</span><span>#${card.number}</span></div>
+          <div class="opt-meta">${rarityBadge(getDisplayRarity(card))}<span>${card.set.name}</span><span>#${card.number}</span></div>
           <div class="price-row">
-            <div class="price-source">
-              <div class="price-source-label">TCGPlayer</div>
-              <div class="price-source-val">${fmtPrice(tcgPrice)}</div>
-            </div>
-            <div class="price-source" id="ppt-${card.id}">
-              <div class="price-source-label">PriceTracker</div>
-              <div class="price-source-val loading"><span class="spinner-sm"></span></div>
-            </div>
-            <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
-              <div class="price-source-label">eBay Sold</div>
-              <a class="ebay-btn" href="${ebUrl}" target="_blank" onclick="event.stopPropagation()">View ↗</a>
-            </div>
+            <div class="price-source"><div class="price-source-label">TCGPlayer</div><div class="price-source-val">${fmtPrice(getTcgPrice(card))}</div></div>
+            <div class="price-source" id="ppt-${card.id}"><div class="price-source-label">PriceTracker</div><div class="price-source-val loading"><span class="spinner-sm"></span></div></div>
+            <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div class="price-source-label">eBay Sold</div><a class="ebay-btn" href="${ebaySearchUrl(card.name,card.set.name,card.number)}" target="_blank" onclick="event.stopPropagation()">View ↗</a></div>
           </div>
-          <div style="margin-top:6px;display:flex;gap:5px">
-            <a class="buy-btn" href="${tcgUrl}" target="_blank" onclick="event.stopPropagation()">
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Buy on TCGPlayer
-            </a>
-          </div>
+          <div style="margin-top:6px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy on TCGPlayer</a></div>
         </div>`;
       }
       body+='</div>';
     }
   }else{
-    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No cards found in the API. Use manual entry below.</div>`;
+    body+=`<div style="color:var(--text3);font-size:0.82rem;margin-bottom:0.9rem;padding:0.7rem;background:var(--bg3);border-radius:var(--radius)">No premium cards found for this Pokémon. Use manual entry below.</div>`;
   }
-
-  const mc=col?.manualCard||want?.manualCard;
-  const mprice=col?.manualPrice!=null?col.manualPrice:'';
-  body+=`
-  <div class="manual-section">
-    <div class="manual-section-title">✦ Manual Card Entry</div>
+  const mc=null,mp=''; // Always blank for new entry
+  body+=`<div class="manual-section"><div class="manual-section-title">✦ Manual Card Entry</div>
     <div class="manual-grid">
       <div class="full"><label>Card Name</label><input type="text" id="m-card-name" placeholder="e.g. Butterfree VMAX" value="${mc?.name||''}"/></div>
       <div><label>Set Name</label><input type="text" id="m-set-name" placeholder="e.g. Darkness Ablaze" value="${mc?.set?.name||''}"/></div>
       <div><label>Card Number</label><input type="text" id="m-card-num" placeholder="e.g. 190/189" value="${mc?.number||''}"/></div>
-      <div><label>Rarity</label>
-        <select id="m-card-rar">
-          <option value="">Select…</option>
+      <div><label>Rarity</label><select id="m-card-rar">
+        <option value="">Select…</option>
+        <optgroup label="Modern (SV)">
           <option value="Special Illustration Rare"${mc?.rarity==='Special Illustration Rare'?' selected':''}>Special Illustration Rare</option>
           <option value="Hyper Rare"${mc?.rarity==='Hyper Rare'?' selected':''}>Hyper Rare</option>
-          <option value="Rainbow Rare"${mc?.rarity==='Rainbow Rare'?' selected':''}>Rainbow Rare</option>
-          <option value="Secret Rare"${mc?.rarity==='Secret Rare'?' selected':''}>Secret Rare</option>
-          <option value="Full Art"${mc?.rarity==='Full Art'?' selected':''}>Full Art</option>
           <option value="Illustration Rare"${mc?.rarity==='Illustration Rare'?' selected':''}>Illustration Rare</option>
+          <option value="Double Rare"${mc?.rarity==='Double Rare'?' selected':''}>Double Rare</option>
+          <option value="Shiny Rare"${mc?.rarity==='Shiny Rare'?' selected':''}>Shiny Rare</option>
+          <option value="Shiny Ultra Rare"${mc?.rarity==='Shiny Ultra Rare'?' selected':''}>Shiny Ultra Rare</option>
+        </optgroup>
+        <optgroup label="SwSh / Sun &amp; Moon">
           <option value="Amazing Rare"${mc?.rarity==='Amazing Rare'?' selected':''}>Amazing Rare</option>
-        </select>
-      </div>
-      <div><label>Era</label>
-        <select id="m-card-era">
-          <option value="Scarlet & Violet"${mc?.set?.series==='Scarlet & Violet'?' selected':''}>Scarlet &amp; Violet</option>
-          <option value="Sword & Shield"${mc?.set?.series==='Sword & Shield'?' selected':''}>Sword &amp; Shield</option>
-          <option value="Sun & Moon"${mc?.set?.series==='Sun & Moon'?' selected':''}>Sun &amp; Moon</option>
-        </select>
-      </div>
-    </div>
-  </div>
+          <option value="Rainbow Rare"${mc?.rarity==='Rainbow Rare'?' selected':''}>Rainbow Rare</option>
+          <option value="Full Art"${mc?.rarity==='Full Art'?' selected':''}>Full Art</option>
+          <option value="Ultra Rare"${mc?.rarity==='Ultra Rare'?' selected':''}>Ultra Rare</option>
+          <option value="Rare Holo VMAX"${mc?.rarity==='Rare Holo VMAX'?' selected':''}>Rare Holo VMAX</option>
+          <option value="Rare Holo VSTAR"${mc?.rarity==='Rare Holo VSTAR'?' selected':''}>Rare Holo VSTAR</option>
+          <option value="Rare Holo V"${mc?.rarity==='Rare Holo V'?' selected':''}>Rare Holo V</option>
+          <option value="Rare Holo GX"${mc?.rarity==='Rare Holo GX'?' selected':''}>Rare Holo GX</option>
+          <option value="Rare BREAK"${mc?.rarity==='Rare BREAK'?' selected':''}>Rare BREAK</option>
+        </optgroup>
+        <optgroup label="Older Sets">
+          <option value="Secret Rare"${mc?.rarity==='Secret Rare'?' selected':''}>Secret Rare</option>
+          <option value="Rare Holo EX"${mc?.rarity==='Rare Holo EX'?' selected':''}>Rare Holo EX</option>
+          <option value="Rare Holo LV.X"${mc?.rarity==='Rare Holo LV.X'?' selected':''}>Rare Holo LV.X</option>
+          <option value="Rare Holo Star"${mc?.rarity==='Rare Holo Star'?' selected':''}>Rare Holo Star ✦</option>
+          <option value="Rare Holo"${mc?.rarity==='Rare Holo'?' selected':''}>Rare Holo</option>
+          <option value="Rare"${mc?.rarity==='Rare'?' selected':''}>Rare</option>
+          <option value="Uncommon"${mc?.rarity==='Uncommon'?' selected':''}>Uncommon</option>
+          <option value="Common"${mc?.rarity==='Common'?' selected':''}>Common</option>
+          <option value="Promo"${mc?.rarity==='Promo'?' selected':''}>Promo</option>
+        </optgroup>
+      </select></div>
+      <div><label>Era</label><select id="m-card-era">
+        <option value="Scarlet & Violet"${mc?.set?.series==='Scarlet & Violet'?' selected':''}>Scarlet &amp; Violet</option>
+        <option value="Sword & Shield"${mc?.set?.series==='Sword & Shield'?' selected':''}>Sword &amp; Shield</option>
+        <option value="Sun & Moon"${mc?.set?.series==='Sun & Moon'?' selected':''}>Sun &amp; Moon</option>
+        <option value="XY"${mc?.set?.series==='XY'?' selected':''}>XY</option>
+        <option value="Black & White"${mc?.set?.series==='Black & White'?' selected':''}>Black &amp; White</option>
+        <option value="HeartGold & SoulSilver"${mc?.set?.series==='HeartGold & SoulSilver'?' selected':''}>HeartGold &amp; SoulSilver</option>
+        <option value="Platinum"${mc?.set?.series==='Platinum'?' selected':''}>Platinum</option>
+        <option value="Diamond & Pearl"${mc?.set?.series==='Diamond & Pearl'?' selected':''}>Diamond &amp; Pearl</option>
+        <option value="EX"${mc?.set?.series==='EX'?' selected':''}>EX Series</option>
+        <option value="Neo"${mc?.set?.series==='Neo'?' selected':''}>Neo</option>
+        <option value="Gym"${mc?.set?.series==='Gym'?' selected':''}>Gym</option>
+        <option value="Base"${mc?.set?.series==='Base'?' selected':''}>Base / Original</option>
+      </select></div>
+    </div></div>
   <div style="margin-bottom:0.9rem">
     <span class="mlabel">Notes</span>
-    <textarea class="notes-input" id="m-notes" placeholder="Condition, where to buy, target price…">${col?.notes||''}</textarea>
-    <div class="price-input-wrap">
-      <label>Manual price override (USD):</label>
-      <input type="number" id="m-price" placeholder="0.00" step="0.01" min="0" value="${mprice}" style="width:90px;text-align:right"/>
-    </div>
+    <textarea class="notes-input" id="m-notes" placeholder="Condition, target price, where to buy…">${col?.notes||''}</textarea>
+    <div class="price-input-wrap"><label>Manual price override (USD):</label><input type="number" id="m-price" placeholder="0.00" step="0.01" min="0" value="${mp}" style="width:90px;text-align:right"/></div>
   </div>
   <div class="modal-actions">
     <button class="btn-save" onclick="saveEntry()">Mark as Collected</button>
-    ${col?`<button class="btn-remove" onclick="removeEntry()">Remove</button>`:''}
+    <button class="btn-save" onclick="saveWant()" style="background:var(--yellow);margin-left:4px">⭐ Add to Want</button>
   </div>`;
-
   document.getElementById('m-body').innerHTML=body;
   document.getElementById('backdrop').classList.add('open');
-
   for(const card of cards){
     const tcgId=getTcgPlayerId(card);
-    if(tcgId){
-      fetchPptPrice(tcgId).then(price=>{
-        const el=document.getElementById(`ppt-${card.id}`);
-        if(el){
-          el.querySelector('.price-source-val').className=`price-source-val${price?'':' na'}`;
-          el.querySelector('.price-source-val').textContent=fmtPrice(price);
-        }
-      });
-    }else{
+    fetchPptPrice(tcgId).then(price=>{
       const el=document.getElementById(`ppt-${card.id}`);
-      if(el){el.querySelector('.price-source-val').className='price-source-val na';el.querySelector('.price-source-val').textContent='—';}
-    }
+      if(el){el.querySelector('.price-source-val').className=`price-source-val${price?'':' na'}`;el.querySelector('.price-source-val').textContent=fmtPrice(price);}
+    });
   }
 }
 
-function toggleWant(){
-  if(!currentDex)return;
-  if(wantList[currentDex]){
-    delete wantList[currentDex];
-    saveWantList();
-    document.querySelector('.btn-want').classList.remove('active');
-    document.querySelector('.btn-want').textContent='⭐ Add to Want List';
-  }else{
-    const cards=cardDB[currentDex]||[];
-    const best=bestCard(cards);
-    wantList[currentDex]={cardId:selCardId||best?.id||null};
-    saveWantList();
-    document.querySelector('.btn-want').classList.add('active');
-    document.querySelector('.btn-want').textContent='⭐ On Want List';
-  }
-  render();
-}
-
-function removeWant(dex){
-  delete wantList[dex];
-  saveWantList();
-  renderWantList();
-}
-
-function selCard(id){
-  selCardId=id;
-  // Update want list card selection if wanted
-  if(wantList[currentDex]){wantList[currentDex].cardId=id;saveWantList();}
-  document.querySelectorAll('.card-opt').forEach(el=>{
-    el.classList.toggle('sel',(el.getAttribute('onclick')||'').includes(`'${id}'`));
-  });
-}
-
-function closeModal(){document.getElementById('backdrop').classList.remove('open');currentDex=null;selCardId=null;}
-
-function saveEntry(){
-  if(!currentDex)return;
+function getManualEntry(){
   const notes=document.getElementById('m-notes')?.value.trim()||'';
-  const priceStr=document.getElementById('m-price')?.value.trim();
-  const manualPrice=priceStr&&!isNaN(parseFloat(priceStr))?parseFloat(priceStr):null;
+  const ps=document.getElementById('m-price')?.value.trim();
+  const manualPrice=ps&&!isNaN(+ps)?+ps:null;
   const mcName=document.getElementById('m-card-name')?.value.trim();
   const mcSet=document.getElementById('m-set-name')?.value.trim();
   const mcNum=document.getElementById('m-card-num')?.value.trim();
   const mcRar=document.getElementById('m-card-rar')?.value;
   const mcEra=document.getElementById('m-card-era')?.value;
-  const manualCard=(mcName||mcSet)?{id:'manual-'+currentDex,name:mcName||'Manual Entry',number:mcNum||'—',rarity:mcRar||'Manual',set:{name:mcSet||'Unknown Set',series:mcEra||'Scarlet & Violet'}}:null;
-  collection[currentDex]={cardId:selCardId,notes,manualPrice,manualCard};
-  // Remove from want list when collected
-  if(wantList[currentDex]){delete wantList[currentDex];saveWantList();}
-  saveCollection();closeModal();render();
+  const manualCard=(mcName||mcSet)?{id:'manual-'+currentDex+'-'+Date.now(),name:mcName||'Manual Entry',number:mcNum||'—',rarity:mcRar||'Manual',set:{name:mcSet||'Unknown Set',series:mcEra||'Scarlet & Violet'}}:null;
+  return{cardId:selCardId,notes,manualPrice,manualCard};
 }
-
-function removeEntry(){
+function toggleWant(){saveWant();}
+function saveWant(){
   if(!currentDex)return;
-  delete collection[currentDex];
-  saveCollection();closeModal();render();
+  const entry=getManualEntry();
+  if(!wantList[currentDex])wantList[currentDex]=[];
+  wantList[currentDex].push({cardId:entry.cardId,manualPrice:entry.manualPrice,manualCard:entry.manualCard});
+  saveWantList();
+  openModal(currentDex);render();
 }
-
+function removeWant(dex,idx){
+  if(!wantList[dex])return;
+  wantList[dex].splice(idx,1);
+  if(wantList[dex].length===0)delete wantList[dex];
+  saveWantList();renderWantList();
+}
+function removeWantEntry(idx){
+  if(!currentDex||!wantList[currentDex])return;
+  wantList[currentDex].splice(idx,1);
+  if(wantList[currentDex].length===0)delete wantList[currentDex];
+  saveWantList();openModal(currentDex);render();
+}
+function selCard(id){
+  selCardId=id;
+  document.querySelectorAll('.card-opt').forEach(el=>el.classList.toggle('sel',(el.getAttribute('onclick')||'').includes(`'${id}'`)));
+}
+function closeModal(){document.getElementById('backdrop').classList.remove('open');currentDex=null;selCardId=null;}
+function saveEntry(){
+  if(!currentDex)return;
+  const entry=getManualEntry();
+  if(!collection[currentDex])collection[currentDex]=[];
+  collection[currentDex].push(entry);
+  // Remove first want entry if any (they got the card)
+  if(wantList[currentDex]?.length){wantList[currentDex].shift();if(!wantList[currentDex].length)delete wantList[currentDex];saveWantList();}
+  saveCollection();openModal(currentDex);render();
+}
+function removeEntry(idx){
+  if(!currentDex)return;
+  if(collection[currentDex]){
+    collection[currentDex].splice(idx,1);
+    if(collection[currentDex].length===0)delete collection[currentDex];
+  }
+  saveCollection();openModal(currentDex);render();
+}
 function setF(mode,btn){
   filterMode=mode;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on','on-green','on-blue','on-yellow'));
-  if(mode==='all')btn.classList.add('on');
-  else if(mode==='col')btn.classList.add('on-green');
-  else if(mode==='want')btn.classList.add('on-yellow');
-  else if(mode==='mis')btn.classList.add('on-blue');
+  btn.classList.add(mode==='all'?'on':mode==='col'?'on-green':mode==='want'?'on-yellow':'on-blue');
   render();
 }
-
 function setView(v){
   viewMode=v;
   document.getElementById('vb-g').classList.toggle('active',v==='grid');
   document.getElementById('vb-l').classList.toggle('active',v==='list');
   render();
 }
-
 document.getElementById('backdrop').addEventListener('click',e=>{if(e.target===document.getElementById('backdrop'))closeModal();});
-
 loadData();render();loadAllCards();
 </script>
 </body>
