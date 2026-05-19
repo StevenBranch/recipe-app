@@ -722,9 +722,47 @@ async function openModal(dex){
   body+=`<div class="modal-action-row" style="gap:6px;margin-bottom:0.9rem">
     <button class="btn-want" onclick="toggleWant()" style="flex:1">⭐ Add to Want List</button>
   </div>`;
-  if(cards.length){
+  if(filterMode==='col'&&colEntries.length>0){
+    // Collected mode — only show the cards actually owned, no full list
+    body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Your cards for this Pokémon</div>`;
+    const ownedCards=colEntries.map(e=>{
+      return e.cardId?cards.find(c=>c.id===e.cardId):null;
+    }).filter(Boolean);
+    if(ownedCards.length){
+      body+=`<div id="m-card-list">`;
+      body+=renderModalCards(ownedCards, selCardId||ownedCards[0]?.id);
+      body+=`</div>`;
+      if(!selCardId)selCardId=ownedCards[0]?.id||null;
+    }
+    // Still allow adding more cards via search
+    body+=`<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another card:</div>`;
+    body+=`<div class="modal-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/>
+    </div>`;
+    body+=`<div id="m-card-list-all"></div>`;
+  }else if(filterMode==='want'&&wantEntries.length>0){
+    // Want mode — only show the cards on the want list
+    body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>`;
+    const wantedCards=wantEntries.map(e=>{
+      return e.cardId?cards.find(c=>c.id===e.cardId):null;
+    }).filter(Boolean);
+    if(wantedCards.length){
+      body+=`<div id="m-card-list">`;
+      body+=renderModalCards(wantedCards, selCardId||wantedCards[0]?.id);
+      body+=`</div>`;
+      if(!selCardId)selCardId=wantedCards[0]?.id||null;
+    }
+    // Still allow adding more wants via search
+    body+=`<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>`;
+    body+=`<div class="modal-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/>
+    </div>`;
+    body+=`<div id="m-card-list-all"></div>`;
+  }else if(cards.length){
+    // All / Missing mode — full searchable list
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
-    // Search bar — filters card list live
     body+=`<div class="modal-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="search" id="m-card-search" placeholder="Search by name, set, or number…" oninput="filterModalCards(this.value)" autocomplete="off"/>
@@ -850,17 +888,18 @@ function renderModalCards(cards, selectedId, filter=''){
 }
 function filterModalCards(val){
   const cards=cardDB[currentDex]||[];
-  const list=document.getElementById('m-card-list');
-  if(list)list.innerHTML=renderModalCards(cards,selCardId,val);
+  // In col/want mode the search writes to m-card-list-all, otherwise m-card-list
+  const listId=(filterMode==='col'||filterMode==='want')?'m-card-list-all':'m-card-list';
+  const list=document.getElementById(listId);
+  if(list)list.innerHTML=val.trim()?renderModalCards(cards,selCardId,val):'';
   // Re-attach PriceTracker fetches for newly visible cards
-  const q=val.toLowerCase().trim();
   cards.forEach(card=>{
-    const el=document.getElementById(`ppt-${card.id}`);
+    const el=document.getElementById('ppt-'+card.id);
     if(el&&el.querySelector('.loading')){
       const tcgId=getTcgPlayerId(card);
       fetchPptPrice(tcgId).then(price=>{
-        const e2=document.getElementById(`ppt-${card.id}`);
-        if(e2){e2.querySelector('.price-source-val').className=`price-source-val${price?'':' na'}`;e2.querySelector('.price-source-val').textContent=fmtPrice(price);}
+        const e2=document.getElementById('ppt-'+card.id);
+        if(e2){e2.querySelector('.price-source-val').className='price-source-val'+(price?'':' na');e2.querySelector('.price-source-val').textContent=fmtPrice(price);}
       });
     }
   });
