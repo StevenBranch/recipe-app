@@ -523,17 +523,26 @@ async function loadAllCards(){
     localStorage.removeItem(`pokedex_card_cache_v${v}`);
     localStorage.removeItem(`pokedex_card_cache_age_v${v}`);
   }
-  const BATCH=5,DELAY=450;
+  const BATCH=5,DELAY=500;
   const batches=[];
   for(let i=0;i<ALL_POKEMON.length;i+=BATCH)batches.push(ALL_POKEMON.slice(i,i+BATCH));
   for(const batch of batches){
-    await Promise.all(batch.map(([dex])=>fetchPokemon(dex)));
+    try{
+      await Promise.all(batch.map(([dex])=>fetchPokemon(dex)));
+    }catch(e){
+      batch.forEach(([dex])=>{if(cardDB[dex]===undefined)cardDB[dex]=[];});
+    }
     loadedCount=Math.min(loadedCount+batch.length,ALL_POKEMON.length);
-    setStatus('loading',`Loading… ${loadedCount}/${ALL_POKEMON.length}`);
+    setStatus('loading','Loading… '+loadedCount+'/'+ALL_POKEMON.length);
     render();
     await new Promise(r=>setTimeout(r,DELAY));
   }
-  try{localStorage.setItem(CACHE_KEY,JSON.stringify(cardDB));localStorage.setItem(CACHE_AGE_KEY,String(Date.now()));}catch(e){}
+  try{
+    localStorage.setItem(CACHE_KEY,JSON.stringify(cardDB));
+    localStorage.setItem(CACHE_AGE_KEY,String(Date.now()));
+  }catch(e){
+    try{localStorage.setItem(CACHE_AGE_KEY,String(Date.now()));}catch(e2){}
+  }
   setStatus('done','All cards loaded ✓');updateStats();render();
 }
 
@@ -657,24 +666,29 @@ function renderGrid(items,area){
       const cnt=wantEntries.length;
       sb='<div class="status-badge wanted" style="'+(cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':'')+'"><span>'+(cnt>1?'⭐×'+cnt:'⭐')+'</span></div>';
     }
-    // In collected mode show actual owned card(s), in want mode show wanted card(s)
-    let displayCard=null;
-    let displayLabel='';
-    if(isCol&&colEntries.length>0){
-      const e=colEntries[0];
-      displayCard=e.cardId?(dbCards.find(c=>c.id===e.cardId)||e.manualCard):e.manualCard;
-      displayLabel=colEntries.length>1?' + '+(colEntries.length-1)+' more':'';
-    }else if(isWant&&wantEntries.length>0){
-      const e=wantEntries[0];
-      displayCard=e.cardId?(dbCards.find(c=>c.id===e.cardId)||e.manualCard):e.manualCard;
-      displayLabel=wantEntries.length>1?' + '+(wantEntries.length-1)+' more':'';
+    let inner='';
+    if(isLoad){
+      inner='<div class="card-count"><span class="spinner"></span></div>';
+    }else if(isCol){
+      inner='<div class="card-count" style="color:var(--green);margin-bottom:4px">Owned ('+colEntries.length+')</div>';
+      colEntries.forEach(function(e){
+        var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
+        var p=entryPrice(e,dbCards);
+        inner+=c?(rarityBadge(getDisplayRarity(c))+'<div class="card-best" style="margin-top:2px">'+c.name+'</div><div class="card-best" style="color:var(--text3)">'+(c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')+'</div><div class="card-price" style="margin-bottom:3px">TCG: <span>'+fmtPrice(p)+'</span></div>'):'';
+      });
+    }else if(isWant){
+      inner='<div class="card-count" style="color:var(--yellow);margin-bottom:4px">Want ('+wantEntries.length+')</div>';
+      wantEntries.forEach(function(e){
+        var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
+        var p=entryPrice(e,dbCards);
+        inner+=c?(rarityBadge(getDisplayRarity(c))+'<div class="card-best" style="margin-top:2px">'+c.name+'</div><div class="card-best" style="color:var(--text3)">'+(c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')+'</div><div class="card-price" style="margin-bottom:3px">TCG: <span>'+fmtPrice(p)+'</span></div>'):'<div class="no-cards">No card selected</div>';
+      });
+    }else if(!allCards.length){
+      inner='<div class="no-cards">No cards found — tap to add</div>';
     }else{
-      displayCard=best;
+      var best2=bestCard(allCards);
+      inner='<div class="card-count"><span>'+allCards.length+'</span> card'+(allCards.length!==1?'s':'')+'</div>'+(best2?rarityBadge(getDisplayRarity(best2)):'')+'<div class="card-best" style="margin-top:4px">'+(best2?best2.name:'')+'</div><div class="card-best" style="color:var(--text3)">'+(best2?((best2.set&&best2.set.name?best2.set.name:'Manual')+' · #'+(best2.number||'—')):'')+'</div><div class="card-price">TCG: <span>'+(price!=null?fmtPrice(price):'—')+'</span></div>';
     }
-    const showCard=displayCard||best;
-    let inner=isLoad?'<div class="card-count"><span class="spinner"></span></div>':
-      !allCards.length&&!isCol&&!isWant?'<div class="no-cards">No cards found — tap to add</div>':
-      '<div class="card-count">'+(isCol?'<span style="color:var(--green)">Owned</span>':isWant?'<span style="color:var(--yellow)">Wanted</span>':'<span>'+allCards.length+'</span> card'+(allCards.length!==1?'s':''))+'</div>'+(showCard?rarityBadge(getDisplayRarity(showCard)):'')+'<div class="card-best" style="margin-top:4px">'+(showCard?showCard.name:'')+'</div><div class="card-best" style="color:var(--text3)">'+(showCard?(showCard.set?.name||'Manual')+' · #'+(showCard.number||'—'):'')+(displayLabel?'<span style="color:var(--text3)"> '+displayLabel+'</span>':'')+'</div><div class="card-price">TCG: <span>'+(price!=null?fmtPrice(price):'—')+'</span></div>';
     const cls=isCol?'collected':isWant?'wanted':'';
     html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
   }
@@ -753,44 +767,24 @@ async function openModal(dex){
   body+=`<div class="modal-action-row" style="gap:6px;margin-bottom:0.9rem">
     <button class="btn-want" onclick="toggleWant()" style="flex:1">⭐ Add to Want List</button>
   </div>`;
-  if(filterMode==='col'&&colEntries.length>0){
-    // Collected mode — only show the cards actually owned, no full list
-    body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Your cards for this Pokémon</div>`;
-    const ownedCards=colEntries.map(e=>{
-      return e.cardId?cards.find(c=>c.id===e.cardId):null;
-    }).filter(Boolean);
+  if(colEntries.length>0){
+    body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Your cards for this Pokémon</div>';
+    var ownedCards=colEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
     if(ownedCards.length){
-      body+=`<div id="m-card-list">`;
-      body+=renderModalCards(ownedCards, selCardId||ownedCards[0]?.id);
-      body+=`</div>`;
       if(!selCardId)selCardId=ownedCards[0]?.id||null;
+      body+='<div id="m-card-list">'+renderModalCards(ownedCards,selCardId)+'</div>';
     }
-    // Still allow adding more cards via search
-    body+=`<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another card:</div>`;
-    body+=`<div class="modal-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/>
-    </div>`;
-    body+=`<div id="m-card-list-all"></div>`;
-  }else if(filterMode==='want'&&wantEntries.length>0){
-    // Want mode — only show the cards on the want list
-    body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>`;
-    const wantedCards=wantEntries.map(e=>{
-      return e.cardId?cards.find(c=>c.id===e.cardId):null;
-    }).filter(Boolean);
+    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another card:</div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/></div><div id="m-card-list-all"></div>';
+  }else if(wantEntries.length>0){
+    body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>';
+    var wantedCards=wantEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
     if(wantedCards.length){
-      body+=`<div id="m-card-list">`;
-      body+=renderModalCards(wantedCards, selCardId||wantedCards[0]?.id);
-      body+=`</div>`;
       if(!selCardId)selCardId=wantedCards[0]?.id||null;
+      body+='<div id="m-card-list">'+renderModalCards(wantedCards,selCardId)+'</div>';
     }
-    // Still allow adding more wants via search
-    body+=`<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>`;
-    body+=`<div class="modal-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/>
-    </div>`;
-    body+=`<div id="m-card-list-all"></div>`;
+    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off"/></div><div id="m-card-list-all"></div>';
   }else if(cards.length){
     // All / Missing mode — full searchable list
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
@@ -924,8 +918,10 @@ function renderModalCards(cards, selectedId, filter=''){
 }
 function filterModalCards(val){
   const cards=cardDB[currentDex]||[];
-  // In col/want mode the search writes to m-card-list-all, otherwise m-card-list
-  const listId=(filterMode==='col'||filterMode==='want')?'m-card-list-all':'m-card-list';
+  // Use entry existence to pick the right list div
+  const _colE=collection[currentDex]||[];
+  const _wantE=wantList[currentDex]||[];
+  const listId=(_colE.length>0||_wantE.length>0)?'m-card-list-all':'m-card-list';
   const list=document.getElementById(listId);
   if(list)list.innerHTML=val.trim()?renderModalCards(cards,selCardId,val):'';
   // Re-attach PriceTracker fetches for newly visible cards
