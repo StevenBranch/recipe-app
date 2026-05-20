@@ -583,14 +583,14 @@ function getFiltered(){
   });
 }
 
-function render(){
+function render(preserveScroll){
   updateStats();
-  // 'want' mode now shows a filtered grid (not the full page view)
-  // The full want list page view is accessible via the ⭐ Want List pill in the header
+  var sy=preserveScroll?(window.scrollY||window.pageYOffset||0):0;
   const items=getFiltered();
   const area=document.getElementById('main');
   if(!items.length){area.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div>No Pokémon match your filters</div></div>';return;}
   viewMode==='grid'?renderGrid(items,area):renderListView(items,area);
+  if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});
 }
 
 function renderWantList(area){
@@ -781,7 +781,30 @@ async function openModal(dex){
   body+=`<div class="modal-action-row" style="gap:6px;margin-bottom:0.9rem">
     <button class="btn-want" onclick="toggleWant()" style="flex:1">⭐ Add to Want List</button>
   </div>`;
-  if(colEntries.length>0){
+  // Determine which section to show first based on filter mode
+  // If in want mode and has wants → show wants first
+  // If in col mode and has collection → show collection first
+  // Otherwise show whichever exists (col > want by default)
+  var showWantsFirst=(filterMode==='want'&&wantEntries.length>0);
+  var showColFirst=(colEntries.length>0&&!showWantsFirst)||(colEntries.length>0&&filterMode==='col');
+
+  if(showWantsFirst){
+    // WANTS FIRST
+    body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>';
+    var wantedCards=wantEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
+    if(wantedCards.length){
+      if(!selCardId)selCardId=wantedCards[0]?.id||null;
+      body+='<div id="m-card-list">'+renderModalCards(wantedCards,selCardId)+'</div>';
+    }
+    if(colEntries.length>0){
+      body+='<div style="margin-top:0.9rem;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--green);margin-bottom:5px">Also in your collection</div>';
+      var ownedCards2=colEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
+      if(ownedCards2.length){body+='<div>'+renderModalCards(ownedCards2,null)+'</div>';}
+    }
+    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
+  }else if(showColFirst){
+    // COLLECTION FIRST
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Your cards for this Pokémon</div>';
     var ownedCards=colEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
     if(ownedCards.length){
@@ -791,11 +814,12 @@ async function openModal(dex){
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another card:</div>';
     body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(wantEntries.length>0){
+    // HAS WANTS ONLY (no collection)
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>';
-    var wantedCards=wantEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
-    if(wantedCards.length){
-      if(!selCardId)selCardId=wantedCards[0]?.id||null;
-      body+='<div id="m-card-list">'+renderModalCards(wantedCards,selCardId)+'</div>';
+    var wantedCardsOnly=wantEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
+    if(wantedCardsOnly.length){
+      if(!selCardId)selCardId=wantedCardsOnly[0]?.id||null;
+      body+='<div id="m-card-list">'+renderModalCards(wantedCardsOnly,selCardId)+'</div>';
     }
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
     body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
@@ -995,7 +1019,7 @@ function removeWantEntry(idx){
   if(!currentDex||!wantList[currentDex])return;
   wantList[currentDex].splice(idx,1);
   if(wantList[currentDex].length===0)delete wantList[currentDex];
-  saveWantList();openModal(currentDex);render();
+  saveWantList();openModal(currentDex);render(true);
 }
 function selCard(id){
   selCardId=id;
@@ -1019,7 +1043,7 @@ function saveEntry(){
   collection[currentDex].push(entry);
   // Remove first want entry if any (they got the card)
   if(wantList[currentDex]?.length){wantList[currentDex].shift();if(!wantList[currentDex].length)delete wantList[currentDex];saveWantList();}
-  saveCollection();openModal(currentDex);render();
+  saveCollection();openModal(currentDex);render(true);
 }
 function removeEntry(idx){
   if(!currentDex)return;
@@ -1027,7 +1051,7 @@ function removeEntry(idx){
     collection[currentDex].splice(idx,1);
     if(collection[currentDex].length===0)delete collection[currentDex];
   }
-  saveCollection();openModal(currentDex);render();
+  saveCollection();openModal(currentDex);render(true);
 }
 function showWantPage(){
   // Show the full want list page view
@@ -1060,12 +1084,16 @@ loadData();render();loadAllCards();
 
   function getBackdrop(){ return bd||(bd=document.getElementById('backdrop')); }
 
+  var savedScrollY=0;
+
   function lockBody(){
     if(locked)return;
     locked=true;
+    savedScrollY=window.scrollY||window.pageYOffset||0;
     document.body.style.overflow='hidden';
     document.body.style.position='fixed';
     document.body.style.width='100%';
+    document.body.style.top='-'+savedScrollY+'px';
   }
 
   function unlockBody(){
@@ -1074,6 +1102,8 @@ loadData();render();loadAllCards();
     document.body.style.overflow='';
     document.body.style.position='';
     document.body.style.width='';
+    document.body.style.top='';
+    window.scrollTo(0,savedScrollY);
   }
 
   function adjust(){
