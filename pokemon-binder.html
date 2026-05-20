@@ -680,10 +680,20 @@ function renderGrid(items,area){
       const cnt=wantEntries.length;
       sb='<div class="status-badge wanted" style="'+(cnt>1?'width:auto;border-radius:8px;padding:0 4px;font-size:8px;font-weight:600;':'')+'"><span>'+(cnt>1?'⭐×'+cnt:'⭐')+'</span></div>';
     }
+    // Show want info when in want filter mode, even if also collected
+    var tileShowWant=(filterMode==='want'&&isWant);
+    var tileShowCol=(isCol&&!tileShowWant);
     let inner='';
     if(isLoad){
       inner='<div class="card-count"><span class="spinner"></span></div>';
-    }else if(isCol){
+    }else if(tileShowWant){
+      inner='<div class="card-count" style="color:var(--yellow);margin-bottom:4px">Want ('+wantEntries.length+')</div>';
+      wantEntries.forEach(function(e){
+        var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
+        var p=entryPrice(e,dbCards);
+        inner+=c?(rarityBadge(getDisplayRarity(c))+'<div class="card-best" style="margin-top:2px">'+c.name+'</div><div class="card-best" style="color:var(--text3)">'+(c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')+'</div><div class="card-price" style="margin-bottom:3px">TCG: <span>'+fmtPrice(p)+'</span></div>'):'<div class="no-cards">No card selected</div>';
+      });
+    }else if(tileShowCol){
       inner='<div class="card-count" style="color:var(--green);margin-bottom:4px">Owned ('+colEntries.length+')</div>';
       colEntries.forEach(function(e){
         var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
@@ -703,7 +713,7 @@ function renderGrid(items,area){
       var best2=bestCard(allCards);
       inner='<div class="card-count"><span>'+allCards.length+'</span> card'+(allCards.length!==1?'s':'')+'</div>'+(best2?rarityBadge(getDisplayRarity(best2)):'')+'<div class="card-best" style="margin-top:4px">'+(best2?best2.name:'')+'</div><div class="card-best" style="color:var(--text3)">'+(best2?((best2.set&&best2.set.name?best2.set.name:'Manual')+' · #'+(best2.number||'—')):'')+'</div><div class="card-price">TCG: <span>'+(price!=null?fmtPrice(price):'—')+'</span></div>';
     }
-    const cls=isCol?'collected':isWant?'wanted':'';
+    const cls=(tileShowWant||(!tileShowCol&&isWant))?'wanted':(tileShowCol||isCol)?'collected':'';
     html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
   }
   html+='</div>';area.innerHTML=html;
@@ -722,7 +732,7 @@ function renderListView(items,area){
     const dbCards=cards||[];
     const totalColVal=colEntries.reduce((sum,e)=>{const p=entryPrice(e,dbCards);return sum+(p||0);},0);
     const price=colEntries.length?totalColVal:null;
-    const cls=isCol?'collected':isWant?'wanted':'';
+    const cls=(tileShowWant||(!tileShowCol&&isWant))?'wanted':(tileShowCol||isCol)?'collected':'';
     const colCnt=colEntries.length,wantCnt=wantEntries.length;
     let chk='<div class="chk"></div>';
     if(isCol)chk='<div class="chk done" style="'+(colCnt>1?'border-radius:6px;width:auto;padding:0 3px;font-size:8px;font-weight:600;color:#fff;':'')+'">'+( colCnt>1?'<span>'+colCnt+'×</span>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>')+'</div>';
@@ -1090,19 +1100,17 @@ loadData();render();loadAllCards();
     if(locked)return;
     locked=true;
     savedScrollY=window.scrollY||window.pageYOffset||0;
+    // overflow:hidden stops scroll without causing layout shift
+    document.documentElement.style.overflow='hidden';
     document.body.style.overflow='hidden';
-    document.body.style.position='fixed';
-    document.body.style.width='100%';
-    document.body.style.top='-'+savedScrollY+'px';
   }
 
   function unlockBody(){
     if(!locked)return;
     locked=false;
+    document.documentElement.style.overflow='';
     document.body.style.overflow='';
-    document.body.style.position='';
-    document.body.style.width='';
-    document.body.style.top='';
+    // Restore scroll position
     window.scrollTo(0,savedScrollY);
   }
 
