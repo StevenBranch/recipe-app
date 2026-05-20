@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content">
 <title>Pokédex Binder</title>
 <meta name="theme-color" content="#0d0d12"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -1138,6 +1138,13 @@ loadData();render();loadAllCards();
   }
 
   // NO visualViewport resize/scroll listeners — that was causing the bug
+  // Snap scale back to 1 when keyboard closes (belt-and-suspenders for iOS zoom)
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',function(){
+      if(document.activeElement&&document.activeElement.tagName==='INPUT'){return;}
+      document.body.style.zoom='1';
+    });
+  }
 
   window._lockBody=lockBody;
   window._unlockBody=unlockBody;
