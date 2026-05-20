@@ -912,6 +912,11 @@ async function openModal(dex){
   </div>
   <div style="height:0.5rem"></div>`;
   document.getElementById('m-body').innerHTML=body;
+  // If in col/want mode, pre-populate the "add another" list so it shows without typing
+  const _listAll=document.getElementById('m-card-list-all');
+  if(_listAll&&cards.length){
+    _listAll.innerHTML=renderModalCards(cards,selCardId,'');
+  }
   document.getElementById('backdrop').classList.add('open');
   updateStickyLabel();
   if(window._lockBody)window._lockBody();
@@ -1048,12 +1053,12 @@ function selCard(id){
 function closeModal(){
   var bd=document.getElementById('backdrop');
   bd.classList.remove('open');
-  // Reset inline styles set by visualViewport handler
   bd.style.top=''; bd.style.left=''; bd.style.width=''; bd.style.height='';
   var modal=bd.querySelector('.modal');
   if(modal){modal.style.height='';modal.style.maxHeight='';}
   currentDex=null;selCardId=null;
   if(window._unlockBody)window._unlockBody();
+  if(window._resetModalH)window._resetModalH();
 }
 function saveEntry(){
   if(!currentDex)return;
@@ -1123,25 +1128,34 @@ loadData();render();loadAllCards();
     window.scrollTo(0,savedScrollY);
   }
 
+  var initialModalH=0;
+
   function adjust(){
     var el=getBackdrop();
     if(!el||!el.classList.contains('open'))return;
     if(window.visualViewport){
       var vp=window.visualViewport;
-      // Pin backdrop to visual viewport coordinates
-      el.style.top=vp.offsetTop+'px';
-      el.style.left=vp.offsetLeft+'px';
-      el.style.width=vp.width+'px';
-      el.style.height=vp.height+'px';
-      // Size modal to fit
       var modal=el.querySelector('.modal');
+      var available=vp.height-32;
       if(modal){
-        var h=Math.min(vp.height-32, vp.height*0.92);
+        // On first call (keyboard not open), store the max height
+        if(initialModalH===0) initialModalH=available;
+        // Never exceed the initial height — only shrink when keyboard open
+        var h=Math.min(available, initialModalH);
         modal.style.maxHeight=h+'px';
         modal.style.height=h+'px';
       }
+      // Only reposition backdrop if keyboard is actually open (viewport shorter than initial)
+      if(vp.height < initialModalH+64){
+        el.style.top=vp.offsetTop+'px';
+        el.style.left=vp.offsetLeft+'px';
+        el.style.width=vp.width+'px';
+        el.style.height=vp.height+'px';
+      }
     }
   }
+
+  function resetModalH(){ initialModalH=0; }
 
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize',adjust);
@@ -1150,6 +1164,7 @@ loadData();render();loadAllCards();
 
   // Expose so openModal/closeModal can call
   window._modalAdjust=adjust;
+  window._resetModalH=resetModalH;
   window._lockBody=lockBody;
   window._unlockBody=unlockBody;
 })();
