@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <title>Pokédex Binder</title>
 <meta name="theme-color" content="#0d0d12"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -1099,22 +1099,16 @@ loadData();render();loadAllCards();
 </script>
 
 <script>
-// iOS Safari keyboard fix
-// When keyboard opens, visualViewport shrinks. We reanchor the backdrop
-// to the visual viewport offset so it doesn't shift with the page.
+// iOS keyboard fix — set modal height ONCE on open, never listen to resize.
+// Listening to visualViewport resize was causing the enlarge-on-keyboard bug.
 (function(){
-  var bd=null;
-  var locked=false;
-
-  function getBackdrop(){ return bd||(bd=document.getElementById('backdrop')); }
-
   var savedScrollY=0;
+  var locked=false;
 
   function lockBody(){
     if(locked)return;
     locked=true;
     savedScrollY=window.scrollY||window.pageYOffset||0;
-    // overflow:hidden stops scroll without causing layout shift
     document.documentElement.style.overflow='hidden';
     document.body.style.overflow='hidden';
   }
@@ -1124,49 +1118,31 @@ loadData();render();loadAllCards();
     locked=false;
     document.documentElement.style.overflow='';
     document.body.style.overflow='';
-    // Restore scroll position
     window.scrollTo(0,savedScrollY);
   }
 
-  var initialModalH=0;
-
-  function adjust(){
-    var el=getBackdrop();
-    if(!el||!el.classList.contains('open'))return;
-    if(window.visualViewport){
-      var vp=window.visualViewport;
-      var modal=el.querySelector('.modal');
-      var available=vp.height-32;
-      if(modal){
-        // On first call (keyboard not open), store the max height
-        if(initialModalH===0) initialModalH=available;
-        // Never exceed the initial height — only shrink when keyboard open
-        var h=Math.min(available, initialModalH);
-        modal.style.maxHeight=h+'px';
-        modal.style.height=h+'px';
-      }
-      // Only reposition backdrop if keyboard is actually open (viewport shorter than initial)
-      if(vp.height < initialModalH+64){
-        el.style.top=vp.offsetTop+'px';
-        el.style.left=vp.offsetLeft+'px';
-        el.style.width=vp.width+'px';
-        el.style.height=vp.height+'px';
-      }
+  function setModalHeight(){
+    // Pin height to current visual viewport at moment of open (before keyboard appears)
+    var vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+    var h=Math.floor(vh*0.92);
+    var modal=document.querySelector('.modal');
+    if(modal){
+      modal.style.height=h+'px';
+      modal.style.maxHeight=h+'px';
     }
   }
 
-  function resetModalH(){ initialModalH=0; }
-
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize',adjust);
-    window.visualViewport.addEventListener('scroll',adjust);
+  function clearModalHeight(){
+    var modal=document.querySelector('.modal');
+    if(modal){modal.style.height='';modal.style.maxHeight='';}
   }
 
-  // Expose so openModal/closeModal can call
-  window._modalAdjust=adjust;
-  window._resetModalH=resetModalH;
+  // NO visualViewport resize/scroll listeners — that was causing the bug
+
   window._lockBody=lockBody;
   window._unlockBody=unlockBody;
+  window._modalAdjust=setModalHeight;
+  window._resetModalH=clearModalHeight;
 })();
 </script>
 <script>
