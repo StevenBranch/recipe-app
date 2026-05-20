@@ -526,7 +526,7 @@ async function loadAllCards(){
   const cached=localStorage.getItem(CACHE_KEY);
   const age=localStorage.getItem(CACHE_AGE_KEY);
   if(cached&&age&&(Date.now()-+age)<86400000){
-    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render();return;}catch(e){}
+    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render(false);return;}catch(e){}
   }
   // Purge all old cache versions
   for(let v=1;v<=11;v++){
@@ -544,7 +544,7 @@ async function loadAllCards(){
     }
     loadedCount=Math.min(loadedCount+batch.length,ALL_POKEMON.length);
     setStatus('loading','Loading… '+loadedCount+'/'+ALL_POKEMON.length);
-    render();
+    render(true);
     await new Promise(r=>setTimeout(r,DELAY));
   }
   try{
@@ -553,7 +553,7 @@ async function loadAllCards(){
   }catch(e){
     try{localStorage.setItem(CACHE_AGE_KEY,String(Date.now()));}catch(e2){}
   }
-  setStatus('done','All cards loaded ✓');updateStats();render();
+  setStatus('done','All cards loaded ✓');updateStats();render(true);
 }
 
 function setStatus(s,t){document.getElementById('api-txt').textContent=t;document.getElementById('api-dot').className='dot '+s;}
@@ -1007,7 +1007,7 @@ function saveWant(){
   if(!wantList[currentDex])wantList[currentDex]=[];
   wantList[currentDex].push({cardId:entry.cardId,manualPrice:entry.manualPrice,manualCard:entry.manualCard});
   saveWantList();
-  openModal(currentDex);render();
+  openModal(currentDex);render(true);
 }
 function removeWant(dex,idx){
   if(!wantList[dex])return;
