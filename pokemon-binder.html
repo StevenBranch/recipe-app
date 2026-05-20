@@ -812,7 +812,7 @@ async function openModal(dex){
       if(ownedCards2.length){body+='<div>'+renderModalCards(ownedCards2,null)+'</div>';}
     }
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
-    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" onfocus="onModalSearchFocus()" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(showColFirst){
     // COLLECTION FIRST
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Your cards for this Pokémon</div>';
@@ -822,7 +822,7 @@ async function openModal(dex){
       body+='<div id="m-card-list">'+renderModalCards(ownedCards,selCardId)+'</div>';
     }
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another card:</div>';
-    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" onfocus="onModalSearchFocus()" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(wantEntries.length>0){
     // HAS WANTS ONLY (no collection)
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>';
@@ -832,13 +832,13 @@ async function openModal(dex){
       body+='<div id="m-card-list">'+renderModalCards(wantedCardsOnly,selCardId)+'</div>';
     }
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
-    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
+    body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" onfocus="onModalSearchFocus()" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(cards.length){
     // All / Missing mode — full searchable list
     if(!selCardId)selCardId=bestCard(cards)?.id||null;
     body+=`<div class="modal-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" id="m-card-search" placeholder="Search by name, set, or number…" oninput="filterModalCards(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/>
+      <input type="search" id="m-card-search" placeholder="Search by name, set, or number…" oninput="filterModalCards(this.value)" onfocus="onModalSearchFocus()" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/>
     </div>`;
     body+='<div id="m-card-list">';
     body+=renderModalCards(cards, selCardId);
@@ -965,6 +965,15 @@ function renderModalCards(cards, selectedId, filter=''){
   }
   if(q&&totalShown===0)html=`<div class="no-results">No cards match "${filter}"</div>`;
   return html;
+}
+function onModalSearchFocus(){
+  // iOS Safari scrolls page to focused inputs even inside fixed modals.
+  // Prevent by saving scroll position and restoring it after the browser moves it.
+  var sy=window.scrollY||window.pageYOffset||0;
+  requestAnimationFrame(function(){
+    window.scrollTo(0,sy);
+    requestAnimationFrame(function(){window.scrollTo(0,sy);});
+  });
 }
 function filterModalCards(val){
   const cards=cardDB[currentDex]||[];
