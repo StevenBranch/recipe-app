@@ -84,6 +84,28 @@ select option{background:var(--bg3);color:var(--text)}
 .b-manual{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border)}
 .b-unk{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:0.7rem;color:var(--text3)}
+/* ── Regional form pills ── */
+.rf-toggle{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:5px;padding-top:5px;border-top:1px solid var(--border)}
+.rf-pill{font-size:0.6rem;padding:2px 6px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all 0.12s;white-space:nowrap;font-weight:500;letter-spacing:0.03em}
+.rf-pill.alola{background:var(--teal-bg);color:var(--teal);border-color:rgba(45,212,191,0.3)}
+.rf-pill.galar{background:var(--purple-bg);color:var(--purple);border-color:rgba(192,132,252,0.3)}
+.rf-pill.hisui{background:var(--orange-bg);color:var(--orange);border-color:rgba(251,146,60,0.3)}
+.rf-pill.paldea{background:var(--pink-bg);color:var(--pink);border-color:rgba(244,114,182,0.3)}
+.rf-pill.collected{box-shadow:0 0 0 1px currentColor}
+.rf-pill.wanted{opacity:0.9;box-shadow:0 0 0 1px var(--yellow)}
+/* Modal region selector */
+.region-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:0.75rem}
+.region-tab{font-size:0.72rem;padding:4px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all 0.12s}
+.region-tab.active-alola{background:var(--teal-bg);border-color:rgba(45,212,191,0.5);color:var(--teal)}
+.region-tab.active-galar{background:var(--purple-bg);border-color:rgba(192,132,252,0.5);color:var(--purple)}
+.region-tab.active-hisui{background:var(--orange-bg);border-color:rgba(251,146,60,0.5);color:var(--orange)}
+.region-tab.active-paldea{background:var(--pink-bg);border-color:rgba(244,114,182,0.5);color:var(--pink)}
+.region-tab.active-base{background:var(--gold-bg);border-color:var(--gold2);color:var(--gold)}
+.region-context-label{font-size:0.7rem;padding:4px 8px;border-radius:var(--radius);margin-bottom:0.6rem;display:inline-block}
+.region-context-label.alola{background:var(--teal-bg);color:var(--teal)}
+.region-context-label.galar{background:var(--purple-bg);color:var(--purple)}
+.region-context-label.hisui{background:var(--orange-bg);color:var(--orange)}
+.region-context-label.paldea{background:var(--pink-bg);color:var(--pink)}
 .main{padding:1.1rem 1.5rem 3rem}
 /* WANT LIST */
 .want-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
@@ -240,7 +262,7 @@ select option{background:var(--bg3);color:var(--text)}
   <div class="logo">Pokédex Binder</div>
   <div class="header-mid">
     <div class="progress-bar-bg"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
-    <div class="progress-label"><strong id="prog-n">0</strong><span id="prog-t"> / 1025 collected</span></div>
+    <div class="progress-label"><strong id="prog-n">0</strong><span id="prog-t"> / 1088 collected</span></div>
   </div>
   <div class="header-stats">
     <div class="stat-pill green">Collection: <strong id="coll-val">$0.00</strong></div>
@@ -345,8 +367,8 @@ select option{background:var(--bg3);color:var(--text)}
 const API_BASE='https://api.pokemontcg.io/v2/cards';
 const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
 const PPT_KEY='pokeprice_free_67fa19c5abd37709267bc7c6b977f4068110fb09d4a6185f';
-const CACHE_KEY='pokedex_card_cache_v12';
-const CACHE_AGE_KEY='pokedex_card_cache_age_v12';
+const CACHE_KEY='pokedex_card_cache_v13';
+const CACHE_AGE_KEY='pokedex_card_cache_age_v13';
 
 const TARGET_RARITIES=['Special Illustration Rare','Hyper Rare','Rainbow Rare','Secret Rare','Full Art','Amazing Rare','Illustration Rare','Rare Holo Star','Rare Holo EX','Rare Holo GX','Rare Holo V','Rare Holo VMAX','Rare Holo VSTAR','Double Rare','Ultra Rare','Shiny Rare','Shiny Ultra Rare','Rare BREAK'];
 const VALID_SERIES=null; // null = all series
@@ -362,6 +384,88 @@ const RARITY_PRIORITY={
 const GEN_RANGES=[[1,151],[152,251],[252,386],[387,493],[494,649],[650,721],[722,809],[810,905],[906,1025]];
 const GEN_NAMES=['Gen 1 — Kanto','Gen 2 — Johto','Gen 3 — Hoenn','Gen 4 — Sinnoh','Gen 5 — Unova','Gen 6 — Kalos','Gen 7 — Alola','Gen 8 — Galar','Gen 9 — Paldea'];
 const ERA_ORDER={'Sun & Moon':0,'Sword & Shield':1,'Scarlet & Violet':2};
+
+// Regional forms: key = "dex-regionCode", value = {label, dex (for API lookup), color}
+// dex = national dex number used to fetch cards from the TCG API
+// For forms with their own dex number (Hisuian evos etc), dex = their actual number
+// For variants that share the base dex number in TCG (Alolan, Galarian, Paldean),
+// we use the same dex but tag them via manual/search workflow
+const REGIONAL_FORMS={
+  // ALOLAN (use same dex — TCG cards share the dex number)
+  '19-alola':{label:'Alolan Rattata',shortLabel:'Alolan',dex:19,color:'alola'},
+  '20-alola':{label:'Alolan Raticate',shortLabel:'Alolan',dex:20,color:'alola'},
+  '26-alola':{label:'Alolan Raichu',shortLabel:'Alolan',dex:26,color:'alola'},
+  '27-alola':{label:'Alolan Sandshrew',shortLabel:'Alolan',dex:27,color:'alola'},
+  '28-alola':{label:'Alolan Sandslash',shortLabel:'Alolan',dex:28,color:'alola'},
+  '37-alola':{label:'Alolan Vulpix',shortLabel:'Alolan',dex:37,color:'alola'},
+  '38-alola':{label:'Alolan Ninetales',shortLabel:'Alolan',dex:38,color:'alola'},
+  '50-alola':{label:'Alolan Diglett',shortLabel:'Alolan',dex:50,color:'alola'},
+  '51-alola':{label:'Alolan Dugtrio',shortLabel:'Alolan',dex:51,color:'alola'},
+  '52-alola':{label:'Alolan Meowth',shortLabel:'Alolan',dex:52,color:'alola'},
+  '53-alola':{label:'Alolan Persian',shortLabel:'Alolan',dex:53,color:'alola'},
+  '74-alola':{label:'Alolan Geodude',shortLabel:'Alolan',dex:74,color:'alola'},
+  '75-alola':{label:'Alolan Graveler',shortLabel:'Alolan',dex:75,color:'alola'},
+  '76-alola':{label:'Alolan Golem',shortLabel:'Alolan',dex:76,color:'alola'},
+  '88-alola':{label:'Alolan Grimer',shortLabel:'Alolan',dex:88,color:'alola'},
+  '89-alola':{label:'Alolan Muk',shortLabel:'Alolan',dex:89,color:'alola'},
+  '103-alola':{label:'Alolan Exeggutor',shortLabel:'Alolan',dex:103,color:'alola'},
+  '105-alola':{label:'Alolan Marowak',shortLabel:'Alolan',dex:105,color:'alola'},
+  // GALARIAN
+  '52-galar':{label:'Galarian Meowth',shortLabel:'Galarian',dex:52,color:'galar'},
+  '77-galar':{label:'Galarian Ponyta',shortLabel:'Galarian',dex:77,color:'galar'},
+  '78-galar':{label:'Galarian Rapidash',shortLabel:'Galarian',dex:78,color:'galar'},
+  '79-galar':{label:'Galarian Slowpoke',shortLabel:'Galarian',dex:79,color:'galar'},
+  '80-galar':{label:'Galarian Slowbro',shortLabel:'Galarian',dex:80,color:'galar'},
+  '83-galar':{label:"Galarian Farfetch'd",shortLabel:'Galarian',dex:83,color:'galar'},
+  '110-galar':{label:'Galarian Weezing',shortLabel:'Galarian',dex:110,color:'galar'},
+  '122-galar':{label:'Galarian Mr. Mime',shortLabel:'Galarian',dex:122,color:'galar'},
+  '144-galar':{label:'Galarian Articuno',shortLabel:'Galarian',dex:144,color:'galar'},
+  '145-galar':{label:'Galarian Zapdos',shortLabel:'Galarian',dex:145,color:'galar'},
+  '146-galar':{label:'Galarian Moltres',shortLabel:'Galarian',dex:146,color:'galar'},
+  '199-galar':{label:'Galarian Slowking',shortLabel:'Galarian',dex:199,color:'galar'},
+  '222-galar':{label:'Galarian Corsola',shortLabel:'Galarian',dex:222,color:'galar'},
+  '263-galar':{label:'Galarian Zigzagoon',shortLabel:'Galarian',dex:263,color:'galar'},
+  '264-galar':{label:'Galarian Linoone',shortLabel:'Galarian',dex:264,color:'galar'},
+  '554-galar':{label:'Galarian Darumaka',shortLabel:'Galarian',dex:554,color:'galar'},
+  '555-galar':{label:'Galarian Darmanitan',shortLabel:'Galarian',dex:555,color:'galar'},
+  '562-galar':{label:'Galarian Yamask',shortLabel:'Galarian',dex:562,color:'galar'},
+  '618-galar':{label:'Galarian Stunfisk',shortLabel:'Galarian',dex:618,color:'galar'},
+  // HISUIAN
+  '58-hisui':{label:'Hisuian Growlithe',shortLabel:'Hisuian',dex:58,color:'hisui'},
+  '59-hisui':{label:'Hisuian Arcanine',shortLabel:'Hisuian',dex:59,color:'hisui'},
+  '100-hisui':{label:'Hisuian Voltorb',shortLabel:'Hisuian',dex:100,color:'hisui'},
+  '101-hisui':{label:'Hisuian Electrode',shortLabel:'Hisuian',dex:101,color:'hisui'},
+  '157-hisui':{label:'Hisuian Typhlosion',shortLabel:'Hisuian',dex:157,color:'hisui'},
+  '211-hisui':{label:'Hisuian Qwilfish',shortLabel:'Hisuian',dex:211,color:'hisui'},
+  '215-hisui':{label:'Hisuian Sneasel',shortLabel:'Hisuian',dex:215,color:'hisui'},
+  '503-hisui':{label:'Hisuian Samurott',shortLabel:'Hisuian',dex:503,color:'hisui'},
+  '549-hisui':{label:'Hisuian Lilligant',shortLabel:'Hisuian',dex:549,color:'hisui'},
+  '570-hisui':{label:'Hisuian Zorua',shortLabel:'Hisuian',dex:570,color:'hisui'},
+  '571-hisui':{label:'Hisuian Zoroark',shortLabel:'Hisuian',dex:571,color:'hisui'},
+  '628-hisui':{label:'Hisuian Braviary',shortLabel:'Hisuian',dex:628,color:'hisui'},
+  '706-hisui':{label:'Hisuian Goodra',shortLabel:'Hisuian',dex:706,color:'hisui'},
+  '713-hisui':{label:'Hisuian Avalugg',shortLabel:'Hisuian',dex:713,color:'hisui'},
+  '724-hisui':{label:'Hisuian Decidueye',shortLabel:'Hisuian',dex:724,color:'hisui'},
+  // PALDEAN
+  '128-paldea-combat':{label:'Paldean Tauros (Combat)',shortLabel:'Paldean',dex:128,color:'paldea'},
+  '128-paldea-blaze':{label:'Paldean Tauros (Blaze)',shortLabel:'Paldean',dex:128,color:'paldea'},
+  '128-paldea-aqua':{label:'Paldean Tauros (Aqua)',shortLabel:'Paldean',dex:128,color:'paldea'},
+};
+
+// Which base dex numbers have regional forms
+const REGIONAL_BY_DEX={};
+for(const[key,form]of Object.entries(REGIONAL_FORMS)){
+  const d=form.dex;
+  if(!REGIONAL_BY_DEX[d])REGIONAL_BY_DEX[d]=[];
+  REGIONAL_BY_DEX[d].push({key,...form});
+}
+
+const REGION_COLORS={
+  'alola':'--teal','galar':'--purple','hisui':'--orange','paldea':'--pink'
+};
+const REGION_LABELS={'alola':'Alolan','galar':'Galarian','hisui':'Hisuian','paldea':'Paldean'};
+// Total slots = 1025 base + 63 regional forms = 1088
+const TOTAL_SLOTS=1088;
 
 const ALL_POKEMON=[[1,'Bulbasaur'],[2,'Ivysaur'],[3,'Venusaur'],[4,'Charmander'],[5,'Charmeleon'],[6,'Charizard'],[7,'Squirtle'],[8,'Wartortle'],[9,'Blastoise'],[10,'Caterpie'],[11,'Metapod'],[12,'Butterfree'],[13,'Weedle'],[14,'Kakuna'],[15,'Beedrill'],[16,'Pidgey'],[17,'Pidgeotto'],[18,'Pidgeot'],[19,'Rattata'],[20,'Raticate'],[21,'Spearow'],[22,'Fearow'],[23,'Ekans'],[24,'Arbok'],[25,'Pikachu'],[26,'Raichu'],[27,'Sandshrew'],[28,'Sandslash'],[29,'Nidoran♀'],[30,'Nidorina'],[31,'Nidoqueen'],[32,'Nidoran♂'],[33,'Nidorino'],[34,'Nidoking'],[35,'Clefairy'],[36,'Clefable'],[37,'Vulpix'],[38,'Ninetales'],[39,'Jigglypuff'],[40,'Wigglytuff'],[41,'Zubat'],[42,'Golbat'],[43,'Oddish'],[44,'Gloom'],[45,'Vileplume'],[46,'Paras'],[47,'Parasect'],[48,'Venonat'],[49,'Venomoth'],[50,'Diglett'],[51,'Dugtrio'],[52,'Meowth'],[53,'Persian'],[54,'Psyduck'],[55,'Golduck'],[56,'Mankey'],[57,'Primeape'],[58,'Growlithe'],[59,'Arcanine'],[60,'Poliwag'],[61,'Poliwhirl'],[62,'Poliwrath'],[63,'Abra'],[64,'Kadabra'],[65,'Alakazam'],[66,'Machop'],[67,'Machoke'],[68,'Machamp'],[69,'Bellsprout'],[70,'Weepinbell'],[71,'Victreebel'],[72,'Tentacool'],[73,'Tentacruel'],[74,'Geodude'],[75,'Graveler'],[76,'Golem'],[77,'Ponyta'],[78,'Rapidash'],[79,'Slowpoke'],[80,'Slowbro'],[81,'Magnemite'],[82,'Magneton'],[83,"Farfetch'd"],[84,'Doduo'],[85,'Dodrio'],[86,'Seel'],[87,'Dewgong'],[88,'Grimer'],[89,'Muk'],[90,'Shellder'],[91,'Cloyster'],[92,'Gastly'],[93,'Haunter'],[94,'Gengar'],[95,'Onix'],[96,'Drowzee'],[97,'Hypno'],[98,'Krabby'],[99,'Kingler'],[100,'Voltorb'],[101,'Electrode'],[102,'Exeggcute'],[103,'Exeggutor'],[104,'Cubone'],[105,'Marowak'],[106,'Hitmonlee'],[107,'Hitmonchan'],[108,'Lickitung'],[109,'Koffing'],[110,'Weezing'],[111,'Rhyhorn'],[112,'Rhydon'],[113,'Chansey'],[114,'Tangela'],[115,'Kangaskhan'],[116,'Horsea'],[117,'Seadra'],[118,'Goldeen'],[119,'Seaking'],[120,'Staryu'],[121,'Starmie'],[122,'Mr. Mime'],[123,'Scyther'],[124,'Jynx'],[125,'Electabuzz'],[126,'Magmar'],[127,'Pinsir'],[128,'Tauros'],[129,'Magikarp'],[130,'Gyarados'],[131,'Lapras'],[132,'Ditto'],[133,'Eevee'],[134,'Vaporeon'],[135,'Jolteon'],[136,'Flareon'],[137,'Porygon'],[138,'Omanyte'],[139,'Omastar'],[140,'Kabuto'],[141,'Kabutops'],[142,'Aerodactyl'],[143,'Snorlax'],[144,'Articuno'],[145,'Zapdos'],[146,'Moltres'],[147,'Dratini'],[148,'Dragonair'],[149,'Dragonite'],[150,'Mewtwo'],[151,'Mew'],[152,'Chikorita'],[153,'Bayleef'],[154,'Meganium'],[155,'Cyndaquil'],[156,'Quilava'],[157,'Typhlosion'],[158,'Totodile'],[159,'Croconaw'],[160,'Feraligatr'],[161,'Sentret'],[162,'Furret'],[163,'Hoothoot'],[164,'Noctowl'],[165,'Ledyba'],[166,'Ledian'],[167,'Spinarak'],[168,'Ariados'],[169,'Crobat'],[170,'Chinchou'],[171,'Lanturn'],[172,'Pichu'],[173,'Cleffa'],[174,'Igglybuff'],[175,'Togepi'],[176,'Togetic'],[177,'Natu'],[178,'Xatu'],[179,'Mareep'],[180,'Flaaffy'],[181,'Ampharos'],[182,'Bellossom'],[183,'Marill'],[184,'Azumarill'],[185,'Sudowoodo'],[186,'Politoed'],[187,'Hoppip'],[188,'Skiploom'],[189,'Jumpluff'],[190,'Aipom'],[191,'Sunkern'],[192,'Sunflora'],[193,'Yanma'],[194,'Wooper'],[195,'Quagsire'],[196,'Espeon'],[197,'Umbreon'],[198,'Murkrow'],[199,'Slowking'],[200,'Misdreavus'],[201,'Unown'],[202,'Wobbuffet'],[203,'Girafarig'],[204,'Pineco'],[205,'Forretress'],[206,'Dunsparce'],[207,'Gligar'],[208,'Steelix'],[209,'Snubbull'],[210,'Granbull'],[211,'Qwilfish'],[212,'Scizor'],[213,'Shuckle'],[214,'Heracross'],[215,'Sneasel'],[216,'Teddiursa'],[217,'Ursaring'],[218,'Slugma'],[219,'Magcargo'],[220,'Swinub'],[221,'Piloswine'],[222,'Corsola'],[223,'Remoraid'],[224,'Octillery'],[225,'Delibird'],[226,'Mantine'],[227,'Skarmory'],[228,'Houndour'],[229,'Houndoom'],[230,'Kingdra'],[231,'Phanpy'],[232,'Donphan'],[233,'Porygon2'],[234,'Stantler'],[235,'Smeargle'],[236,'Tyrogue'],[237,'Hitmontop'],[238,'Smoochum'],[239,'Elekid'],[240,'Magby'],[241,'Miltank'],[242,'Blissey'],[243,'Raikou'],[244,'Entei'],[245,'Suicune'],[246,'Larvitar'],[247,'Pupitar'],[248,'Tyranitar'],[249,'Lugia'],[250,'Ho-Oh'],[251,'Celebi'],[252,'Treecko'],[253,'Grovyle'],[254,'Sceptile'],[255,'Torchic'],[256,'Combusken'],[257,'Blaziken'],[258,'Mudkip'],[259,'Marshtomp'],[260,'Swampert'],[261,'Poochyena'],[262,'Mightyena'],[263,'Zigzagoon'],[264,'Linoone'],[265,'Wurmple'],[266,'Silcoon'],[267,'Beautifly'],[268,'Cascoon'],[269,'Dustox'],[270,'Lotad'],[271,'Lombre'],[272,'Ludicolo'],[273,'Seedot'],[274,'Nuzleaf'],[275,'Shiftry'],[276,'Taillow'],[277,'Swellow'],[278,'Wingull'],[279,'Pelipper'],[280,'Ralts'],[281,'Kirlia'],[282,'Gardevoir'],[283,'Surskit'],[284,'Masquerain'],[285,'Shroomish'],[286,'Breloom'],[287,'Slakoth'],[288,'Vigoroth'],[289,'Slaking'],[290,'Nincada'],[291,'Ninjask'],[292,'Shedinja'],[293,'Whismur'],[294,'Loudred'],[295,'Exploud'],[296,'Makuhita'],[297,'Hariyama'],[298,'Azurill'],[299,'Nosepass'],[300,'Skitty'],[301,'Delcatty'],[302,'Sableye'],[303,'Mawile'],[304,'Aron'],[305,'Lairon'],[306,'Aggron'],[307,'Meditite'],[308,'Medicham'],[309,'Electrike'],[310,'Manectric'],[311,'Plusle'],[312,'Minun'],[313,'Volbeat'],[314,'Illumise'],[315,'Roselia'],[316,'Gulpin'],[317,'Swalot'],[318,'Carvanha'],[319,'Sharpedo'],[320,'Wailmer'],[321,'Wailord'],[322,'Numel'],[323,'Camerupt'],[324,'Torkoal'],[325,'Spoink'],[326,'Grumpig'],[327,'Spinda'],[328,'Trapinch'],[329,'Vibrava'],[330,'Flygon'],[331,'Cacnea'],[332,'Cacturne'],[333,'Swablu'],[334,'Altaria'],[335,'Zangoose'],[336,'Seviper'],[337,'Lunatone'],[338,'Solrock'],[339,'Barboach'],[340,'Whiscash'],[341,'Corphish'],[342,'Crawdaunt'],[343,'Baltoy'],[344,'Claydol'],[345,'Lileep'],[346,'Cradily'],[347,'Anorith'],[348,'Armaldo'],[349,'Feebas'],[350,'Milotic'],[351,'Castform'],[352,'Kecleon'],[353,'Shuppet'],[354,'Banette'],[355,'Duskull'],[356,'Dusclops'],[357,'Tropius'],[358,'Chimecho'],[359,'Absol'],[360,'Wynaut'],[361,'Snorunt'],[362,'Glalie'],[363,'Spheal'],[364,'Sealeo'],[365,'Walrein'],[366,'Clamperl'],[367,'Huntail'],[368,'Gorebyss'],[369,'Relicanth'],[370,'Luvdisc'],[371,'Bagon'],[372,'Shelgon'],[373,'Salamence'],[374,'Beldum'],[375,'Metang'],[376,'Metagross'],[377,'Regirock'],[378,'Regice'],[379,'Registeel'],[380,'Latias'],[381,'Latios'],[382,'Kyogre'],[383,'Groudon'],[384,'Rayquaza'],[385,'Jirachi'],[386,'Deoxys'],[387,'Turtwig'],[388,'Grotle'],[389,'Torterra'],[390,'Chimchar'],[391,'Monferno'],[392,'Infernape'],[393,'Piplup'],[394,'Prinplup'],[395,'Empoleon'],[396,'Starly'],[397,'Staravia'],[398,'Staraptor'],[399,'Bidoof'],[400,'Bibarel'],[401,'Kricketot'],[402,'Kricketune'],[403,'Shinx'],[404,'Luxio'],[405,'Luxray'],[406,'Budew'],[407,'Roserade'],[408,'Cranidos'],[409,'Rampardos'],[410,'Shieldon'],[411,'Bastiodon'],[412,'Burmy'],[413,'Wormadam'],[414,'Mothim'],[415,'Combee'],[416,'Vespiquen'],[417,'Pachirisu'],[418,'Buizel'],[419,'Floatzel'],[420,'Cherubi'],[421,'Cherrim'],[422,'Shellos'],[423,'Gastrodon'],[424,'Ambipom'],[425,'Drifloon'],[426,'Drifblim'],[427,'Buneary'],[428,'Lopunny'],[429,'Mismagius'],[430,'Honchkrow'],[431,'Glameow'],[432,'Purugly'],[433,'Chingling'],[434,'Stunky'],[435,'Skuntank'],[436,'Bronzor'],[437,'Bronzong'],[438,'Bonsly'],[439,'Mime Jr.'],[440,'Happiny'],[441,'Chatot'],[442,'Spiritomb'],[443,'Gible'],[444,'Gabite'],[445,'Garchomp'],[446,'Munchlax'],[447,'Riolu'],[448,'Lucario'],[449,'Hippopotas'],[450,'Hippowdon'],[451,'Skorupi'],[452,'Drapion'],[453,'Croagunk'],[454,'Toxicroak'],[455,'Carnivine'],[456,'Finneon'],[457,'Lumineon'],[458,'Mantyke'],[459,'Snover'],[460,'Abomasnow'],[461,'Weavile'],[462,'Magnezone'],[463,'Lickilicky'],[464,'Rhyperior'],[465,'Tangrowth'],[466,'Electivire'],[467,'Magmortar'],[468,'Togekiss'],[469,'Yanmega'],[470,'Leafeon'],[471,'Glaceon'],[472,'Gliscor'],[473,'Mamoswine'],[474,'Porygon-Z'],[475,'Gallade'],[476,'Probopass'],[477,'Dusknoir'],[478,'Froslass'],[479,'Rotom'],[480,'Uxie'],[481,'Mesprit'],[482,'Azelf'],[483,'Dialga'],[484,'Palkia'],[485,'Heatran'],[486,'Regigigas'],[487,'Giratina'],[488,'Cresselia'],[489,'Phione'],[490,'Manaphy'],[491,'Darkrai'],[492,'Shaymin'],[493,'Arceus'],[494,'Victini'],[495,'Snivy'],[496,'Servine'],[497,'Serperior'],[498,'Tepig'],[499,'Pignite'],[500,'Emboar'],[501,'Oshawott'],[502,'Dewott'],[503,'Samurott'],[504,'Patrat'],[505,'Watchog'],[506,'Lillipup'],[507,'Herdier'],[508,'Stoutland'],[509,'Purrloin'],[510,'Liepard'],[511,'Pansage'],[512,'Simisage'],[513,'Pansear'],[514,'Simisear'],[515,'Panpour'],[516,'Simipour'],[517,'Munna'],[518,'Musharna'],[519,'Pidove'],[520,'Tranquill'],[521,'Unfezant'],[522,'Blitzle'],[523,'Zebstrika'],[524,'Roggenrola'],[525,'Boldore'],[526,'Gigalith'],[527,'Woobat'],[528,'Swoobat'],[529,'Drilbur'],[530,'Excadrill'],[531,'Audino'],[532,'Timburr'],[533,'Gurdurr'],[534,'Conkeldurr'],[535,'Tympole'],[536,'Palpitoad'],[537,'Seismitoad'],[538,'Throh'],[539,'Sawk'],[540,'Sewaddle'],[541,'Swadloon'],[542,'Leavanny'],[543,'Venipede'],[544,'Whirlipede'],[545,'Scolipede'],[546,'Cottonee'],[547,'Whimsicott'],[548,'Petilil'],[549,'Lilligant'],[550,'Basculin'],[551,'Sandile'],[552,'Krokorok'],[553,'Krookodile'],[554,'Darumaka'],[555,'Darmanitan'],[556,'Maractus'],[557,'Dwebble'],[558,'Crustle'],[559,'Scraggy'],[560,'Scrafty'],[561,'Sigilyph'],[562,'Yamask'],[563,'Cofagrigus'],[564,'Tirtouga'],[565,'Carracosta'],[566,'Archen'],[567,'Archeops'],[568,'Trubbish'],[569,'Garbodor'],[570,'Zorua'],[571,'Zoroark'],[572,'Minccino'],[573,'Cinccino'],[574,'Gothita'],[575,'Gothorita'],[576,'Gothitelle'],[577,'Solosis'],[578,'Duosion'],[579,'Reuniclus'],[580,'Ducklett'],[581,'Swanna'],[582,'Vanillite'],[583,'Vanillish'],[584,'Vanilluxe'],[585,'Deerling'],[586,'Sawsbuck'],[587,'Emolga'],[588,'Karrablast'],[589,'Escavalier'],[590,'Foongus'],[591,'Amoonguss'],[592,'Frillish'],[593,'Jellicent'],[594,'Alomomola'],[595,'Joltik'],[596,'Galvantula'],[597,'Ferroseed'],[598,'Ferrothorn'],[599,'Klink'],[600,'Klang'],[601,'Klinklang'],[602,'Tynamo'],[603,'Eelektrik'],[604,'Eelektross'],[605,'Elgyem'],[606,'Beheeyem'],[607,'Litwick'],[608,'Lampent'],[609,'Chandelure'],[610,'Axew'],[611,'Fraxure'],[612,'Haxorus'],[613,'Cubchoo'],[614,'Beartic'],[615,'Cryogonal'],[616,'Shelmet'],[617,'Accelgor'],[618,'Stunfisk'],[619,'Mienfoo'],[620,'Mienshao'],[621,'Druddigon'],[622,'Golett'],[623,'Golurk'],[624,'Pawniard'],[625,'Bisharp'],[626,'Bouffalant'],[627,'Rufflet'],[628,'Braviary'],[629,'Vullaby'],[630,'Mandibuzz'],[631,'Heatmor'],[632,'Durant'],[633,'Deino'],[634,'Zweilous'],[635,'Hydreigon'],[636,'Larvesta'],[637,'Volcarona'],[638,'Cobalion'],[639,'Terrakion'],[640,'Virizion'],[641,'Tornadus'],[642,'Thundurus'],[643,'Reshiram'],[644,'Zekrom'],[645,'Landorus'],[646,'Kyurem'],[647,'Keldeo'],[648,'Meloetta'],[649,'Genesect'],[650,'Chespin'],[651,'Quilladin'],[652,'Chesnaught'],[653,'Fennekin'],[654,'Braixen'],[655,'Delphox'],[656,'Froakie'],[657,'Frogadier'],[658,'Greninja'],[659,'Bunnelby'],[660,'Diggersby'],[661,'Fletchling'],[662,'Fletchinder'],[663,'Talonflame'],[664,'Scatterbug'],[665,'Spewpa'],[666,'Vivillon'],[667,'Litleo'],[668,'Pyroar'],[669,'Flabébé'],[670,'Floette'],[671,'Florges'],[672,'Skiddo'],[673,'Gogoat'],[674,'Pancham'],[675,'Pangoro'],[676,'Furfrou'],[677,'Espurr'],[678,'Meowstic'],[679,'Honedge'],[680,'Doublade'],[681,'Aegislash'],[682,'Spritzee'],[683,'Aromatisse'],[684,'Swirlix'],[685,'Slurpuff'],[686,'Inkay'],[687,'Malamar'],[688,'Binacle'],[689,'Barbaracle'],[690,'Skrelp'],[691,'Dragalge'],[692,'Clauncher'],[693,'Clawitzer'],[694,'Helioptile'],[695,'Heliolisk'],[696,'Tyrunt'],[697,'Tyrantrum'],[698,'Amaura'],[699,'Aurorus'],[700,'Sylveon'],[701,'Hawlucha'],[702,'Dedenne'],[703,'Carbink'],[704,'Goomy'],[705,'Sliggoo'],[706,'Goodra'],[707,'Klefki'],[708,'Phantump'],[709,'Trevenant'],[710,'Pumpkaboo'],[711,'Gourgeist'],[712,'Bergmite'],[713,'Avalugg'],[714,'Noibat'],[715,'Noivern'],[716,'Xerneas'],[717,'Yveltal'],[718,'Zygarde'],[719,'Diancie'],[720,'Hoopa'],[721,'Volcanion'],[722,'Rowlet'],[723,'Dartrix'],[724,'Decidueye'],[725,'Litten'],[726,'Torracat'],[727,'Incineroar'],[728,'Popplio'],[729,'Brionne'],[730,'Primarina'],[731,'Pikipek'],[732,'Trumbeak'],[733,'Toucannon'],[734,'Yungoos'],[735,'Gumshoos'],[736,'Grubbin'],[737,'Charjabug'],[738,'Vikavolt'],[739,'Crabrawler'],[740,'Crabominable'],[741,'Oricorio'],[742,'Cutiefly'],[743,'Ribombee'],[744,'Rockruff'],[745,'Lycanroc'],[746,'Wishiwashi'],[747,'Mareanie'],[748,'Toxapex'],[749,'Mudbray'],[750,'Mudsdale'],[751,'Dewpider'],[752,'Araquanid'],[753,'Fomantis'],[754,'Lurantis'],[755,'Morelull'],[756,'Shiinotic'],[757,'Salandit'],[758,'Salazzle'],[759,'Stufful'],[760,'Bewear'],[761,'Bounsweet'],[762,'Steenee'],[763,'Tsareena'],[764,'Comfey'],[765,'Oranguru'],[766,'Passimian'],[767,'Wimpod'],[768,'Golisopod'],[769,'Sandygast'],[770,'Palossand'],[771,'Pyukumuku'],[772,'Type: Null'],[773,'Silvally'],[774,'Minior'],[775,'Komala'],[776,'Turtonator'],[777,'Togedemaru'],[778,'Mimikyu'],[779,'Bruxish'],[780,'Drampa'],[781,'Dhelmise'],[782,'Jangmo-o'],[783,'Hakamo-o'],[784,'Kommo-o'],[785,'Tapu Koko'],[786,'Tapu Lele'],[787,'Tapu Bulu'],[788,'Tapu Fini'],[789,'Cosmog'],[790,'Cosmoem'],[791,'Solgaleo'],[792,'Lunala'],[793,'Nihilego'],[794,'Buzzwole'],[795,'Pheromosa'],[796,'Xurkitree'],[797,'Celesteela'],[798,'Kartana'],[799,'Guzzlord'],[800,'Necrozma'],[801,'Magearna'],[802,'Marshadow'],[803,'Poipole'],[804,'Naganadel'],[805,'Stakataka'],[806,'Blacephalon'],[807,'Zeraora'],[808,'Meltan'],[809,'Melmetal'],[810,'Grookey'],[811,'Thwackey'],[812,'Rillaboom'],[813,'Scorbunny'],[814,'Raboot'],[815,'Cinderace'],[816,'Sobble'],[817,'Drizzile'],[818,'Inteleon'],[819,'Skwovet'],[820,'Greedent'],[821,'Rookidee'],[822,'Corvisquire'],[823,'Corviknight'],[824,'Blipbug'],[825,'Dottler'],[826,'Orbeetle'],[827,'Nickit'],[828,'Thievul'],[829,'Gossifleur'],[830,'Eldegoss'],[831,'Wooloo'],[832,'Dubwool'],[833,'Chewtle'],[834,'Drednaw'],[835,'Yamper'],[836,'Boltund'],[837,'Rolycoly'],[838,'Carkol'],[839,'Coalossal'],[840,'Applin'],[841,'Flapple'],[842,'Appletun'],[843,'Silicobra'],[844,'Sandaconda'],[845,'Cramorant'],[846,'Arrokuda'],[847,'Barraskewda'],[848,'Toxel'],[849,'Toxtricity'],[850,'Sizzlipede'],[851,'Centiskorch'],[852,'Clobbopus'],[853,'Grapploct'],[854,'Sinistea'],[855,'Polteageist'],[856,'Hatenna'],[857,'Hattrem'],[858,'Hatterene'],[859,'Impidimp'],[860,'Morgrem'],[861,'Grimmsnarl'],[862,'Obstagoon'],[863,'Perrserker'],[864,'Cursola'],[865,"Sirfetch'd"],[866,'Mr. Rime'],[867,'Runerigus'],[868,'Milcery'],[869,'Alcremie'],[870,'Falinks'],[871,'Pincurchin'],[872,'Snom'],[873,'Frosmoth'],[874,'Stonjourner'],[875,'Eiscue'],[876,'Indeedee'],[877,'Morpeko'],[878,'Cufant'],[879,'Copperajah'],[880,'Dracozolt'],[881,'Arctozolt'],[882,'Dracovish'],[883,'Arctovish'],[884,'Duraludon'],[885,'Dreepy'],[886,'Drakloak'],[887,'Dragapult'],[888,'Zacian'],[889,'Zamazenta'],[890,'Eternatus'],[891,'Kubfu'],[892,'Urshifu'],[893,'Zarude'],[894,'Regieleki'],[895,'Regidrago'],[896,'Glastrier'],[897,'Spectrier'],[898,'Calyrex'],[899,'Wyrdeer'],[900,'Kleavor'],[901,'Ursaluna'],[902,'Basculegion'],[903,'Sneasler'],[904,'Overqwil'],[905,'Enamorus'],[906,'Sprigatito'],[907,'Floragato'],[908,'Meowscarada'],[909,'Fuecoco'],[910,'Crocalor'],[911,'Skeledirge'],[912,'Quaxly'],[913,'Quaxwell'],[914,'Quaquaval'],[915,'Lechonk'],[916,'Oinkologne'],[917,'Tarountula'],[918,'Spidops'],[919,'Nymble'],[920,'Lokix'],[921,'Pawmi'],[922,'Pawmo'],[923,'Pawmot'],[924,'Tandemaus'],[925,'Maushold'],[926,'Fidough'],[927,'Dachsbun'],[928,'Smoliv'],[929,'Dolliv'],[930,'Arboliva'],[931,'Squawkabilly'],[932,'Nacli'],[933,'Naclstack'],[934,'Garganacl'],[935,'Charcadet'],[936,'Armarouge'],[937,'Ceruledge'],[938,'Tadbulb'],[939,'Bellibolt'],[940,'Wattrel'],[941,'Kilowattrel'],[942,'Maschiff'],[943,'Mabosstiff'],[944,'Shroodle'],[945,'Grafaiai'],[946,'Bramblin'],[947,'Brambleghast'],[948,'Toedscool'],[949,'Toedscruel'],[950,'Klawf'],[951,'Capsakid'],[952,'Scovillain'],[953,'Rellor'],[954,'Rabsca'],[955,'Flittle'],[956,'Espathra'],[957,'Tinkatink'],[958,'Tinkatuff'],[959,'Tinkaton'],[960,'Wiglett'],[961,'Wugtrio'],[962,'Bombirdier'],[963,'Finizen'],[964,'Palafin'],[965,'Varoom'],[966,'Revavroom'],[967,'Cyclizar'],[968,'Orthworm'],[969,'Glimmet'],[970,'Glimmora'],[971,'Greavard'],[972,'Houndstone'],[973,'Flamigo'],[974,'Cetoddle'],[975,'Cetitan'],[976,'Veluza'],[977,'Dondozo'],[978,'Tatsugiri'],[979,'Annihilape'],[980,'Clodsire'],[981,'Farigiraf'],[982,'Dudunsparce'],[983,'Kingambit'],[984,'Great Tusk'],[985,'Scream Tail'],[986,'Brute Bonnet'],[987,'Flutter Mane'],[988,'Slither Wing'],[989,'Sandy Shocks'],[990,'Iron Treads'],[991,'Iron Bundle'],[992,'Iron Hands'],[993,'Iron Jugulis'],[994,'Iron Moth'],[995,'Iron Thorns'],[996,'Frigibax'],[997,'Arctibax'],[998,'Baxcalibur'],[999,'Gimmighoul'],[1000,'Gholdengo'],[1001,'Wo-Chien'],[1002,'Chien-Pao'],[1003,'Ting-Lu'],[1004,'Chi-Yu'],[1005,'Roaring Moon'],[1006,'Iron Valiant'],[1007,'Koraidon'],[1008,'Miraidon'],[1009,'Walking Wake'],[1010,'Iron Leaves'],[1011,'Dipplin'],[1012,'Poltchageist'],[1013,'Sinistcha'],[1014,'Okidogi'],[1015,'Munkidori'],[1016,'Fezandipiti'],[1017,'Ogerpon'],[1018,'Archaludon'],[1019,'Hydrapple'],[1020,'Gouging Fire'],[1021,'Raging Bolt'],[1022,'Iron Boulder'],[1023,'Iron Crown'],[1024,'Terapagos'],[1025,'Pecharunt']];
 
@@ -441,21 +545,26 @@ function entryPrice(entry,cards){
 function updateStats(){
   let ct=0;
   for(const[d,entries]of Object.entries(collection)){
-    const cards=cardDB[+d]||[];
+    const dexNum=parseInt(d);
+    const cards=cardDB[dexNum]||[];
     for(const entry of entries){const p=entryPrice(entry,cards);if(p!=null)ct+=p;}
   }
   document.getElementById('coll-val').textContent='$'+ct.toFixed(2);
   let wt=0,wn=0;
   for(const[d,entries]of Object.entries(wantList)){
-    const cards=cardDB[+d]||[];
+    const dexNum=parseInt(d);
+    const cards=cardDB[dexNum]||[];
     for(const entry of entries){wn++;const p=entryPrice(entry,cards);if(p!=null)wt+=p;}
   }
   document.getElementById('want-val').textContent='$'+wt.toFixed(2);
   document.getElementById('want-count').textContent=wn;
-  const n=Object.keys(collection).length,t=ALL_POKEMON.length;
-  document.getElementById('prog-bar').style.width=(n/t*100).toFixed(1)+'%';
+  // Count unique collected slots (base + regional forms each count as 1)
+  const baseCollected=Object.keys(collection).filter(k=>!k.includes('-')&&collection[k]?.length>0).length;
+  const regionalCollected=Object.keys(collection).filter(k=>k.includes('-')&&collection[k]?.length>0).length;
+  const n=baseCollected+regionalCollected;
+  document.getElementById('prog-bar').style.width=(n/TOTAL_SLOTS*100).toFixed(1)+'%';
   document.getElementById('prog-n').textContent=n;
-  document.getElementById('prog-t').textContent=' / '+t+' collected';
+  document.getElementById('prog-t').textContent=' / '+TOTAL_SLOTS+' collected';
 }
 
 function groupByEra(cards){
@@ -529,7 +638,7 @@ async function loadAllCards(){
     try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render(false);return;}catch(e){}
   }
   // Purge all old cache versions
-  for(let v=1;v<=11;v++){
+  for(let v=1;v<=12;v++){
     localStorage.removeItem(`pokedex_card_cache_v${v}`);
     localStorage.removeItem(`pokedex_card_cache_age_v${v}`);
   }
@@ -714,7 +823,20 @@ function renderGrid(items,area){
       inner='<div class="card-count"><span>'+allCards.length+'</span> card'+(allCards.length!==1?'s':'')+'</div>'+(best2?rarityBadge(getDisplayRarity(best2)):'')+'<div class="card-best" style="margin-top:4px">'+(best2?best2.name:'')+'</div><div class="card-best" style="color:var(--text3)">'+(best2?((best2.set&&best2.set.name?best2.set.name:'Manual')+' · #'+(best2.number||'—')):'')+'</div><div class="card-price">TCG: <span>'+(price!=null?fmtPrice(price):'—')+'</span></div>';
     }
     const cls=(tileShowWant||(!tileShowCol&&isWant))?'wanted':(tileShowCol||isCol)?'collected':'';
-    html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}</div>`;
+    // Regional form pills
+    const rfForms=REGIONAL_BY_DEX[dex]||[];
+    let rfHtml='';
+    if(rfForms.length){
+      rfHtml='<div class="rf-toggle">';
+      for(const rf of rfForms){
+        const rfCol=collection[rf.key]?.length>0;
+        const rfWant=wantList[rf.key]?.length>0;
+        const pillCls=rfCol?'collected':rfWant?'wanted':'';
+        rfHtml+=`<span class="rf-pill ${rf.color} ${pillCls}" onclick="event.stopPropagation();openModal(${dex},'${rf.key}')" title="${rf.label}">${rf.shortLabel}${rfCol?' ✓':rfWant?' ⭐':''}</span>`;
+      }
+      rfHtml+='</div>';
+    }
+    html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}${rfHtml}</div>`;
   }
   html+='</div>';area.innerHTML=html;
 }
@@ -732,7 +854,9 @@ function renderListView(items,area){
     const dbCards=cards||[];
     const totalColVal=colEntries.reduce((sum,e)=>{const p=entryPrice(e,dbCards);return sum+(p||0);},0);
     const price=colEntries.length?totalColVal:null;
-    const cls=(tileShowWant||(!tileShowCol&&isWant))?'wanted':(tileShowCol||isCol)?'collected':'';
+    const listTileWant=(filterMode==='want'&&isWant);
+    const listTileCol=(isCol&&!listTileWant);
+    const cls=(listTileWant||(!listTileCol&&isWant))?'wanted':(listTileCol||isCol)?'collected':'';
     const colCnt=colEntries.length,wantCnt=wantEntries.length;
     let chk='<div class="chk"></div>';
     if(isCol)chk='<div class="chk done" style="'+(colCnt>1?'border-radius:6px;width:auto;padding:0 3px;font-size:8px;font-weight:600;color:#fff;':'')+'">'+( colCnt>1?'<span>'+colCnt+'×</span>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>')+'</div>';
@@ -742,18 +866,43 @@ function renderListView(items,area){
   html+='</div>';area.innerHTML=html;
 }
 
-async function openModal(dex){
+// Track which regional slot is active in the modal
+let currentRegionalKey=null;
+
+async function openModal(dex,regionalKey){
   currentDex=dex;
+  currentRegionalKey=regionalKey||null;
   const name=ALL_POKEMON.find(p=>p[0]===dex)?.[1]||'';
-  const colEntries=collection[dex]||[];
-  const wantEntries=wantList[dex]||[];
+  // Use regionalKey's collection/want if provided, otherwise base dex
+  const storageKey=regionalKey||dex;
+  const colEntries=collection[storageKey]||[];
+  const wantEntries=wantList[storageKey]||[];
   selCardId=colEntries[0]?.cardId||wantEntries[0]?.cardId||null;
+  // Modal header: show regional label if applicable
   document.getElementById('m-dex').textContent=dexStr(dex);
-  document.getElementById('m-name').textContent=name;
+  const rfInfo=regionalKey?REGIONAL_FORMS[regionalKey]:null;
+  document.getElementById('m-name').textContent=rfInfo?rfInfo.label:name;
   const cards=cardDB[dex]||[];
   const isWanted=wantEntries.length>0;
+  // Build region tabs if this Pokémon has regional forms
+  const rfForms=REGIONAL_BY_DEX[dex]||[];
+  let regionTabsHtml='';
+  if(rfForms.length){
+    regionTabsHtml='<div class="region-tabs">';
+    // Base tab
+    const baseActive=!regionalKey;
+    regionTabsHtml+=`<span class="region-tab${baseActive?' active-base':''}" onclick="openModal(${dex})">Base</span>`;
+    for(const rf of rfForms){
+      const isActive=regionalKey===rf.key;
+      regionTabsHtml+=`<span class="region-tab${isActive?' active-'+rf.color:''}" onclick="openModal(${dex},'${rf.key}')">${rf.shortLabel}</span>`;
+    }
+    regionTabsHtml+='</div>';
+    if(rfInfo){
+      regionTabsHtml+=`<div class="region-context-label ${rfInfo.color}">${rfInfo.label}</div>`;
+    }
+  }
   // Show owned cards summary
-  let body='';
+  let body=regionTabsHtml;
   if(colEntries.length>0){
     body+=`<div style="margin-bottom:0.75rem;padding:0.7rem;background:var(--green-bg);border:1px solid rgba(76,175,125,0.25);border-radius:var(--radius)">`;
     body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--green);margin-bottom:5px">✓ In Your Collection (${colEntries.length})</div>`;
@@ -1027,11 +1176,12 @@ function getManualEntry(){
 function toggleWant(){saveWant();}
 function saveWant(){
   if(!currentDex)return;
+  const sk=currentRegionalKey||currentDex;
   const entry=getManualEntry();
-  if(!wantList[currentDex])wantList[currentDex]=[];
-  wantList[currentDex].push({cardId:entry.cardId,manualPrice:entry.manualPrice,manualCard:entry.manualCard});
+  if(!wantList[sk])wantList[sk]=[];
+  wantList[sk].push({cardId:entry.cardId,manualPrice:entry.manualPrice,manualCard:entry.manualCard});
   saveWantList();
-  openModal(currentDex);render(true);
+  openModal(currentDex,currentRegionalKey);render(true);
 }
 function removeWant(dex,idx){
   if(!wantList[dex])return;
@@ -1040,10 +1190,11 @@ function removeWant(dex,idx){
   saveWantList();renderWantList();
 }
 function removeWantEntry(idx){
-  if(!currentDex||!wantList[currentDex])return;
-  wantList[currentDex].splice(idx,1);
-  if(wantList[currentDex].length===0)delete wantList[currentDex];
-  saveWantList();openModal(currentDex);render(true);
+  const sk=currentRegionalKey||currentDex;
+  if(!currentDex||!wantList[sk])return;
+  wantList[sk].splice(idx,1);
+  if(wantList[sk].length===0)delete wantList[sk];
+  saveWantList();openModal(currentDex,currentRegionalKey);render(true);
 }
 function selCard(id){
   selCardId=id;
@@ -1056,26 +1207,28 @@ function closeModal(){
   bd.style.top=''; bd.style.left=''; bd.style.width=''; bd.style.height='';
   var modal=bd.querySelector('.modal');
   if(modal){modal.style.height='';modal.style.maxHeight='';}
-  currentDex=null;selCardId=null;
+  currentDex=null;currentRegionalKey=null;selCardId=null;
   if(window._unlockBody)window._unlockBody();
   if(window._resetModalH)window._resetModalH();
 }
 function saveEntry(){
   if(!currentDex)return;
+  const sk=currentRegionalKey||currentDex;
   const entry=getManualEntry();
-  if(!collection[currentDex])collection[currentDex]=[];
-  collection[currentDex].push(entry);
+  if(!collection[sk])collection[sk]=[];
+  collection[sk].push(entry);
   // Remove first want entry if any (they got the card)
-  if(wantList[currentDex]?.length){wantList[currentDex].shift();if(!wantList[currentDex].length)delete wantList[currentDex];saveWantList();}
-  saveCollection();openModal(currentDex);render(true);
+  if(wantList[sk]?.length){wantList[sk].shift();if(!wantList[sk].length)delete wantList[sk];saveWantList();}
+  saveCollection();openModal(currentDex,currentRegionalKey);render(true);
 }
 function removeEntry(idx){
+  const sk=currentRegionalKey||currentDex;
   if(!currentDex)return;
-  if(collection[currentDex]){
-    collection[currentDex].splice(idx,1);
-    if(collection[currentDex].length===0)delete collection[currentDex];
+  if(collection[sk]){
+    collection[sk].splice(idx,1);
+    if(collection[sk].length===0)delete collection[sk];
   }
-  saveCollection();openModal(currentDex);render(true);
+  saveCollection();openModal(currentDex,currentRegionalKey);render(true);
 }
 function showWantPage(){
   // Show the full want list page view
