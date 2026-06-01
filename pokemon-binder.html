@@ -51,6 +51,9 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .dot.loading{background:var(--gold);animation:pulse 1s infinite}
 .dot.done{background:var(--green)}
 .dot.err{background:var(--red)}
+.reload-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--gold);font-family:var(--body);font-size:0.75rem;padding:0.38rem 0.7rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.reload-btn:hover{border-color:var(--gold2);background:var(--gold-bg)}
+.reload-btn:disabled{opacity:0.55;cursor:default}
 .controls{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .search-wrap{position:relative;flex:1;min-width:160px;max-width:250px}
 .search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:13px;height:13px}
@@ -137,6 +140,11 @@ select option{background:var(--bg3);color:var(--text)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:8px}
 .poke-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden}
 .poke-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.card-thumb-wrap{width:100%;aspect-ratio:3/4;border-radius:6px;overflow:hidden;margin-bottom:6px;background:var(--bg3)}
+.card-thumb{width:100%;height:100%;object-fit:cover;border-radius:6px;transition:transform 0.2s}
+.poke-card:hover .card-thumb{transform:scale(1.04)}
+.card-no-img{width:100%;aspect-ratio:3/4;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;margin-bottom:6px;font-size:2rem;color:var(--text3)}
+.modal-card-img{width:100%;max-width:200px;border-radius:8px;display:block;margin:0 auto 10px;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
 .poke-card.collected{border-color:rgba(76,175,125,0.4);background:linear-gradient(135deg,var(--bg2),rgba(76,175,125,0.04))}
 .poke-card.wanted{border-color:rgba(251,191,36,0.4);background:linear-gradient(135deg,var(--bg2),rgba(251,191,36,0.04))}
 .card-dex{font-size:0.67rem;color:var(--text3);font-family:var(--display);letter-spacing:0.08em;margin-bottom:2px}
@@ -268,7 +276,8 @@ select option{background:var(--bg3);color:var(--text)}
     <div class="stat-pill green">Collection: <strong id="coll-val">$0.00</strong></div>
     <div class="stat-pill yellow" onclick="showWantPage()" style="cursor:pointer" title="View full want list">Want List: <strong id="want-val">$0.00</strong> (<span id="want-count">0</span>)</div>
   </div>
-  <div class="api-status"><div class="dot loading" id="api-dot"></div><span id="api-txt">Loading…</span></div>
+  <div class="api-status"><div class="dot" id="api-dot"></div><span id="api-txt">Catalog: never synced</span></div>
+  <button class="reload-btn" id="reload-btn" onclick="reloadCards()" title="Sync card data &amp; images from the API">⟳ Reload</button>
 </header>
 
 <div class="controls">
@@ -280,6 +289,7 @@ select option{background:var(--bg3);color:var(--text)}
   <button class="filter-btn" id="fb-col" onclick="setF('col',this)">Collected</button>
   <button class="filter-btn" id="fb-want" onclick="setF('want',this)">⭐ Want List</button>
   <button class="filter-btn" id="fb-mis" onclick="setF('mis',this)">Missing</button>
+  <button class="filter-btn" id="fb-upg" onclick="setF('upg',this)">⬆ Upgrades</button>
   <select id="f-era" onchange="render()">
     <option value="">All Eras</option>
     <option value="Scarlet & Violet">Scarlet &amp; Violet</option>
@@ -363,7 +373,23 @@ select option{background:var(--bg3);color:var(--text)}
 
 <main class="main" id="main"></main>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
+// ── Firebase init ─────────────────────────────────────────────────
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyCP3pH-n5-GG0YzCuXrj61dXJBkA4kGK5o",
+  authDomain:"pokemon-binder-10649.firebaseapp.com",
+  projectId:"pokemon-binder-10649",
+  storageBucket:"pokemon-binder-10649.firebasestorage.app",
+  messagingSenderId:"451486986848",
+  appId:"1:451486986848:web:bdf18666f73b271d7ac905"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+const db=firebase.firestore();
+const COL_DOC=db.collection('binder').doc('collection');
+const WANT_DOC=db.collection('binder').doc('wantList');
+// ─────────────────────────────────────────────────────────────────
 const API_BASE='https://api.pokemontcg.io/v2/cards';
 const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
 const PPT_KEY='pokeprice_free_67fa19c5abd37709267bc7c6b977f4068110fb09d4a6185f';
@@ -488,33 +514,38 @@ function ebaySearchUrl(n,s,num){return 'https://www.ebay.com/sch/i.html?_nkw='+e
 let cardDB={},collection={},wantList={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
 const pptCache={};
 
-// v4 storage: collection[dex] = [{cardId,notes,manualPrice,manualCard}, ...]
-// v2 want:    wantList[dex]  = [{cardId,manualPrice,manualCard}, ...]
+// ── Firestore sync (collection + want list only) ─────────────────
 function migrateEntry(e){return Array.isArray(e)?e:(e?[e]:[]);}
+
 function loadData(){
-  // Try new format first
-  let rawCol=localStorage.getItem('pokedex_binder_v4');
-  let rawWant=localStorage.getItem('pokedex_want_v2');
-  // Migrate old single-entry format (v3/v1)
-  if(!rawCol){
-    try{
-      const old=JSON.parse(localStorage.getItem('pokedex_binder_v3')||'{}');
-      collection={};
-      for(const[k,v]of Object.entries(old)) collection[k]=migrateEntry(v);
-      localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));
-    }catch(e){collection={};}
-  }else{try{collection=JSON.parse(rawCol);}catch(e){collection={};}}
-  if(!rawWant){
-    try{
-      const old=JSON.parse(localStorage.getItem('pokedex_want_v1')||'{}');
-      wantList={};
-      for(const[k,v]of Object.entries(old)) wantList[k]=migrateEntry(v);
-      localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));
-    }catch(e){wantList={};}
-  }else{try{wantList=JSON.parse(rawWant);}catch(e){wantList={};}}
+  // Load from localStorage instantly as fallback
+  try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v4')||'{}');}catch(e){collection={};}
+  try{wantList=JSON.parse(localStorage.getItem('pokedex_want_v2')||'{}');}catch(e){wantList={};}
+  // Pull from Firestore then set up real-time listeners
+  COL_DOC.get().then(function(snap){
+    if(snap.exists){collection=snap.data()||{};try{localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));}catch(e){}updateStats();render(true);}
+  }).catch(function(e){console.log('Firestore read:',e);});
+  WANT_DOC.get().then(function(snap){
+    if(snap.exists){wantList=snap.data()||{};try{localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));}catch(e){}updateStats();render(true);}
+  }).catch(function(e){console.log('Firestore read:',e);});
+  COL_DOC.onSnapshot(function(snap){
+    if(snap.exists){collection=snap.data()||{};try{localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));}catch(e){}updateStats();render(true);}
+  });
+  WANT_DOC.onSnapshot(function(snap){
+    if(snap.exists){wantList=snap.data()||{};try{localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));}catch(e){}updateStats();render(true);}
+  });
 }
-function saveCollection(){localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));updateStats();}
-function saveWantList(){localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));updateStats();}
+
+function saveCollection(){
+  try{localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));}catch(e){}
+  COL_DOC.set(collection).catch(function(e){console.log('Save error:',e);});
+  updateStats();
+}
+function saveWantList(){
+  try{localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));}catch(e){}
+  WANT_DOC.set(wantList).catch(function(e){console.log('Save error:',e);});
+  updateStats();
+}
 function dexStr(n){return '#'+String(n).padStart(4,'0');}
 function getGen(d){for(let i=0;i<GEN_RANGES.length;i++)if(d>=GEN_RANGES[i][0]&&d<=GEN_RANGES[i][1])return i+1;return 9;}
 function rarityBadge(r){
@@ -601,7 +632,7 @@ async function fetchPokemon(dex,allRarities=false){
         const rarQ=TARGET_RARITIES.map(r=>'rarity:"'+r+'"').join(' OR ');
         q=encodeURIComponent('nationalPokedexNumbers:'+dex+' ('+rarQ+')');
       }
-      const r=await fetch(API_BASE+'?q='+q+'&select=id,name,set,number,rarity,tcgplayer&orderBy=-set.releaseDate&pageSize=250');
+      const r=await fetch(API_BASE+'?q='+q+'&select=id,name,set,number,rarity,tcgplayer,images&orderBy=-set.releaseDate&pageSize=250');
       if(r.status===429||r.status>=500){
         // Rate limited — wait and retry
         await new Promise(res=>setTimeout(res,1500*(attempt+1)));
@@ -630,18 +661,38 @@ async function loadAllForDex(dex){
   openModal(dex); // re-render modal with full card list
 }
 
-async function loadAllCards(){
-  setStatus('loading','Loading card data…');
+function fmtSyncStamp(ts){
+  if(!ts)return 'never synced';
+  var d=new Date(+ts);
+  return 'synced '+d.toLocaleDateString([],{month:'short',day:'numeric'})+' '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+}
+function showSyncStatus(){
+  var age=localStorage.getItem(CACHE_AGE_KEY);
+  setStatus(age?'done':'','Catalog: '+fmtSyncStamp(age));
+}
+// BOOT loader — reads the cached catalog only. Makes NO network calls on open.
+function loadCachedCards(){
   const cached=localStorage.getItem(CACHE_KEY);
-  const age=localStorage.getItem(CACHE_AGE_KEY);
-  if(cached&&age&&(Date.now()-+age)<86400000){
-    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;setStatus('done','Loaded from cache');updateStats();render(false);return;}catch(e){}
+  if(cached){
+    try{cardDB=JSON.parse(cached);loadedCount=ALL_POKEMON.length;}catch(e){cardDB={};}
   }
-  // Purge all old cache versions
+  showSyncStatus();
+  updateStats();render(false);
+}
+// MANUAL reload — the ONLY thing that hits the card API. Runs on button tap.
+let _reloading=false;
+async function reloadCards(){
+  if(_reloading)return;
+  _reloading=true;
+  const btn=document.getElementById('reload-btn');
+  if(btn){btn.disabled=true;btn.textContent='⟳ Reloading…';}
+  setStatus('loading','Reloading catalog…');
+  // Purge old cache versions
   for(let v=1;v<=12;v++){
-    localStorage.removeItem(`pokedex_card_cache_v${v}`);
-    localStorage.removeItem(`pokedex_card_cache_age_v${v}`);
+    localStorage.removeItem('pokedex_card_cache_v'+v);
+    localStorage.removeItem('pokedex_card_cache_age_v'+v);
   }
+  loadedCount=0;
   const BATCH=4,DELAY=600;
   const batches=[];
   for(let i=0;i<ALL_POKEMON.length;i+=BATCH)batches.push(ALL_POKEMON.slice(i,i+BATCH));
@@ -652,7 +703,7 @@ async function loadAllCards(){
       batch.forEach(([dex])=>{if(cardDB[dex]===undefined)cardDB[dex]=[];});
     }
     loadedCount=Math.min(loadedCount+batch.length,ALL_POKEMON.length);
-    setStatus('loading','Loading… '+loadedCount+'/'+ALL_POKEMON.length);
+    setStatus('loading','Reloading… '+loadedCount+'/'+ALL_POKEMON.length);
     render(true);
     await new Promise(r=>setTimeout(r,DELAY));
   }
@@ -662,7 +713,9 @@ async function loadAllCards(){
   }catch(e){
     try{localStorage.setItem(CACHE_AGE_KEY,String(Date.now()));}catch(e2){}
   }
-  setStatus('done','All cards loaded ✓');updateStats();render(true);
+  if(btn){btn.disabled=false;btn.textContent='⟳ Reload';}
+  _reloading=false;
+  showSyncStatus();updateStats();render(true);
 }
 
 function setStatus(s,t){document.getElementById('api-txt').textContent=t;document.getElementById('api-dot').className='dot '+s;}
@@ -678,10 +731,11 @@ function getFiltered(){
     if(filterMode==='col'&&!isCol)return false;
     if(filterMode==='want'&&!isWant)return false;
     if(filterMode==='mis'&&(isCol||isWant))return false;
+    if(filterMode==='upg'&&!(collection[dex]||[]).some(function(e){return e.upgrade;}))return false;
     if(fG&&getGen(dex)!==fG)return false;
     const cards=cardDB[dex]||[];
     // Skip card-level filters in col/want mode — don't block based on unloaded cards
-    if(filterMode!=='col'&&filterMode!=='want'){
+    if(filterMode!=='col'&&filterMode!=='want'&&filterMode!=='upg'){
       if(fE&&!cards.some(c=>c.set?.series===fE))return false;
       if(fR){
         if(fR==='Alternate Art'){if(!cards.some(c=>isAlternateArt(c)))return false;}
@@ -739,6 +793,7 @@ function renderWantList(area){
         <option value="name"${sortMode==='name'?' selected':''}>Name A–Z</option>
       </select>
     </div>
+    <button onclick="printAllWantProxies()" style="background:none;border:1px solid rgba(45,212,191,0.3);border-radius:var(--radius);color:var(--teal);font-family:var(--body);font-size:0.72rem;padding:4px 10px;cursor:pointer">🖨 Print All Proxies</button>
   </div><div class="want-list">`;
   for(const{dex,name,card,price}of items){
     const dispRar=card?getDisplayRarity(card):null;
@@ -763,6 +818,25 @@ function renderWantList(area){
   html+='</div>';area.innerHTML=html;
 }
 
+// Feature 2 — conditional image loading.
+// An image is pulled ONLY for a card that is (a) collected, or (b) a *specifically
+// named* want (a want entry that carries a cardId). A species-level want like
+// "Charizard" with no specific card selected returns null → placeholder, no fetch.
+function pickThumbCard(colEntries,wantEntries,dbCards){
+  for(var i=0;i<colEntries.length;i++){
+    var e=colEntries[i];
+    var c=e.cardId?dbCards.find(function(x){return x.id===e.cardId;}):null;
+    var card=c||e.manualCard;
+    if(card&&card.images&&card.images.small)return card;
+  }
+  for(var j=0;j<wantEntries.length;j++){
+    var w=wantEntries[j];
+    if(!w.cardId)continue; // species-level want → no image
+    var wc=dbCards.find(function(x){return x.id===w.cardId;});
+    if(wc&&wc.images&&wc.images.small)return wc;
+  }
+  return null;
+}
 function renderGrid(items,area){
   let html='<div class="grid">',lastGen=-1;
   for(const[dex,name]of items){
@@ -803,7 +877,8 @@ function renderGrid(items,area){
         inner+=c?(rarityBadge(getDisplayRarity(c))+'<div class="card-best" style="margin-top:2px">'+c.name+'</div><div class="card-best" style="color:var(--text3)">'+(c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')+'</div><div class="card-price" style="margin-bottom:3px">TCG: <span>'+fmtPrice(p)+'</span></div>'):'<div class="no-cards">No card selected</div>';
       });
     }else if(tileShowCol){
-      inner='<div class="card-count" style="color:var(--green);margin-bottom:4px">Owned ('+colEntries.length+')</div>';
+      var hasUpg=colEntries.some(function(e){return e.upgrade;});
+      inner='<div class="card-count" style="color:var(--green);margin-bottom:4px">Owned ('+colEntries.length+')'+(hasUpg?' <span style="color:var(--blue)" title="Looking to upgrade">⬆</span>':'')+'</div>';
       colEntries.forEach(function(e){
         var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
         var p=entryPrice(e,dbCards);
@@ -836,7 +911,11 @@ function renderGrid(items,area){
       }
       rfHtml+='</div>';
     }
-    html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}${rfHtml}</div>`;
+    const thumbCard=pickThumbCard(colEntries,wantEntries,dbCards);
+    const thumbHtml=(thumbCard&&thumbCard.images&&thumbCard.images.small)
+      ?'<div class="card-thumb-wrap"><img class="card-thumb" src="'+thumbCard.images.small+'" alt="'+name+'" loading="lazy" decoding="async"/></div>'
+      :'<div class="card-no-img">?</div>';
+    html+=`<div class="poke-card${cls?' '+cls:''}" onclick="openModal(${dex})">${sb}${thumbHtml}<div class="card-dex">${dexStr(dex)}</div><div class="card-name">${name}</div>${inner}${rfHtml}</div>`;
   }
   html+='</div>';area.innerHTML=html;
 }
@@ -915,6 +994,7 @@ async function openModal(dex,regionalKey){
       body+=`<div><div style="font-size:0.8rem;font-weight:500;color:var(--text)">${card?card.name:'Unknown Card'}</div>`;
       body+='<div style="font-size:0.7rem;color:var(--text3)">'+(card?(card.set?.name||'Manual')+' · #'+(card.number||'—'):'')+( e.notes?' · '+e.notes:'')+'</div></div>';
       body+=`<div style="display:flex;align-items:center;gap:7px"><span style="font-size:0.82rem;color:var(--gold);font-weight:500">${fmtPrice(p)}</span>`;
+      body+=`<button onclick="toggleUpgrade(${i})" title="Looking to upgrade this card (condition/version)" style="background:${e.upgrade?'var(--blue-bg)':'none'};border:1px solid ${e.upgrade?'var(--blue)':'var(--border)'};border-radius:4px;padding:2px 6px;font-size:0.65rem;color:${e.upgrade?'var(--blue)':'var(--text3)'};cursor:pointer;white-space:nowrap">⬆ Upgrade</button>`;
       body+=`<button onclick="removeEntry(${i})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.65rem;color:var(--text3);cursor:pointer">✕</button></div>`;
       body+=`</div>`;
     }
@@ -1104,7 +1184,9 @@ function renderModalCards(cards, selectedId, filter=''){
     html+=`<div class="era-group"><div class="era-title">${era} (${eraCards.length})</div>`;
     for(const card of eraCards){
       const sel=card.id===selectedId;
+      const cardImgHtml=card.images?.small?`<img class="modal-card-img" src="${card.images.small}" alt="${card.name}" loading="lazy"/>`:'';
       html+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
+        ${cardImgHtml}
         <div class="opt-name">${card.name}</div>
         <div class="opt-meta">${rarityBadge(getDisplayRarity(card))}<span>${card.set.name}</span><span>#${card.number}</span></div>
         <div class="price-row">
@@ -1114,6 +1196,11 @@ function renderModalCards(cards, selectedId, filter=''){
         </div>
         <div style="margin-top:6px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy on TCGPlayer</a></div>
       </div>`;
+      // Proxy button — only if this card is in the want list
+      const isWanted=(wantList[currentDex]||[]).some(function(e){return e.cardId===card.id;});
+      if(isWanted){
+        html=html.slice(0,-6)+'<div style="margin-top:4px"><button onclick="printProxy(\''+card.id+'\',event)" style="background:none;border:1px solid rgba(45,212,191,0.4);border-radius:6px;color:var(--teal);font-size:0.68rem;padding:3px 8px;cursor:pointer;width:100%">🖨 Print Proxy</button></div></div>';
+      }
     }
     html+='</div>';
   }
@@ -1230,6 +1317,12 @@ function removeEntry(idx){
   }
   saveCollection();openModal(currentDex,currentRegionalKey);render(true);
 }
+function toggleUpgrade(idx){
+  const sk=currentRegionalKey||currentDex;
+  if(!currentDex||!collection[sk]||!collection[sk][idx])return;
+  collection[sk][idx].upgrade=!collection[sk][idx].upgrade;
+  saveCollection();openModal(currentDex,currentRegionalKey);render(true);
+}
 function showWantPage(){
   // Show the full want list page view
   const area=document.getElementById('main');
@@ -1248,7 +1341,37 @@ function setView(v){
   render();
 }
 document.getElementById('backdrop').addEventListener('click',e=>{if(e.target===document.getElementById('backdrop'))closeModal();});
-loadData();render();loadAllCards();
+
+function printProxy(cardId,event){
+  if(event)event.stopPropagation();
+  const cards=cardDB[currentDex]||[];
+  const card=cards.find(function(c){return c.id===cardId;});
+  if(!card||(!card.images?.large&&!card.images?.small)){alert('No image available for this card.');return;}
+  const imgUrl=card.images.large||card.images.small;
+  const win=window.open('','_blank','width=420,height=600');
+  win.document.write('<!DOCTYPE html><html><head><title>Proxy: '+card.name+'</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px;font-family:sans-serif}.card{width:2.5in;height:3.5in;border-radius:0.12in;overflow:hidden}.card img{width:100%;height:100%;object-fit:cover}.label{margin-top:8px;font-size:10px;color:#666;text-align:center;max-width:2.5in}@media print{body{padding:0}.label{display:none}@page{margin:0.4in}}</style></head><body><div class="card"><img src="'+imgUrl+'" alt="'+card.name+'"/></div><div class="label">'+card.name+' · '+(card.set?.name||'')+' #'+(card.number||'')+' · PROXY</div><script>window.onload=function(){window.print();}<\/script></body></html>');
+  win.document.close();
+}
+
+function printAllWantProxies(){
+  var cards=[];
+  for(var dex in wantList){
+    var entries=wantList[dex]||[];
+    var dbCards=cardDB[+dex]||[];
+    for(var i=0;i<entries.length;i++){
+      var e=entries[i];
+      var c=e.cardId?dbCards.find(function(x){return x.id===e.cardId;}):null;
+      if(c&&(c.images?.large||c.images?.small))cards.push(c);
+    }
+  }
+  if(!cards.length){alert('No cards with images in your want list.');return;}
+  var rows=cards.map(function(c){return '<div class="card"><img src="'+(c.images.large||c.images.small)+'" alt="'+c.name+'"/><div class="lbl">'+c.name+'</div></div>';}).join('');
+  var win=window.open('','_blank');
+  win.document.write('<!DOCTYPE html><html><head><title>Want List Proxies</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#fff;padding:0.3in;font-family:sans-serif}.grid{display:grid;grid-template-columns:repeat(3,2.5in);gap:0.2in}.card{width:2.5in;break-inside:avoid}.card img{width:2.5in;height:3.5in;object-fit:cover;border-radius:0.12in;display:block}.lbl{font-size:8px;text-align:center;padding:3px;color:#333}@media print{@page{size:letter;margin:0.3in}}</style></head><body><div class="grid">'+rows+'</div><script>window.onload=function(){window.print();}<\/script></body></html>');
+  win.document.close();
+}
+
+loadData();render();loadCachedCards();
 </script>
 
 <script>
