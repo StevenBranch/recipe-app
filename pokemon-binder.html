@@ -807,12 +807,20 @@ function getFiltered(){
   });
 }
 
+function syncChrome(){
+  var onBinder=(currentView==='binder');
+  var ctrl=document.querySelector('.controls');if(ctrl)ctrl.style.display=onBinder?'':'none';
+  var leg=document.querySelector('.legend');if(leg)leg.style.display=onBinder?'':'none';
+  var tb=document.getElementById('tab-binder'),tm=document.getElementById('tab-mine'),tw=document.getElementById('tab-want');
+  if(tb)tb.classList.toggle('on',currentView==='binder');
+  if(tm)tm.classList.toggle('on',currentView==='mine');
+  if(tw)tw.classList.toggle('on',currentView==='want');
+}
 function render(preserveScroll){
   updateStats();
+  syncChrome();
   var sy=preserveScroll?(window.scrollY||window.pageYOffset||0):0;
   const area=document.getElementById('main');
-  const ctrl=document.querySelector('.controls');
-  if(ctrl)ctrl.style.display=(currentView==='binder')?'':'none';
   if(currentView==='mine'){renderMyCollection(area);if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});return;}
   if(currentView==='want'){renderWantList(area);if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});return;}
   const items=getFiltered();
@@ -822,9 +830,6 @@ function render(preserveScroll){
 }
 function showView(v){
   currentView=v;
-  document.getElementById('tab-binder').classList.toggle('on',v==='binder');
-  document.getElementById('tab-mine').classList.toggle('on',v==='mine');
-  document.getElementById('tab-want').classList.toggle('on',v==='want');
   window.scrollTo(0,0);
   render();
 }
@@ -868,12 +873,14 @@ function renderWantList(area){
     </div>
     <button onclick="printAllWantProxies()" style="background:none;border:1px solid rgba(45,212,191,0.3);border-radius:var(--radius);color:var(--teal);font-family:var(--body);font-size:0.72rem;padding:4px 10px;cursor:pointer">🖨 Print All Proxies</button>
   </div><div class="want-list">`;
-  for(const{dex,name,card,price}of items){
+  for(const{dex,name,card,price,idx}of items){
     const dispRar=card?getDisplayRarity(card):null;
+    const wImg=card&&card.images&&card.images.small?card.images.small:'';
     const tcgUrl=card?tcgPlayerUrl(card):`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(name)}`;
     const ebUrl=card?ebaySearchUrl(card.name,card.set?.name||'',card.number||''):`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(name+' pokemon card')}&LH_Complete=1&LH_Sold=1&_sacat=0`;
     html+=`<div class="want-item${price==null?' no-price':''}">
       <span class="want-dex">${dexStr(dex)}</span>
+      ${wImg?('<img src="'+wImg+'" alt="'+name+'" loading="lazy" decoding="async" style="width:38px;height:53px;object-fit:cover;border-radius:4px;flex:none"/>'):'<div class="card-no-img" style="width:38px;height:53px;font-size:1rem;flex:none">?</div>'}
       <span class="want-name">${name}</span>
       <div class="want-card-info">
         ${card?('<div class="want-card-name">'+card.name+'</div><div class="want-card-meta">'+(card.set?.name||'Manual')+' · #'+(card.number||'—')+' · '+(dispRar?rarityBadge(dispRar):''  )+'</div>'):'<div class="want-card-name" style="color:var(--text3)">No card selected</div>'}
@@ -895,16 +902,15 @@ function renderWantList(area){
 // An image is pulled ONLY for a card that is (a) collected, or (b) a *specifically
 // named* want (a want entry that carries a cardId). A species-level want like
 // "Charizard" with no specific card selected returns null → placeholder, no fetch.
-function pickThumbCard(colEntries,wantEntries,dbCards){
-  for(var i=0;i<colEntries.length;i++){
-    var card=resolveCard(colEntries[i],dbCards);
-    if(card&&card.images&&card.images.small)return card;
-  }
-  for(var j=0;j<wantEntries.length;j++){
-    var w=wantEntries[j];
-    if(!w.cardId&&!(w.snap&&w.snap.cardId))continue; // species-level want → no image
-    var wc=resolveCard(w,dbCards);
-    if(wc&&wc.images&&wc.images.small)return wc;
+// Pick the thumbnail card for a tile, from the SAME entry-set the tile text uses,
+// so image and text never disagree. 'browse' → null (no image for un-tracked cards).
+function thumbForMode(mode,colEntries,wantEntries,dbCards){
+  var list=mode==='want'?wantEntries:mode==='col'?colEntries:[];
+  for(var i=0;i<list.length;i++){
+    var e=list[i];
+    if(mode==='want'&&!e.cardId&&!(e.snap&&e.snap.cardId))continue; // species-level want → no image
+    var c=resolveCard(e,dbCards);
+    if(c&&c.images&&c.images.small)return c;
   }
   return null;
 }
@@ -943,7 +949,7 @@ function renderGrid(items,area){
     }else if(tileShowWant){
       inner='<div class="card-count" style="color:var(--yellow);margin-bottom:4px">Want ('+wantEntries.length+')</div>';
       wantEntries.forEach(function(e){
-        var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
+        var c=resolveCard(e,dbCards);
         var p=entryPrice(e,dbCards);
         inner+=c?(rarityBadge(getDisplayRarity(c))+'<div class="card-best" style="margin-top:2px">'+c.name+'</div><div class="card-best" style="color:var(--text3)">'+(c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')+'</div><div class="card-price" style="margin-bottom:3px">TCG: <span>'+fmtPrice(p)+'</span></div>'):'<div class="no-cards">No card selected</div>';
       });
@@ -951,14 +957,14 @@ function renderGrid(items,area){
       var hasUpg=colEntries.some(function(e){return e.upgrade;});
       inner='<div class="card-count" style="color:var(--green);margin-bottom:4px">Owned ('+colEntries.length+')'+(hasUpg?' <span style="color:var(--blue)" title="Looking to upgrade">⬆</span>':'')+'</div>';
       colEntries.forEach(function(e){
-        var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
+        var c=resolveCard(e,dbCards);
         var p=entryPrice(e,dbCards);
         inner+=c?(rarityBadge(getDisplayRarity(c))+'<div class="card-best" style="margin-top:2px">'+c.name+'</div><div class="card-best" style="color:var(--text3)">'+(c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')+'</div><div class="card-price" style="margin-bottom:3px">TCG: <span>'+fmtPrice(p)+'</span></div>'):'';
       });
     }else if(isWant){
       inner='<div class="card-count" style="color:var(--yellow);margin-bottom:4px">Want ('+wantEntries.length+')</div>';
       wantEntries.forEach(function(e){
-        var c=e.cardId?(dbCards.find(function(x){return x.id===e.cardId;})||e.manualCard):e.manualCard;
+        var c=resolveCard(e,dbCards);
         var p=entryPrice(e,dbCards);
         inner+=c?(rarityBadge(getDisplayRarity(c))+'<div class="card-best" style="margin-top:2px">'+c.name+'</div><div class="card-best" style="color:var(--text3)">'+(c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')+'</div><div class="card-price" style="margin-bottom:3px">TCG: <span>'+fmtPrice(p)+'</span></div>'):'<div class="no-cards">No card selected</div>';
       });
@@ -982,7 +988,11 @@ function renderGrid(items,area){
       }
       rfHtml+='</div>';
     }
-    const thumbCard=pickThumbCard(colEntries,wantEntries,dbCards);
+    // Thumbnail must come from the SAME entry the tile text shows, or they diverge.
+    // Browse tiles (neither collected nor wanted) show no image — that's the
+    // conditional-image rule: only collected or specific wants pull art.
+    var _thumbMode=tileShowWant?'want':tileShowCol?'col':isWant?'want':isCol?'col':'browse';
+    var thumbCard=thumbForMode(_thumbMode,colEntries,wantEntries,dbCards);
     const thumbHtml=(thumbCard&&thumbCard.images&&thumbCard.images.small)
       ?'<div class="card-thumb-wrap"><img class="card-thumb" src="'+thumbCard.images.small+'" alt="'+name+'" loading="lazy" decoding="async"/></div>'
       :'<div class="card-no-img">?</div>';
