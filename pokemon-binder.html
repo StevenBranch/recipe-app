@@ -45,6 +45,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .stat-pill{border-radius:var(--radius);padding:4px 10px;font-size:0.75rem;white-space:nowrap}
 .stat-pill.green{background:var(--green-bg);border:1px solid rgba(76,175,125,0.3);color:var(--green)}
 .stat-pill.yellow{background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.3);color:var(--yellow)}
+.stat-pill.gold{background:var(--gold-bg);border:1px solid rgba(200,168,130,0.35);color:var(--gold)}
 .stat-pill strong{font-weight:500}
 .api-status{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text3);white-space:nowrap}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
@@ -126,14 +127,14 @@ select option{background:var(--bg3);color:var(--text)}
 .want-sort{display:flex;gap:5px;align-items:center}
 .want-sort label{font-size:0.72rem;color:var(--text3)}
 .want-list{display:flex;flex-direction:column;gap:6px}
-.want-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem 1rem;display:grid;grid-template-columns:46px 160px 1fr auto;align-items:center;gap:12px;transition:all 0.15s}
+.want-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem 1rem;display:flex;align-items:center;gap:12px;transition:all 0.15s}
 .want-item:hover{border-color:var(--border2)}
-.want-dex{font-family:var(--display);font-size:0.82rem;color:var(--text3);letter-spacing:0.06em}
+.want-dex{font-family:var(--display);font-size:0.82rem;color:var(--text3);letter-spacing:0.06em;flex:none}
 .want-name{font-family:var(--display);font-size:1rem;letter-spacing:0.04em}
-.want-card-info{display:flex;flex-direction:column;gap:2px}
+.want-card-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
 .want-card-name{font-size:0.82rem;font-weight:500;color:var(--text)}
 .want-card-meta{font-size:0.72rem;color:var(--text3)}
-.want-actions{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.want-actions{display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex:none;margin-left:auto}
 .want-price{font-size:1rem;font-weight:500;color:var(--yellow);text-align:right}
 .want-price.no-price{color:var(--text3);font-size:0.78rem}
 .want-btns{display:flex;gap:5px}
@@ -143,7 +144,7 @@ select option{background:var(--bg3);color:var(--text)}
 .ebay-btn:hover{background:rgba(96,165,250,0.18)}
 .remove-want-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:0.68rem;color:var(--text3);cursor:pointer;transition:all 0.15s}
 .remove-want-btn:hover{border-color:var(--red);color:var(--red)}
-@media(max-width:600px){.want-item{grid-template-columns:38px 1fr auto;gap:8px}.want-dex{display:none}}
+@media(max-width:600px){.want-item{gap:8px}.want-dex{display:none}.want-name{display:none}}
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:8px}
 .poke-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden}
@@ -282,7 +283,8 @@ select option{background:var(--bg3);color:var(--text)}
     <div class="progress-label"><strong id="prog-n">0</strong><span id="prog-t"> / 1088 collected</span></div>
   </div>
   <div class="header-stats">
-    <div class="stat-pill green">Collection: <strong id="coll-val">$0.00</strong></div>
+    <div class="stat-pill green" onclick="showView('binder')" style="cursor:pointer" title="Master binder value">Binder: <strong id="coll-val">$0.00</strong></div>
+    <div class="stat-pill gold" onclick="showView('mine')" style="cursor:pointer" title="Personal collection value">My Collection: <strong id="mine-val">$0.00</strong></div>
     <div class="stat-pill yellow" onclick="showView('want')" style="cursor:pointer" title="View full want list">Want List: <strong id="want-val">$0.00</strong> (<span id="want-count">0</span>)</div>
   </div>
   <div class="api-status"><div class="dot" id="api-dot"></div><span id="api-txt">Catalog: never synced</span></div>
@@ -650,6 +652,14 @@ function updateStats(){
   }
   document.getElementById('want-val').textContent='$'+wt.toFixed(2);
   document.getElementById('want-count').textContent=wn;
+  // My Collection total = sum of qty × unit price (manual override, else live catalog)
+  let mt=0;
+  for(const m of myCollection){
+    const card=resolveCard(m,cardDB[m.dex]||[]);
+    const unit=(m.manualPrice!=null&&!isNaN(+m.manualPrice))?+m.manualPrice:(card&&!card._fromSnap?getTcgPrice(card):null);
+    if(unit!=null)mt+=unit*(m.qty||1);
+  }
+  const mineEl=document.getElementById('mine-val');if(mineEl)mineEl.textContent='$'+mt.toFixed(2);
   // Count unique collected slots (base + regional forms each count as 1)
   const baseCollected=Object.keys(collection).filter(k=>!k.includes('-')&&collection[k]?.length>0).length;
   const regionalCollected=Object.keys(collection).filter(k=>k.includes('-')&&collection[k]?.length>0).length;
