@@ -54,6 +54,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .reload-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--gold);font-family:var(--body);font-size:0.75rem;padding:0.38rem 0.7rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
 .reload-btn:hover{border-color:var(--gold2);background:var(--gold-bg)}
 .reload-btn:disabled{opacity:0.55;cursor:default}
+.tabbar{display:flex;gap:6px;padding:8px 14px 0;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40}
+.tab{background:none;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--text3);font-family:var(--body);font-size:0.82rem;font-weight:600;padding:0.5rem 0.95rem;cursor:pointer;transition:all 0.15s}
+.tab:hover{color:var(--text2)}
+.tab.on{color:var(--gold);background:var(--bg);border-color:var(--border);border-bottom:1px solid var(--bg);margin-bottom:-1px}
+.qty-stepper{display:inline-flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.qty-stepper button{width:26px;height:26px;background:var(--bg3);border:none;color:var(--gold);font-size:1rem;line-height:1;cursor:pointer}
+.qty-stepper button:hover{background:var(--gold-bg)}
+.qty-stepper span{min-width:28px;text-align:center;font-size:0.82rem;font-weight:600;color:var(--text)}
 .controls{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .search-wrap{position:relative;flex:1;min-width:160px;max-width:250px}
 .search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:13px;height:13px}
@@ -260,6 +268,7 @@ select option{background:var(--bg3);color:var(--text)}
       <div class="sticky-selected" id="sticky-label">No card selected</div>
       <div class="sticky-btns">
         <button class="btn-save" onclick="saveEntry()">✓ Mark Collected</button>
+        <button class="btn-save" onclick="addToMine()" style="background:var(--gold2,#C8A882);color:#1a1a1a">🗂 My Collection</button>
         <button class="btn-save" onclick="saveWant()" style="background:var(--yellow)">⭐ Add to Want</button>
       </div>
     </div>
@@ -274,11 +283,17 @@ select option{background:var(--bg3);color:var(--text)}
   </div>
   <div class="header-stats">
     <div class="stat-pill green">Collection: <strong id="coll-val">$0.00</strong></div>
-    <div class="stat-pill yellow" onclick="showWantPage()" style="cursor:pointer" title="View full want list">Want List: <strong id="want-val">$0.00</strong> (<span id="want-count">0</span>)</div>
+    <div class="stat-pill yellow" onclick="showView('want')" style="cursor:pointer" title="View full want list">Want List: <strong id="want-val">$0.00</strong> (<span id="want-count">0</span>)</div>
   </div>
   <div class="api-status"><div class="dot" id="api-dot"></div><span id="api-txt">Catalog: never synced</span></div>
   <button class="reload-btn" id="reload-btn" onclick="reloadCards()" title="Sync card data &amp; images from the API">⟳ Reload</button>
 </header>
+
+<nav class="tabbar" id="tabbar">
+  <button class="tab on" id="tab-binder" onclick="showView('binder')">📓 Binder</button>
+  <button class="tab" id="tab-mine" onclick="showView('mine')">🗂 My Collection</button>
+  <button class="tab" id="tab-want" onclick="showView('want')">⭐ Want List</button>
+</nav>
 
 <div class="controls">
   <div class="search-wrap">
@@ -387,8 +402,12 @@ const FIREBASE_CONFIG={
 };
 firebase.initializeApp(FIREBASE_CONFIG);
 const db=firebase.firestore();
+// Offline persistence: cache reads + queue writes to IndexedDB so edits made
+// offline survive an app close and sync to the server on reconnect.
+try{db.enablePersistence({synchronizeTabs:true}).catch(function(e){console.log('Persistence:',e&&e.code);});}catch(e){}
 const COL_DOC=db.collection('binder').doc('collection');
 const WANT_DOC=db.collection('binder').doc('wantList');
+const MINE_DOC=db.collection('binder').doc('myCollection');
 // ─────────────────────────────────────────────────────────────────
 const API_BASE='https://api.pokemontcg.io/v2/cards';
 const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
@@ -511,7 +530,7 @@ function getTcgPlayerId(card){const m=(card?.tcgplayer?.url||'').match(/\/(\d+)$
 function tcgPlayerUrl(card){return card?.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;}
 function ebaySearchUrl(n,s,num){return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(n+' '+s+' '+num+' pokemon card')+'&LH_Complete=1&LH_Sold=1&_sacat=0';}
 
-let cardDB={},collection={},wantList={},filterMode='all',viewMode='grid',currentDex=null,selCardId=null,loadedCount=0;
+let cardDB={},collection={},wantList={},myCollection=[],filterMode='all',viewMode='grid',currentView='binder',currentDex=null,selCardId=null,loadedCount=0;
 const pptCache={};
 
 // ── Firestore sync (collection + want list only) ─────────────────
@@ -521,6 +540,7 @@ function loadData(){
   // Load from localStorage instantly as fallback
   try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v4')||'{}');}catch(e){collection={};}
   try{wantList=JSON.parse(localStorage.getItem('pokedex_want_v2')||'{}');}catch(e){wantList={};}
+  try{myCollection=JSON.parse(localStorage.getItem('pokedex_mycoll_v1')||'[]');if(!Array.isArray(myCollection))myCollection=[];}catch(e){myCollection=[];}
   // Pull from Firestore then set up real-time listeners
   COL_DOC.get().then(function(snap){
     if(snap.exists){collection=snap.data()||{};try{localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));}catch(e){}updateStats();render(true);}
@@ -534,6 +554,12 @@ function loadData(){
   WANT_DOC.onSnapshot(function(snap){
     if(snap.exists){wantList=snap.data()||{};try{localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));}catch(e){}updateStats();render(true);}
   });
+  MINE_DOC.get().then(function(snap){
+    if(snap.exists){var d=snap.data();myCollection=(d&&Array.isArray(d.items))?d.items:[];try{localStorage.setItem('pokedex_mycoll_v1',JSON.stringify(myCollection));}catch(e){}updateStats();render(true);}
+  }).catch(function(e){console.log('Firestore read:',e);});
+  MINE_DOC.onSnapshot(function(snap){
+    if(snap.exists){var d=snap.data();myCollection=(d&&Array.isArray(d.items))?d.items:[];try{localStorage.setItem('pokedex_mycoll_v1',JSON.stringify(myCollection));}catch(e){}updateStats();render(true);}
+  });
 }
 
 function saveCollection(){
@@ -545,6 +571,41 @@ function saveWantList(){
   try{localStorage.setItem('pokedex_want_v2',JSON.stringify(wantList));}catch(e){}
   WANT_DOC.set(wantList).catch(function(e){console.log('Save error:',e);});
   updateStats();
+}
+function saveMyCollection(){
+  try{localStorage.setItem('pokedex_mycoll_v1',JSON.stringify(myCollection));}catch(e){}
+  // Firestore docs can't hold a bare array → wrap as {items:[...]}
+  MINE_DOC.set({items:myCollection}).catch(function(e){console.log('Save error:',e);});
+  updateStats();
+}
+// ── Snapshot fix (root cause of "want shows the wrong card") ──────
+// Capture the card's display data at the moment it's chosen, so rendering never
+// depends on re-finding the id in a catalog that may not have it loaded.
+function snapshotCard(card){
+  if(!card)return null;
+  return {
+    cardId:card.id||null,
+    name:card.name||'',
+    number:card.number||'',
+    rarity:(typeof getDisplayRarity==='function'?getDisplayRarity(card):card.rarity)||'',
+    setName:(card.set&&card.set.name)||'',
+    series:(card.set&&card.set.series)||'',
+    img:(card.images&&(card.images.small||card.images.large))||''
+  };
+}
+// Resolve an entry to a renderable card: prefer the live catalog card (fresh
+// price/image) when present, else rebuild from the snapshot, else manualCard.
+function resolveCard(entry,dbCards){
+  if(!entry)return null;
+  var live=entry.cardId&&dbCards?dbCards.find(function(c){return c.id===entry.cardId;}):null;
+  if(live)return live;
+  if(entry.snap){
+    var s=entry.snap;
+    return{id:s.cardId,name:s.name,number:s.number,rarity:s.rarity,
+      set:{name:s.setName,series:s.series},
+      images:s.img?{small:s.img,large:s.img}:undefined,_fromSnap:true};
+  }
+  return entry.manualCard||null;
 }
 function dexStr(n){return '#'+String(n).padStart(4,'0');}
 function getGen(d){for(let i=0;i<GEN_RANGES.length;i++)if(d>=GEN_RANGES[i][0]&&d<=GEN_RANGES[i][1])return i+1;return 9;}
@@ -749,11 +810,23 @@ function getFiltered(){
 function render(preserveScroll){
   updateStats();
   var sy=preserveScroll?(window.scrollY||window.pageYOffset||0):0;
-  const items=getFiltered();
   const area=document.getElementById('main');
+  const ctrl=document.querySelector('.controls');
+  if(ctrl)ctrl.style.display=(currentView==='binder')?'':'none';
+  if(currentView==='mine'){renderMyCollection(area);if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});return;}
+  if(currentView==='want'){renderWantList(area);if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});return;}
+  const items=getFiltered();
   if(!items.length){area.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div>No Pokémon match your filters</div></div>';return;}
   viewMode==='grid'?renderGrid(items,area):renderListView(items,area);
   if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});
+}
+function showView(v){
+  currentView=v;
+  document.getElementById('tab-binder').classList.toggle('on',v==='binder');
+  document.getElementById('tab-mine').classList.toggle('on',v==='mine');
+  document.getElementById('tab-want').classList.toggle('on',v==='want');
+  window.scrollTo(0,0);
+  render();
 }
 
 function renderWantList(area){
@@ -772,8 +845,8 @@ function renderWantList(area){
     const cards=cardDB[d]||[];
     for(let idx=0;idx<entries.length;idx++){
       const w=entries[idx];
-      const card=(w.cardId?cards.find(c=>c.id===w.cardId):null)||w.manualCard||null;
-      const price=w.manualPrice!=null&&!isNaN(+w.manualPrice)?+w.manualPrice:(card?getTcgPrice(card):null);
+      const card=resolveCard(w,cards);
+      const price=w.manualPrice!=null&&!isNaN(+w.manualPrice)?+w.manualPrice:(card&&!card._fromSnap?getTcgPrice(card):(card&&card._tcgFromSnap)||null);
       items.push({dex:d,name,card,price,w,idx});
     }
   }
@@ -824,15 +897,13 @@ function renderWantList(area){
 // "Charizard" with no specific card selected returns null → placeholder, no fetch.
 function pickThumbCard(colEntries,wantEntries,dbCards){
   for(var i=0;i<colEntries.length;i++){
-    var e=colEntries[i];
-    var c=e.cardId?dbCards.find(function(x){return x.id===e.cardId;}):null;
-    var card=c||e.manualCard;
+    var card=resolveCard(colEntries[i],dbCards);
     if(card&&card.images&&card.images.small)return card;
   }
   for(var j=0;j<wantEntries.length;j++){
     var w=wantEntries[j];
-    if(!w.cardId)continue; // species-level want → no image
-    var wc=dbCards.find(function(x){return x.id===w.cardId;});
+    if(!w.cardId&&!(w.snap&&w.snap.cardId))continue; // species-level want → no image
+    var wc=resolveCard(w,dbCards);
     if(wc&&wc.images&&wc.images.small)return wc;
   }
   return null;
@@ -987,7 +1058,7 @@ async function openModal(dex,regionalKey){
     body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--green);margin-bottom:5px">✓ In Your Collection (${colEntries.length})</div>`;
     for(let i=0;i<colEntries.length;i++){
       const e=colEntries[i];
-      const apiCard=e.cardId?cards.find(c=>c.id===e.cardId):null;
+      const apiCard=resolveCard(e,cards);
       const card=apiCard||e.manualCard;
       const p=entryPrice(e,cards);
       body+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;${i>0?'border-top:1px solid rgba(76,175,125,0.15);margin-top:3px':''}">`;
@@ -1005,7 +1076,7 @@ async function openModal(dex,regionalKey){
     body+=`<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--yellow);margin-bottom:5px">⭐ Want List (${wantEntries.length})</div>`;
     for(let i=0;i<wantEntries.length;i++){
       const e=wantEntries[i];
-      const apiCard=e.cardId?cards.find(c=>c.id===e.cardId):null;
+      const apiCard=resolveCard(e,cards);
       const card=apiCard||e.manualCard;
       const p=entryPrice(e,cards);
       body+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;${i>0?'border-top:1px solid rgba(251,191,36,0.15);margin-top:3px':''}">`;
@@ -1030,14 +1101,14 @@ async function openModal(dex,regionalKey){
   if(showWantsFirst){
     // WANTS FIRST
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>';
-    var wantedCards=wantEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
+    var wantedCards=wantEntries.map(function(e){return resolveCard(e,cards);}).filter(Boolean);
     if(wantedCards.length){
       if(!selCardId)selCardId=wantedCards[0]?.id||null;
       body+='<div id="m-card-list">'+renderModalCards(wantedCards,selCardId)+'</div>';
     }
     if(colEntries.length>0){
       body+='<div style="margin-top:0.9rem;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--green);margin-bottom:5px">Also in your collection</div>';
-      var ownedCards2=colEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
+      var ownedCards2=colEntries.map(function(e){return resolveCard(e,cards);}).filter(Boolean);
       if(ownedCards2.length){body+='<div>'+renderModalCards(ownedCards2,null)+'</div>';}
     }
     body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
@@ -1045,7 +1116,7 @@ async function openModal(dex,regionalKey){
   }else if(showColFirst){
     // COLLECTION FIRST
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Your cards for this Pokémon</div>';
-    var ownedCards=colEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
+    var ownedCards=colEntries.map(function(e){return resolveCard(e,cards);}).filter(Boolean);
     if(ownedCards.length){
       if(!selCardId)selCardId=ownedCards[0]?.id||null;
       body+='<div id="m-card-list">'+renderModalCards(ownedCards,selCardId)+'</div>';
@@ -1055,7 +1126,7 @@ async function openModal(dex,regionalKey){
   }else if(wantEntries.length>0){
     // HAS WANTS ONLY (no collection)
     body+='<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:6px">Cards you want</div>';
-    var wantedCardsOnly=wantEntries.map(function(e){return e.cardId?cards.find(function(c){return c.id===e.cardId;})||e.manualCard:e.manualCard;}).filter(Boolean);
+    var wantedCardsOnly=wantEntries.map(function(e){return resolveCard(e,cards);}).filter(Boolean);
     if(wantedCardsOnly.length){
       if(!selCardId)selCardId=wantedCardsOnly[0]?.id||null;
       body+='<div id="m-card-list">'+renderModalCards(wantedCardsOnly,selCardId)+'</div>';
@@ -1258,7 +1329,8 @@ function getManualEntry(){
   const mcRar=document.getElementById('m-card-rar')?.value;
   const mcEra=document.getElementById('m-card-era')?.value;
   const manualCard=(mcName||mcSet)?{id:'manual-'+currentDex+'-'+Date.now(),name:mcName||'Manual Entry',number:mcNum||'—',rarity:mcRar||'Manual',set:{name:mcSet||'Unknown Set',series:mcEra||'Scarlet & Violet'}}:null;
-  return{cardId:selCardId,notes,manualPrice,manualCard};
+  const _sel=(cardDB[currentDex]||[]).find(function(c){return c.id===selCardId;})||manualCard||null;
+  return{cardId:selCardId,notes,manualPrice,manualCard,snap:snapshotCard(_sel)};
 }
 function toggleWant(){saveWant();}
 function saveWant(){
@@ -1266,7 +1338,8 @@ function saveWant(){
   const sk=currentRegionalKey||currentDex;
   const entry=getManualEntry();
   if(!wantList[sk])wantList[sk]=[];
-  wantList[sk].push({cardId:entry.cardId,manualPrice:entry.manualPrice,manualCard:entry.manualCard});
+  var _selCard=(cardDB[currentDex]||[]).find(function(c){return c.id===entry.cardId;})||entry.manualCard||null;
+  wantList[sk].push({cardId:entry.cardId,snap:snapshotCard(_selCard),manualPrice:entry.manualPrice,manualCard:entry.manualCard});
   saveWantList();
   openModal(currentDex,currentRegionalKey);render(true);
 }
@@ -1323,10 +1396,84 @@ function toggleUpgrade(idx){
   collection[sk][idx].upgrade=!collection[sk][idx].upgrade;
   saveCollection();openModal(currentDex,currentRegionalKey);render(true);
 }
-function showWantPage(){
-  // Show the full want list page view
-  const area=document.getElementById('main');
-  renderWantList(area);
+function showWantPage(){showView('want');}
+
+// ── My Collection (fully separate store, with quantities) ────────
+function addToMine(){
+  if(!currentDex){alert('Open a Pokémon and pick a card first.');return;}
+  const entry=getManualEntry();
+  const card=(cardDB[currentDex]||[]).find(function(c){return c.id===entry.cardId;})||entry.manualCard||null;
+  if(!card){alert('Pick a card (or fill in a manual entry) before adding.');return;}
+  const snap=snapshotCard(card);
+  const dexName=ALL_POKEMON.find(p=>p[0]===+currentDex)?.[1]||'';
+  // If the same card id is already in My Collection, bump its quantity instead of duplicating.
+  const existing=snap.cardId?myCollection.find(function(m){return m.cardId===snap.cardId;}):null;
+  if(existing){existing.qty=(existing.qty||1)+1;}
+  else{
+    myCollection.push({
+      uid:'mc-'+Date.now()+'-'+Math.floor(Math.random()*1e4),
+      dex:+currentDex,dexName:dexName,
+      cardId:snap.cardId,snap:snap,
+      qty:1,manualPrice:entry.manualPrice,note:entry.notes||''
+    });
+  }
+  saveMyCollection();
+  // brief confirmation without leaving the modal
+  const lbl=document.getElementById('sticky-label');
+  if(lbl){const t=lbl.textContent;lbl.textContent='✓ Added to My Collection'+(existing?' (qty '+existing.qty+')':'');setTimeout(function(){lbl.textContent=t;},1400);}
+}
+function mineQty(uid,delta){
+  const m=myCollection.find(function(x){return x.uid===uid;});
+  if(!m)return;
+  m.qty=Math.max(1,(m.qty||1)+delta);
+  saveMyCollection();render(true);
+}
+function removeMine(uid){
+  const i=myCollection.findIndex(function(x){return x.uid===uid;});
+  if(i<0)return;
+  myCollection.splice(i,1);
+  saveMyCollection();render(true);
+}
+function renderMyCollection(area){
+  if(!area)area=document.getElementById('main');
+  if(!myCollection.length){
+    area.innerHTML='<div class="empty"><div class="empty-icon">🗂</div><div style="font-size:0.9rem">Your collection is empty</div><div style="font-size:0.8rem;margin-top:4px">Open any Pokémon, pick the exact card, then tap “🗂 My Collection.” Set quantities here.</div></div>';
+    return;
+  }
+  const dbBy=function(d){return cardDB[d]||[];};
+  let totalUnits=0,totalVal=0,priced=0;
+  const rows=myCollection.map(function(m){
+    const card=resolveCard(m,dbBy(m.dex));
+    const unit=(m.manualPrice!=null&&!isNaN(+m.manualPrice))?+m.manualPrice:(card&&!card._fromSnap?getTcgPrice(card):null);
+    const qty=m.qty||1;
+    totalUnits+=qty;
+    if(unit!=null){totalVal+=unit*qty;priced++;}
+    return{m:m,card:card,unit:unit,qty:qty};
+  });
+  rows.sort(function(a,b){return (a.m.dex||0)-(b.m.dex||0);});
+  let html='<div class="want-header"><div>'
+    +'<div class="want-title">🗂 My Collection — '+myCollection.length+' unique · '+totalUnits+' cards</div>'
+    +'<div class="want-total">Estimated value: <strong>$'+totalVal.toFixed(2)+'</strong>'+(priced<rows.length?' ('+(rows.length-priced)+' without price)':'')+'</div>'
+    +'</div></div><div class="want-list">';
+  for(const r of rows){
+    const c=r.card,m=r.m;
+    const dispRar=c?(getDisplayRarity(c)||c.rarity):null;
+    const imgUrl=c&&c.images&&c.images.small?c.images.small:'';
+    const name=(c&&c.name)||m.snap?.name||m.dexName||'Card';
+    const meta=c?((c.set&&c.set.name?c.set.name:'Manual')+' · #'+(c.number||'—')):'';
+    html+='<div class="want-item">'
+      +'<span class="want-dex">'+dexStr(m.dex||0)+'</span>'
+      +(imgUrl?'<img src="'+imgUrl+'" alt="'+name+'" loading="lazy" decoding="async" style="width:38px;height:53px;object-fit:cover;border-radius:4px;flex:none"/>':'<div class="card-no-img" style="width:38px;height:53px;font-size:1rem;flex:none">?</div>')
+      +'<div class="want-card-info"><div class="want-card-name">'+name+'</div>'
+      +'<div class="want-card-meta">'+meta+(dispRar?' · '+rarityBadge(dispRar):'')+'</div></div>'
+      +'<div class="want-actions">'
+        +'<div class="qty-stepper"><button onclick="mineQty(\''+m.uid+'\',-1)">−</button><span>'+r.qty+'</span><button onclick="mineQty(\''+m.uid+'\',1)">+</button></div>'
+        +'<div class="want-price'+(r.unit==null?' no-price':'')+'">'+(r.unit!=null?fmtPrice(r.unit)+(r.qty>1?' ea':''):'No price')+'</div>'
+        +'<button class="remove-want-btn" onclick="removeMine(\''+m.uid+'\')">✕</button>'
+      +'</div></div>';
+  }
+  html+='</div>';
+  area.innerHTML=html;
 }
 function setF(mode,btn){
   filterMode=mode;
