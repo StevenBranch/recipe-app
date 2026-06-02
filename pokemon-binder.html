@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="PokéBinder"/>
 <link rel="manifest" href="manifest.json"/>
-<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
 <style>
@@ -63,6 +63,28 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .qty-stepper button{width:26px;height:26px;background:var(--bg3);border:none;color:var(--gold);font-size:1rem;line-height:1;cursor:pointer}
 .qty-stepper button:hover{background:var(--gold-bg)}
 .qty-stepper span{min-width:28px;text-align:center;font-size:0.82rem;font-weight:600;color:var(--text)}
+.scan-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 12px}
+.scan-overlay.open{display:flex}
+.scan-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:520px;padding:1.1rem;margin-top:30px}
+.scan-title{font-family:var(--display);font-size:1.1rem;color:var(--teal);letter-spacing:0.03em;margin-bottom:4px}
+.scan-sub{font-size:0.78rem;color:var(--text3);margin-bottom:12px;line-height:1.4}
+.scan-shot{width:100%;display:flex;gap:8px;margin-bottom:12px}
+.scan-shot button{flex:1;padding:0.7rem;background:var(--teal-bg,rgba(45,212,191,0.12));border:1px solid var(--teal);border-radius:var(--radius);color:var(--teal);font-family:var(--body);font-size:0.85rem;font-weight:600;cursor:pointer}
+.scan-status{font-size:0.82rem;color:var(--text2);padding:10px 0;display:flex;align-items:center;gap:8px}
+.scan-preview{width:90px;border-radius:6px;border:1px solid var(--border);margin:0 auto 10px;display:block}
+.scan-readout{font-size:0.74rem;color:var(--text3);background:var(--bg3);border-radius:6px;padding:6px 9px;margin-bottom:10px;word-break:break-word}
+.scan-cand{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:8px}
+.scan-cand img{width:42px;height:58px;object-fit:cover;border-radius:4px;flex:none}
+.scan-cand-info{flex:1;min-width:0}
+.scan-cand-name{font-size:0.85rem;font-weight:500;color:var(--text)}
+.scan-cand-meta{font-size:0.72rem;color:var(--text3)}
+.scan-dest{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.scan-dest button{flex:1;min-width:88px;padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);font-size:0.7rem;font-weight:600;cursor:pointer;font-family:var(--body)}
+.scan-dest button.d-bind{color:var(--green);border-color:rgba(76,175,125,0.4)}
+.scan-dest button.d-mine{color:var(--gold);border-color:rgba(200,168,130,0.4)}
+.scan-dest button.d-want{color:var(--yellow);border-color:rgba(251,191,36,0.4)}
+.scan-close{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text3);font-family:var(--body);font-size:0.8rem;padding:0.5rem 1rem;cursor:pointer;width:100%;margin-top:8px}
+.scan-search{width:100%;padding:0.6rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:0.85rem;margin-bottom:8px}
 .controls{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .search-wrap{position:relative;flex:1;min-width:160px;max-width:250px}
 .search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:13px;height:13px}
@@ -256,6 +278,18 @@ select option{background:var(--bg3);color:var(--text)}
 </head>
 <body>
 
+<div class="scan-overlay" id="scan-overlay">
+  <div class="scan-box">
+    <div class="scan-title">📷 Scan a Card</div>
+    <div class="scan-sub">Take a clear, straight-on photo. Best results: fill the frame with the card and keep the bottom corner (the set number) sharp and well-lit. The reader will suggest matches — you confirm and choose where it goes.</div>
+    <input type="file" id="scan-file" accept="image/*" capture="environment" style="display:none" onchange="handleScanPhoto(this.files[0])"/>
+    <div class="scan-shot">
+      <button onclick="document.getElementById('scan-file').click()">📷 Take / Choose Photo</button>
+    </div>
+    <div id="scan-body"></div>
+    <button class="scan-close" onclick="closeScan()">Close</button>
+  </div>
+</div>
 <div class="backdrop" id="backdrop">
   <div class="modal">
     <div class="modal-header">
@@ -289,6 +323,7 @@ select option{background:var(--bg3);color:var(--text)}
   </div>
   <div class="api-status"><div class="dot" id="api-dot"></div><span id="api-txt">Catalog: never synced</span></div>
   <button class="reload-btn" id="reload-btn" onclick="reloadCards()" title="Sync card data &amp; images from the API">⟳ Reload</button>
+  <button class="reload-btn" id="scan-btn" onclick="openScan()" title="Scan a card with your camera" style="border-color:var(--teal);color:var(--teal)">📷 Scan</button>
 </header>
 
 <nav class="tabbar" id="tabbar">
@@ -1415,6 +1450,155 @@ function toggleUpgrade(idx){
   if(!currentDex||!collection[sk]||!collection[sk][idx])return;
   collection[sk][idx].upgrade=!collection[sk][idx].upgrade;
   saveCollection();openModal(currentDex,currentRegionalKey);render(true);
+}
+// ── Card Scanner (Route B: on-device OCR, no backend, no API key) ──
+let _tesseractLoading=null;
+function loadTesseract(){
+  if(window.Tesseract)return Promise.resolve();
+  if(_tesseractLoading)return _tesseractLoading;
+  _tesseractLoading=new Promise(function(resolve,reject){
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload=resolve;
+    s.onerror=function(){_tesseractLoading=null;reject(new Error('Could not load the text reader — check your connection.'));};
+    document.head.appendChild(s);
+  });
+  return _tesseractLoading;
+}
+function openScan(){document.getElementById('scan-body').innerHTML='';document.getElementById('scan-overlay').classList.add('open');}
+function closeScan(){document.getElementById('scan-overlay').classList.remove('open');document.getElementById('scan-file').value='';}
+function scanStatus(msg,spin){document.getElementById('scan-body').innerHTML='<div class="scan-status">'+(spin?'<span class="spinner-sm"></span>':'')+msg+'</div>';}
+// Downscale + grayscale + contrast → better, faster OCR
+function preprocessImage(file){
+  return new Promise(function(resolve,reject){
+    var img=new Image();
+    img.onload=function(){
+      var scale=Math.min(1,1100/img.width);
+      var w=Math.round(img.width*scale),h=Math.round(img.height*scale);
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      var ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);
+      try{var id=ctx.getImageData(0,0,w,h),dt=id.data;
+        for(var i=0;i<dt.length;i+=4){var g=0.299*dt[i]+0.587*dt[i+1]+0.114*dt[i+2];g=(g-128)*1.35+128;g=g<0?0:g>255?255:g;dt[i]=dt[i+1]=dt[i+2]=g;}
+        ctx.putImageData(id,0,0);}catch(e){}
+      resolve(c.toDataURL('image/jpeg',0.9));
+    };
+    img.onerror=function(){reject(new Error('Could not read that image.'));};
+    var fr=new FileReader();fr.onload=function(){img.src=fr.result;};fr.onerror=function(){reject(new Error('Could not read that file.'));};
+    fr.readAsDataURL(file);
+  });
+}
+// Extract a likely name + collector number from OCR text
+function parseCardText(text){
+  var lines=text.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  var joined=text.replace(/\s+/g,' ');
+  var number=null;
+  var m=joined.match(/\b(\d{1,3})\s*\/\s*\d{1,3}\b/);
+  if(m)number=m[1];
+  if(!number){var m2=joined.match(/\b[A-Z]{2,4}\s?-?\s?(\d{1,3})\b/);if(m2)number=m2[1];}
+  var name=null,bestLen=0;
+  var skip=/ability|stage|basic|energy|weakness|resist|retreat|trainer|illus|\bHP\b/i;
+  for(var i=0;i<Math.min(lines.length,6);i++){
+    var L=lines[i].replace(/[^A-Za-z' \-]/g,'').trim();
+    if(L.length>bestLen&&L.length>=3&&!skip.test(lines[i])){name=L;bestLen=L.length;}
+  }
+  return{name:name,number:number};
+}
+async function handleScanPhoto(file){
+  if(!file)return;
+  try{
+    scanStatus('Preparing image…',true);
+    var dataUrl=await preprocessImage(file);
+    scanStatus('Loading the text reader (first scan may take a moment)…',true);
+    await loadTesseract();
+    scanStatus('Reading the card…',true);
+    var res=await window.Tesseract.recognize(dataUrl,'eng');
+    var parsed=parseCardText((res&&res.data&&res.data.text)||'');
+    scanStatus('Looking up matches…',true);
+    var candidates=await searchScanCandidates(parsed.name,parsed.number);
+    renderScanResults(parsed,candidates,dataUrl);
+  }catch(e){
+    document.getElementById('scan-body').innerHTML='<div class="scan-status" style="color:var(--red)">'+(e&&e.message?e.message:'Something went wrong.')+'</div>'+scanManualSearchHtml('');
+  }
+}
+async function searchScanCandidates(name,number){
+  var queries=[];
+  if(name&&number)queries.push('name:"'+name+'" number:'+number);
+  if(name)queries.push('name:"'+name+'"');
+  if(number)queries.push('number:'+number);
+  var seen={},out=[];
+  for(var qi=0;qi<queries.length&&out.length<12;qi++){
+    try{
+      var r=await fetch(API_BASE+'?q='+encodeURIComponent(queries[qi])+'&select=id,name,set,number,rarity,tcgplayer,images,nationalPokedexNumbers&orderBy=-set.releaseDate&pageSize=12');
+      if(!r.ok)continue;
+      var d=await r.json();
+      (d.data||[]).forEach(function(c){if(!seen[c.id]){seen[c.id]=1;out.push(c);}});
+    }catch(e){}
+  }
+  return out.slice(0,12);
+}
+function scanManualSearchHtml(prefill){
+  return '<input class="scan-search" id="scan-manual" placeholder="Type a card name or number, then search…" value="'+(prefill||'').replace(/"/g,'')+'"/>'
+    +'<button class="scan-close" style="margin-top:0" onclick="scanManualSearch()">🔍 Search</button>';
+}
+async function scanManualSearch(){
+  var el=document.getElementById('scan-manual');var v=el?el.value:'';
+  if(!v||!v.trim())return;
+  scanStatus('Searching…',true);
+  var isNum=/^\d{1,3}$/.test(v.trim());
+  var candidates=await searchScanCandidates(isNum?null:v.trim(),isNum?v.trim():null);
+  renderScanResults({name:isNum?null:v,number:isNum?v:null},candidates,null);
+}
+function renderScanResults(parsed,candidates,previewUrl){
+  var h='';
+  if(previewUrl)h+='<img class="scan-preview" src="'+previewUrl+'" alt="scan"/>';
+  h+='<div class="scan-readout">Read: '+(parsed.name?('<b>'+parsed.name+'</b>'):'name unclear')+(parsed.number?(' · #'+parsed.number):'')+'</div>';
+  if(!candidates.length){
+    h+='<div class="scan-status">No matches found. Retake the photo, or search manually:</div>'+scanManualSearchHtml(parsed.name||parsed.number||'');
+    document.getElementById('scan-body').innerHTML=h;return;
+  }
+  window._scanCands={};
+  h+='<div style="font-size:0.78rem;color:var(--text3);margin-bottom:8px">Tap the card that matches, then choose where to add it:</div>';
+  candidates.forEach(function(c){
+    window._scanCands[c.id]=c;
+    var img=c.images&&c.images.small?c.images.small:'';
+    var rar=getDisplayRarity(c)||c.rarity||'';
+    h+='<div class="scan-cand">'
+      +(img?'<img src="'+img+'" alt="'+c.name+'"/>':'<div class="card-no-img" style="width:42px;height:58px;flex:none">?</div>')
+      +'<div class="scan-cand-info"><div class="scan-cand-name">'+c.name+'</div>'
+      +'<div class="scan-cand-meta">'+(c.set&&c.set.name?c.set.name:'')+' · #'+(c.number||'—')+(rar?' · '+rar:'')+'</div>'
+      +'<div class="scan-dest">'
+        +'<button class="d-bind" onclick="addScannedCard(\''+c.id+'\',\'binder\')">✓ Binder</button>'
+        +'<button class="d-mine" onclick="addScannedCard(\''+c.id+'\',\'mine\')">🗂 Collection</button>'
+        +'<button class="d-want" onclick="addScannedCard(\''+c.id+'\',\'want\')">⭐ Want</button>'
+      +'</div></div></div>';
+  });
+  h+=scanManualSearchHtml('');
+  document.getElementById('scan-body').innerHTML=h;
+}
+function addScannedCard(cardId,dest){
+  var c=window._scanCands&&window._scanCands[cardId];
+  if(!c)return;
+  var dex=(c.nationalPokedexNumbers&&c.nationalPokedexNumbers[0])||null;
+  if(!dex){alert('Could not tell which Pokémon this card belongs to.');return;}
+  var snap=snapshotCard(c);
+  if(dest==='mine'){
+    var existing=myCollection.find(function(m){return m.cardId===c.id;});
+    if(existing)existing.qty=(existing.qty||1)+1;
+    else myCollection.push({uid:'mc-'+Date.now()+'-'+Math.floor(Math.random()*1e4),dex:dex,dexName:(ALL_POKEMON.find(function(p){return p[0]===dex;})||[])[1]||'',cardId:c.id,snap:snap,qty:1,manualPrice:null,note:''});
+    saveMyCollection();
+  }else if(dest==='binder'){
+    if(!collection[dex])collection[dex]=[];
+    collection[dex].push({cardId:c.id,notes:'',manualPrice:null,manualCard:null,snap:snap});
+    saveCollection();
+  }else{
+    if(!wantList[dex])wantList[dex]=[];
+    wantList[dex].push({cardId:c.id,snap:snap,manualPrice:null,manualCard:null});
+    saveWantList();
+  }
+  var dn=dest==='mine'?'My Collection':dest==='binder'?'Binder':'Want List';
+  document.getElementById('scan-body').innerHTML='<div class="scan-status" style="color:var(--green)">✓ Added '+c.name+' to '+dn+'.</div>'
+    +'<button class="scan-close" style="margin-top:0" onclick="document.getElementById(\'scan-file\').click()">📷 Scan Another</button>';
+  render(true);
 }
 function showWantPage(){showView('want');}
 
