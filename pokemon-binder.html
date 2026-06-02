@@ -55,8 +55,8 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .reload-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--gold);font-family:var(--body);font-size:0.75rem;padding:0.38rem 0.7rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
 .reload-btn:hover{border-color:var(--gold2);background:var(--gold-bg)}
 .reload-btn:disabled{opacity:0.55;cursor:default}
-.tabbar{display:flex;gap:6px;padding:8px 14px 0;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40}
-.tab{background:none;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--text3);font-family:var(--body);font-size:0.82rem;font-weight:600;padding:0.5rem 0.95rem;cursor:pointer;transition:all 0.15s}
+.tabbar{display:flex;gap:6px;padding:8px 14px 0;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{flex:none;white-space:nowrap;background:none;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--text3);font-family:var(--body);font-size:0.82rem;font-weight:600;padding:0.5rem 0.95rem;cursor:pointer;transition:all 0.15s}
 .tab:hover{color:var(--text2)}
 .tab.on{color:var(--gold);background:var(--bg);border-color:var(--border);border-bottom:1px solid var(--bg);margin-bottom:-1px}
 .qty-stepper{display:inline-flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden}
@@ -330,6 +330,7 @@ select option{background:var(--bg3);color:var(--text)}
   <button class="tab on" id="tab-binder" onclick="showView('binder')">📓 Binder</button>
   <button class="tab" id="tab-mine" onclick="showView('mine')">🗂 My Collection</button>
   <button class="tab" id="tab-want" onclick="showView('want')">⭐ Want List</button>
+  <button class="tab" id="tab-proxy" onclick="showView('proxy')">🖨 Proxies <span id="tab-proxy-n"></span></button>
 </nav>
 
 <div class="controls">
@@ -445,6 +446,7 @@ try{db.enablePersistence({synchronizeTabs:true}).catch(function(e){console.log('
 const COL_DOC=db.collection('binder').doc('collection');
 const WANT_DOC=db.collection('binder').doc('wantList');
 const MINE_DOC=db.collection('binder').doc('myCollection');
+const PROXY_DOC=db.collection('binder').doc('proxySheet');
 // ─────────────────────────────────────────────────────────────────
 const API_BASE='https://api.pokemontcg.io/v2/cards';
 const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
@@ -567,7 +569,7 @@ function getTcgPlayerId(card){const m=(card?.tcgplayer?.url||'').match(/\/(\d+)$
 function tcgPlayerUrl(card){return card?.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;}
 function ebaySearchUrl(n,s,num){return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(n+' '+s+' '+num+' pokemon card')+'&LH_Complete=1&LH_Sold=1&_sacat=0';}
 
-let cardDB={},collection={},wantList={},myCollection=[],filterMode='all',viewMode='grid',currentView='binder',currentDex=null,selCardId=null,loadedCount=0;
+let cardDB={},collection={},wantList={},myCollection=[],proxySheet=[],filterMode='all',viewMode='grid',currentView='binder',currentDex=null,selCardId=null,loadedCount=0;
 const pptCache={};
 
 // ── Firestore sync (collection + want list only) ─────────────────
@@ -578,6 +580,7 @@ function loadData(){
   try{collection=JSON.parse(localStorage.getItem('pokedex_binder_v4')||'{}');}catch(e){collection={};}
   try{wantList=JSON.parse(localStorage.getItem('pokedex_want_v2')||'{}');}catch(e){wantList={};}
   try{myCollection=JSON.parse(localStorage.getItem('pokedex_mycoll_v1')||'[]');if(!Array.isArray(myCollection))myCollection=[];}catch(e){myCollection=[];}
+  try{proxySheet=JSON.parse(localStorage.getItem('pokedex_proxy_v1')||'[]');if(!Array.isArray(proxySheet))proxySheet=[];}catch(e){proxySheet=[];}
   // Pull from Firestore then set up real-time listeners
   COL_DOC.get().then(function(snap){
     if(snap.exists){collection=snap.data()||{};try{localStorage.setItem('pokedex_binder_v4',JSON.stringify(collection));}catch(e){}updateStats();render(true);}
@@ -597,6 +600,12 @@ function loadData(){
   MINE_DOC.onSnapshot(function(snap){
     if(snap.exists){var d=snap.data();myCollection=(d&&Array.isArray(d.items))?d.items:[];try{localStorage.setItem('pokedex_mycoll_v1',JSON.stringify(myCollection));}catch(e){}updateStats();render(true);}
   });
+  PROXY_DOC.get().then(function(snap){
+    if(snap.exists){var d=snap.data();proxySheet=(d&&Array.isArray(d.items))?d.items:[];try{localStorage.setItem('pokedex_proxy_v1',JSON.stringify(proxySheet));}catch(e){}updateStats();render(true);}
+  }).catch(function(e){console.log('Firestore read:',e);});
+  PROXY_DOC.onSnapshot(function(snap){
+    if(snap.exists){var d=snap.data();proxySheet=(d&&Array.isArray(d.items))?d.items:[];try{localStorage.setItem('pokedex_proxy_v1',JSON.stringify(proxySheet));}catch(e){}updateStats();render(true);}
+  });
 }
 
 function saveCollection(){
@@ -613,6 +622,11 @@ function saveMyCollection(){
   try{localStorage.setItem('pokedex_mycoll_v1',JSON.stringify(myCollection));}catch(e){}
   // Firestore docs can't hold a bare array → wrap as {items:[...]}
   MINE_DOC.set({items:myCollection}).catch(function(e){console.log('Save error:',e);});
+  updateStats();
+}
+function saveProxySheet(){
+  try{localStorage.setItem('pokedex_proxy_v1',JSON.stringify(proxySheet));}catch(e){}
+  PROXY_DOC.set({items:proxySheet}).catch(function(e){console.log('Save error:',e);});
   updateStats();
 }
 // ── Snapshot fix (root cause of "want shows the wrong card") ──────
@@ -695,6 +709,8 @@ function updateStats(){
     if(unit!=null)mt+=unit*(m.qty||1);
   }
   const mineEl=document.getElementById('mine-val');if(mineEl)mineEl.textContent='$'+mt.toFixed(2);
+  var pxN=proxySheet.reduce(function(s,p){return s+(p.qty||1);},0);
+  var pxEl=document.getElementById('tab-proxy-n');if(pxEl)pxEl.textContent=pxN?('('+pxN+')'):'';
   // Count unique collected slots (base + regional forms each count as 1)
   const baseCollected=Object.keys(collection).filter(k=>!k.includes('-')&&collection[k]?.length>0).length;
   const regionalCollected=Object.keys(collection).filter(k=>k.includes('-')&&collection[k]?.length>0).length;
@@ -860,6 +876,7 @@ function syncChrome(){
   if(tb)tb.classList.toggle('on',currentView==='binder');
   if(tm)tm.classList.toggle('on',currentView==='mine');
   if(tw)tw.classList.toggle('on',currentView==='want');
+  var tp=document.getElementById('tab-proxy');if(tp)tp.classList.toggle('on',currentView==='proxy');
 }
 function render(preserveScroll){
   updateStats();
@@ -868,6 +885,7 @@ function render(preserveScroll){
   const area=document.getElementById('main');
   if(currentView==='mine'){renderMyCollection(area);if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});return;}
   if(currentView==='want'){renderWantList(area);if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});return;}
+  if(currentView==='proxy'){renderProxySheet(area);if(preserveScroll&&sy>0)requestAnimationFrame(function(){window.scrollTo(0,sy);});return;}
   const items=getFiltered();
   if(!items.length){area.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div>No Pokémon match your filters</div></div>';return;}
   viewMode==='grid'?renderGrid(items,area):renderListView(items,area);
@@ -896,6 +914,7 @@ function renderWantList(area){
     for(let idx=0;idx<entries.length;idx++){
       const w=entries[idx];
       const card=resolveCard(w,cards);
+      cachePx(card);
       const price=w.manualPrice!=null&&!isNaN(+w.manualPrice)?+w.manualPrice:(card&&!card._fromSnap?getTcgPrice(card):(card&&card._tcgFromSnap)||null);
       items.push({dex:d,name,card,price,w,idx});
     }
@@ -935,6 +954,7 @@ function renderWantList(area){
         <div class="want-btns">
           <a class="buy-btn" href="${tcgUrl}" target="_blank"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>TCGPlayer</a>
           <a class="ebay-btn" href="${ebUrl}" target="_blank">eBay</a>
+          ${card&&card.id?('<button class="ebay-btn" style="color:var(--teal);border-color:rgba(45,212,191,0.4);background:none" onclick="addProxyById(\''+card.id+'\',event)">🖨</button>'):''}
           <button class="remove-want-btn" onclick="removeWant(${dex},${idx})">✕</button>
         </div>
       </div>
@@ -1309,6 +1329,7 @@ function renderModalCards(cards, selectedId, filter=''){
     totalShown+=eraCards.length;
     html+=`<div class="era-group"><div class="era-title">${era} (${eraCards.length})</div>`;
     for(const card of eraCards){
+      cachePx(card);
       const sel=card.id===selectedId;
       const cardImgHtml=card.images?.small?`<img class="modal-card-img" src="${card.images.small}" alt="${card.name}" loading="lazy"/>`:'';
       html+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
@@ -1320,7 +1341,7 @@ function renderModalCards(cards, selectedId, filter=''){
           <div class="price-source" id="ppt-${card.id}"><div class="price-source-label">PriceTracker</div><div class="price-source-val loading"><span class="spinner-sm"></span></div></div>
           <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div class="price-source-label">eBay Sold</div><a class="ebay-btn" href="${ebaySearchUrl(card.name,card.set.name,card.number)}" target="_blank" onclick="event.stopPropagation()">View ↗</a></div>
         </div>
-        <div style="margin-top:6px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy on TCGPlayer</a></div>
+        <div style="margin-top:6px;display:flex;gap:5px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()" style="flex:1;justify-content:center"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy</a><button onclick="addProxyById('${card.id}',event)" style="flex:1;background:none;border:1px solid rgba(45,212,191,0.4);border-radius:5px;color:var(--teal);font-size:0.68rem;padding:3px 8px;cursor:pointer">🖨 Proxy</button></div>
       </div>`;
       // Proxy button — only if this card is in the want list
       const isWanted=(wantList[currentDex]||[]).some(function(e){return e.cardId===card.id;});
@@ -1602,6 +1623,84 @@ function addScannedCard(cardId,dest){
 }
 function showWantPage(){showView('want');}
 
+// ── Proxy Sheet (staging tray → print 9-up, syncs across devices) ──
+window._pxCache=window._pxCache||{};
+function cachePx(card){if(card&&card.id)window._pxCache[card.id]=card;}
+function toast(msg){
+  var t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--bg4);color:var(--text);border:1px solid var(--border2);border-radius:20px;padding:9px 18px;font-size:0.82rem;z-index:500;opacity:0;transition:opacity 0.2s;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,0.4)';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(window._toastT);window._toastT=setTimeout(function(){t.style.opacity='0';},1500);
+}
+function addProxyById(cardId,ev){
+  if(ev)ev.stopPropagation();
+  var c=window._pxCache[cardId]||(cardDB[currentDex]||[]).find(function(x){return x.id===cardId;});
+  if(!c){alert('Could not find that card to add.');return;}
+  var img=(c.images&&(c.images.large||c.images.small))||(c.snap&&c.snap.img)||'';
+  if(!img){alert('No image available for this card to proxy. Tap ⟳ Reload first if the catalog is empty.');return;}
+  var existing=proxySheet.find(function(p){return p.cardId===c.id;});
+  if(existing)existing.qty=(existing.qty||1)+1;
+  else proxySheet.push({uid:'px-'+Date.now()+'-'+Math.floor(Math.random()*1e4),cardId:c.id,name:c.name||'',number:c.number||'',setName:(c.set&&c.set.name)||'',img:img,qty:1});
+  saveProxySheet();
+  var total=proxySheet.reduce(function(s,p){return s+(p.qty||1);},0);
+  toast('🖨 Added to proxy sheet ('+total+')');
+  if(currentView==='proxy')render(true);
+}
+function proxyQty(uid,delta){
+  var p=proxySheet.find(function(x){return x.uid===uid;});
+  if(!p)return;
+  p.qty=Math.max(1,(p.qty||1)+delta);
+  saveProxySheet();render(true);
+}
+function removeProxy(uid){
+  var i=proxySheet.findIndex(function(x){return x.uid===uid;});
+  if(i<0)return;proxySheet.splice(i,1);saveProxySheet();render(true);
+}
+function clearProxySheet(){
+  if(!proxySheet.length)return;
+  if(!confirm('Clear the entire proxy sheet?'))return;
+  proxySheet=[];saveProxySheet();render(true);
+}
+function renderProxySheet(area){
+  if(!area)area=document.getElementById('main');
+  var total=proxySheet.reduce(function(s,p){return s+(p.qty||1);},0);
+  var pages=Math.ceil(total/9);
+  if(!proxySheet.length){
+    area.innerHTML='<div class="empty"><div class="empty-icon">🖨</div><div style="font-size:0.9rem">Your proxy sheet is empty</div><div style="font-size:0.8rem;margin-top:4px">Open any card and tap “🖨 Proxy” to stage it here. Print the whole sheet (9 per page) when you’re ready.</div></div>';
+    return;
+  }
+  var h='<div class="want-header"><div>'
+    +'<div class="want-title">🖨 Proxy Sheet — '+total+' card'+(total!==1?'s':'')+'</div>'
+    +'<div class="want-total">'+pages+' page'+(pages!==1?'s':'')+' at 9 per sheet · prints at true 2.5×3.5″ with cut guides</div>'
+    +'</div><div style="display:flex;gap:6px">'
+    +'<button onclick="printProxySheet()" style="background:var(--teal-bg,rgba(45,212,191,0.12));border:1px solid var(--teal);border-radius:var(--radius);color:var(--teal);font-family:var(--body);font-size:0.78rem;font-weight:600;padding:6px 14px;cursor:pointer">🖨 Print Sheet</button>'
+    +'<button onclick="clearProxySheet()" style="background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text3);font-family:var(--body);font-size:0.78rem;padding:6px 12px;cursor:pointer">Clear</button>'
+    +'</div></div><div class="want-list">';
+  proxySheet.forEach(function(p){
+    h+='<div class="want-item">'
+      +(p.img?'<img src="'+p.img+'" alt="'+p.name+'" loading="lazy" decoding="async" style="width:38px;height:53px;object-fit:cover;border-radius:4px;flex:none"/>':'<div class="card-no-img" style="width:38px;height:53px;flex:none">?</div>')
+      +'<div class="want-card-info"><div class="want-card-name">'+(p.name||'Card')+'</div>'
+      +'<div class="want-card-meta">'+(p.setName||'')+(p.number?' · #'+p.number:'')+'</div></div>'
+      +'<div class="want-actions">'
+        +'<div class="qty-stepper"><button onclick="proxyQty(\''+p.uid+'\',-1)">−</button><span>'+(p.qty||1)+'</span><button onclick="proxyQty(\''+p.uid+'\',1)">+</button></div>'
+        +'<button class="remove-want-btn" onclick="removeProxy(\''+p.uid+'\')">✕</button>'
+      +'</div></div>';
+  });
+  h+='</div>';
+  area.innerHTML=h;
+}
+function printProxySheet(){
+  var imgs=[];
+  proxySheet.forEach(function(p){for(var i=0;i<(p.qty||1);i++){if(p.img)imgs.push(p);}});
+  if(!imgs.length){alert('Your proxy sheet has no printable cards.');return;}
+  var rows=imgs.map(function(p){return '<div class="card"><img src="'+p.img+'" alt="'+(p.name||'')+'"/></div>';}).join('');
+  var win=window.open('','_blank');
+  if(!win){alert('Please allow pop-ups to print the proxy sheet.');return;}
+  win.document.write('<!DOCTYPE html><html><head><title>Proxy Sheet ('+imgs.length+')</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#fff;padding:0.25in;font-family:sans-serif}.grid{display:grid;grid-template-columns:repeat(3,2.5in);gap:0}.card{width:2.5in;height:3.5in;break-inside:avoid;outline:1px dashed #c0c0c0}.card img{width:2.5in;height:3.5in;object-fit:cover;display:block}@media print{@page{size:letter;margin:0.25in}}</style></head><body><div class="grid">'+rows+'</div><script>window.onload=function(){setTimeout(function(){window.print();},400);}<\\/script></body></html>');
+  win.document.close();
+}
+
+
 // ── My Collection (fully separate store, with quantities) ────────
 function addToMine(){
   if(!currentDex){alert('Open a Pokémon and pick a card first.');return;}
@@ -1648,6 +1747,7 @@ function renderMyCollection(area){
   let totalUnits=0,totalVal=0,priced=0;
   const rows=myCollection.map(function(m){
     const card=resolveCard(m,dbBy(m.dex));
+    cachePx(card);
     const unit=(m.manualPrice!=null&&!isNaN(+m.manualPrice))?+m.manualPrice:(card&&!card._fromSnap?getTcgPrice(card):null);
     const qty=m.qty||1;
     totalUnits+=qty;
@@ -1672,7 +1772,8 @@ function renderMyCollection(area){
       +'<div class="want-card-meta">'+meta+(dispRar?' · '+rarityBadge(dispRar):'')+'</div></div>'
       +'<div class="want-actions">'
         +'<div class="qty-stepper"><button onclick="mineQty(\''+m.uid+'\',-1)">−</button><span>'+r.qty+'</span><button onclick="mineQty(\''+m.uid+'\',1)">+</button></div>'
-        +'<div class="want-price'+(r.unit==null?' no-price':'')+'">'+(r.unit!=null?fmtPrice(r.unit)+(r.qty>1?' ea':''):'No price')+'</div>'
+        +'<div class="want-price'+(r.unit==null?' no-price':'')+'">'+(r.unit!=null?fmtPrice(r.unit*r.qty)+(r.qty>1?'<div style="font-size:0.62rem;color:var(--text3);font-weight:400;margin-top:1px">'+r.qty+' × '+fmtPrice(r.unit)+' ea</div>':''):'No price')+'</div>'
+        +(c&&c.id?('<button class="remove-want-btn" style="color:var(--teal);border-color:rgba(45,212,191,0.4)" onclick="addProxyById(\''+c.id+'\',event)">🖨</button>'):'')
         +'<button class="remove-want-btn" onclick="removeMine(\''+m.uid+'\')">✕</button>'
       +'</div></div>';
   }
