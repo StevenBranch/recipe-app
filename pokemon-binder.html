@@ -565,7 +565,18 @@ function getDisplayRarity(card){
   if(isAlternateArt(card))return 'Alternate Art';
   return card.rarity;
 }
-function getTcgPlayerId(card){const m=(card?.tcgplayer?.url||'').match(/\/(\d+)$/);return m?m[1]:null;}
+function getTcgPlayerId(card){
+  const url=card?.tcgplayer?.url||'';
+  if(!url)return null;
+  // Format 1: https://www.tcgplayer.com/product/509989/pokemon-sv03-... (ID after /product/)
+  let m=url.match(/\/product\/(\d+)/);
+  if(m)return m[1];
+  // Format 2: https://prices.pokemontcg.io/tcgplayer/490294 (ID at the very end)
+  m=url.match(/\/(\d+)$/);
+  if(m)return m[1];
+  console.warn('[PriceTracker] Could not extract TCGPlayer ID from URL:',url,'for card',card?.id);
+  return null;
+}
 function tcgPlayerUrl(card){return card?.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;}
 function ebaySearchUrl(n,s,num){return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(n+' '+s+' '+num+' pokemon card')+'&LH_Complete=1&LH_Sold=1&_sacat=0';}
 
@@ -729,12 +740,12 @@ async function fetchPptPrice(tcgId){
   if(pptCache[tcgId]!==undefined)return pptCache[tcgId];
   try{
     const r=await fetch(PPT_BASE+'?tcgPlayerId='+tcgId,{headers:{'Authorization':'Bearer '+PPT_KEY}});
-    if(!r.ok){pptCache[tcgId]=null;return null;}
+    if(!r.ok){console.warn('[PriceTracker] Request failed:',r.status,r.statusText,'for tcgId',tcgId);pptCache[tcgId]=null;return null;}
     const d=await r.json();
     const card=d?.data?.[0];
     const price=card?.prices?.market||card?.prices?.mid||null;
     pptCache[tcgId]=price?+price:null;return pptCache[tcgId];
-  }catch(e){pptCache[tcgId]=null;return null;}
+  }catch(e){console.warn('[PriceTracker] Fetch error:',e,'for tcgId',tcgId);pptCache[tcgId]=null;return null;}
 }
 
 // ─────────────────────────────────────────────────────────────────
