@@ -449,8 +449,7 @@ const MINE_DOC=db.collection('binder').doc('myCollection');
 const PROXY_DOC=db.collection('binder').doc('proxySheet');
 // ─────────────────────────────────────────────────────────────────
 const API_BASE='https://api.pokemontcg.io/v2/cards';
-const PPT_BASE='https://www.pokemonpricetracker.com/api/v2/cards';
-const PPT_KEY='pokeprice_free_67fa19c5abd37709267bc7c6b977f4068110fb09d4a6185f';
+
 const CACHE_KEY='pokedex_card_cache_v13';
 const CACHE_AGE_KEY='pokedex_card_cache_age_v13';
 
@@ -565,13 +564,12 @@ function getDisplayRarity(card){
   if(isAlternateArt(card))return 'Alternate Art';
   return card.rarity;
 }
-// PokemonPriceTracker's "tcgPlayerId" param accepts pokemontcg.io card IDs directly (e.g. "sv3-199")
-// No URL parsing needed — just pass card.id
+
 function tcgPlayerUrl(card){return card?.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;}
 function ebaySearchUrl(n,s,num){return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(n+' '+s+' '+num+' pokemon card')+'&LH_Complete=1&LH_Sold=1&_sacat=0';}
 
 let cardDB={},collection={},wantList={},myCollection=[],proxySheet=[],filterMode='all',viewMode='grid',currentView='binder',currentDex=null,selCardId=null,loadedCount=0;
-const pptCache={};
+
 
 // ── Firestore sync (collection + want list only) ─────────────────
 function migrateEntry(e){return Array.isArray(e)?e:(e?[e]:[]);}
@@ -725,18 +723,7 @@ function groupByEra(cards){
   const g={};for(const c of cards){const e=c.set?.series||'Other';if(!g[e])g[e]=[];g[e].push(c);}return g;
 }
 
-async function fetchPptPrice(cardId){
-  if(!cardId)return null;
-  if(pptCache[cardId]!==undefined)return pptCache[cardId];
-  try{
-    const r=await fetch(PPT_BASE+'?tcgPlayerId='+cardId,{headers:{'Authorization':'Bearer '+PPT_KEY}});
-    if(!r.ok){console.warn('[PriceTracker] Failed:',r.status,r.statusText,'for',cardId);pptCache[cardId]=null;return null;}
-    const d=await r.json();
-    const card=d?.data?.[0];
-    const price=card?.prices?.market||card?.prices?.mid||null;
-    pptCache[cardId]=price?+price:null;return pptCache[cardId];
-  }catch(e){console.warn('[PriceTracker] Error:',e,'for',cardId);pptCache[cardId]=null;return null;}
-}
+
 
 // ─────────────────────────────────────────────────────────────────
 // THE FIX: search by nationalPokedexNumbers instead of card name.
@@ -1297,13 +1284,6 @@ async function openModal(dex,regionalKey){
   updateStickyLabel();
   if(window._lockBody)window._lockBody();
   if(window._modalAdjust)window._modalAdjust();
-  // Fire PriceTracker fetches for all cards (results cached, so safe to call all)
-  for(const card of cards){
-    fetchPptPrice(card.id).then(price=>{
-      const el=document.getElementById(`ppt-${card.id}`);
-      if(el){el.querySelector('.price-source-val').className=`price-source-val${price?'':' na'}`;el.querySelector('.price-source-val').textContent=fmtPrice(price);}
-    });
-  }
 }
 
 function renderModalCards(cards, selectedId, filter=''){
@@ -1338,7 +1318,7 @@ function renderModalCards(cards, selectedId, filter=''){
         <div class="opt-meta">${rarityBadge(getDisplayRarity(card))}<span>${card.set.name}</span><span>#${card.number}</span></div>
         <div class="price-row">
           <div class="price-source"><div class="price-source-label">TCGPlayer</div><div class="price-source-val">${fmtPrice(getTcgPrice(card))}</div></div>
-          <div class="price-source" id="ppt-${card.id}"><div class="price-source-label">PriceTracker</div><div class="price-source-val loading"><span class="spinner-sm"></span></div></div>
+
           <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div class="price-source-label">eBay Sold</div><a class="ebay-btn" href="${ebaySearchUrl(card.name,card.set.name,card.number)}" target="_blank" onclick="event.stopPropagation()">View ↗</a></div>
         </div>
         <div style="margin-top:6px;display:flex;gap:5px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()" style="flex:1;justify-content:center"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy</a><button onclick="addProxyById('${card.id}',event)" style="flex:1;background:none;border:1px solid rgba(45,212,191,0.4);border-radius:5px;color:var(--teal);font-size:0.68rem;padding:3px 8px;cursor:pointer">🖨 Proxy</button></div>
@@ -1371,16 +1351,6 @@ function filterModalCards(val){
   const listId=(_colE.length>0||_wantE.length>0)?'m-card-list-all':'m-card-list';
   const list=document.getElementById(listId);
   if(list)list.innerHTML=val.trim()?renderModalCards(cards,selCardId,val):'';
-  // Re-attach PriceTracker fetches for newly visible cards
-  cards.forEach(card=>{
-    const el=document.getElementById('ppt-'+card.id);
-    if(el&&el.querySelector('.loading')){
-      fetchPptPrice(card.id).then(price=>{
-        const e2=document.getElementById('ppt-'+card.id);
-        if(e2){e2.querySelector('.price-source-val').className='price-source-val'+(price?'':' na');e2.querySelector('.price-source-val').textContent=fmtPrice(price);}
-      });
-    }
-  });
 }
 function updateStickyLabel(){
   const lbl=document.getElementById('sticky-label');
