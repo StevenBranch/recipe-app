@@ -250,6 +250,10 @@ select option{background:var(--bg3);color:var(--text)}
 .price-source-val{font-size:0.82rem;font-weight:500;color:var(--gold)}
 .price-source-val.loading{color:var(--text3);font-size:0.7rem}
 .price-source-val.na{color:var(--text3)}
+.card-opt{position:relative}
+.card-opt-owned{position:absolute;top:4px;left:4px;background:var(--green);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,0.4)}
+.card-opt-owned svg{width:11px;height:11px;stroke:#fff;stroke-width:3}
+.card-opt-want{position:absolute;top:4px;left:4px;background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.5);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;z-index:2;font-size:10px;line-height:1}
 .manual-section{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.9rem}
 .manual-section-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--teal);margin-bottom:8px}
 .manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
@@ -1321,8 +1325,16 @@ function renderModalCards(cards, selectedId, filter=''){
       cachePx(card);
       const sel=card.id===selectedId;
       const cardImgHtml=card.images?.small?`<img class="modal-card-img" src="${card.images.small}" alt="${card.name}" loading="lazy"/>`:'';
+      // Ownership indicator
+      const colE=collection[currentDex]||[];
+      const wantE=wantList[currentDex]||[];
+      const isOwned=colE.some(e=>e.cardId===card.id);
+      const isWant=!isOwned&&wantE.some(e=>e.cardId===card.id);
+      const ownedBadge=isOwned
+        ?'<div class="card-opt-owned"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
+        :isWant?'<div class="card-opt-want">⭐</div>':'';
       html+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
-        ${cardImgHtml}
+        ${ownedBadge}${cardImgHtml}
         <div class="opt-name">${card.name}</div>
         <div class="opt-meta">${rarityBadge(getDisplayRarity(card))}<span>${card.set.name}</span><span>#${card.number}</span></div>
         <div class="price-row">
