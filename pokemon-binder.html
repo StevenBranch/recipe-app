@@ -565,8 +565,8 @@ function getDisplayRarity(card){
   if(isAlternateArt(card))return 'Alternate Art';
   return card.rarity;
 }
-// PokemonPriceTracker's "tcgPlayerId" query param actually accepts pokemontcg.io's
-// own card ID format directly (e.g. "base1-4"), so we just pass card.id - no parsing needed.
+// PokemonPriceTracker's "tcgPlayerId" param accepts pokemontcg.io card IDs directly (e.g. "sv3-199")
+// No URL parsing needed — just pass card.id
 function tcgPlayerUrl(card){return card?.tcgplayer?.url||`https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(card?.name||'')}`;}
 function ebaySearchUrl(n,s,num){return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(n+' '+s+' '+num+' pokemon card')+'&LH_Complete=1&LH_Sold=1&_sacat=0';}
 
@@ -730,12 +730,12 @@ async function fetchPptPrice(cardId){
   if(pptCache[cardId]!==undefined)return pptCache[cardId];
   try{
     const r=await fetch(PPT_BASE+'?tcgPlayerId='+cardId,{headers:{'Authorization':'Bearer '+PPT_KEY}});
-    if(!r.ok){console.warn('[PriceTracker] Request failed:',r.status,r.statusText,'for cardId',cardId);pptCache[cardId]=null;return null;}
+    if(!r.ok){console.warn('[PriceTracker] Failed:',r.status,r.statusText,'for',cardId);pptCache[cardId]=null;return null;}
     const d=await r.json();
     const card=d?.data?.[0];
     const price=card?.prices?.market||card?.prices?.mid||null;
     pptCache[cardId]=price?+price:null;return pptCache[cardId];
-  }catch(e){console.warn('[PriceTracker] Fetch error:',e,'for cardId',cardId);pptCache[cardId]=null;return null;}
+  }catch(e){console.warn('[PriceTracker] Error:',e,'for',cardId);pptCache[cardId]=null;return null;}
 }
 
 // ─────────────────────────────────────────────────────────────────
