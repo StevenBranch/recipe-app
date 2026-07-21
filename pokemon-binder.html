@@ -326,8 +326,9 @@ select option{background:var(--bg3);color:var(--text)}
     <div class="stat-pill yellow" onclick="showView('want')" style="cursor:pointer" title="View full want list">Want List: <strong id="want-val">$0.00</strong> (<span id="want-count">0</span>)</div>
   </div>
   <div class="api-status"><div class="dot" id="api-dot"></div><span id="api-txt">Catalog: never synced</span></div>
-  <button class="reload-btn" id="reload-btn" onclick="reloadCards()" title="Sync card data &amp; images from the API">⟳ Reload</button>
+  <button class="reload-btn" id="reload-btn" onclick="reloadCards()" title="Sync missing cards from API (skips already-loaded)">⟳ Reload</button>
   <button class="reload-btn" id="scan-btn" onclick="openScan()" title="Scan a card with your camera" style="border-color:var(--teal);color:var(--teal)">📷 Scan</button>
+  <button class="reload-btn" onclick="if(confirm('Clear all cached card data and reload everything from scratch?')){cardDB={};reloadCards();}" title="Clear cache and reload everything from the API" style="border-color:rgba(248,113,113,0.4);color:rgba(248,113,113,0.9);font-size:0.68rem;padding:0.3rem 0.5rem">↺ Full Reset</button>
 </header>
 
 <nav class="tabbar" id="tabbar">
@@ -811,10 +812,22 @@ async function reloadCards(){
     localStorage.removeItem('pokedex_card_cache_v'+v);
     localStorage.removeItem('pokedex_card_cache_age_v'+v);
   }
-  loadedCount=0;
+  // Only fetch Pokémon that are missing from cardDB (undefined = never loaded)
+  // Already-loaded entries (even empty arrays) are skipped for speed
+  const missing=ALL_POKEMON.filter(([dex])=>cardDB[dex]===undefined);
+  const alreadyLoaded=ALL_POKEMON.length-missing.length;
+  loadedCount=alreadyLoaded;
+  if(missing.length===0){
+    setStatus('ok','Catalog synced');
+    if(btn){btn.disabled=false;btn.textContent='⟳ Reload';}
+    _reloading=false;
+    render(true);
+    return;
+  }
+  setStatus('loading','Reloading… '+loadedCount+'/'+ALL_POKEMON.length+(alreadyLoaded?' ('+alreadyLoaded+' cached)':''));
   const BATCH=8,DELAY=300;
   const batches=[];
-  for(let i=0;i<ALL_POKEMON.length;i+=BATCH)batches.push(ALL_POKEMON.slice(i,i+BATCH));
+  for(let i=0;i<missing.length;i+=BATCH)batches.push(missing.slice(i,i+BATCH));
   for(const batch of batches){
     try{
       await Promise.all(batch.map(([dex])=>fetchPokemon(dex)));
