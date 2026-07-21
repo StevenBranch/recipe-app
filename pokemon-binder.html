@@ -244,7 +244,7 @@ select option{background:var(--bg3);color:var(--text)}
 .card-opt.sel{border-color:var(--gold2);background:var(--gold-bg)}
 .opt-name{font-size:0.83rem;font-weight:500;margin-bottom:3px}
 .opt-meta{font-size:0.71rem;color:var(--text2);display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:5px}
-.price-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
+.price-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
 .price-source{background:var(--bg4);border-radius:6px;padding:5px 8px;text-align:center}
 .price-source-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:2px}
 .price-source-val{font-size:0.82rem;font-weight:500;color:var(--gold)}
@@ -273,7 +273,7 @@ select option{background:var(--bg3);color:var(--text)}
 @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
 @media(max-width:800px){.list-hdr,.list-row{grid-template-columns:40px 125px 1fr 90px 55px;gap:7px}.list-col-set{display:none}}
-@media(max-width:560px){.list-hdr,.list-row{grid-template-columns:36px 1fr 75px 48px;font-size:0.76rem;gap:5px}.list-col-rar{display:none}.header{padding:0.7rem 1rem}.controls,.legend{padding:0.45rem 1rem}.main{padding:0.9rem 0.75rem 4rem}.grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}.price-row{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.list-hdr,.list-row{grid-template-columns:36px 1fr 75px 48px;font-size:0.76rem;gap:5px}.list-col-rar{display:none}.header{padding:0.7rem 1rem}.controls,.legend{padding:0.45rem 1rem}.main{padding:0.9rem 0.75rem 4rem}.grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}}
 </style>
 </head>
 <body>
@@ -732,7 +732,7 @@ function groupByEra(cards){
 // Cache bumped to v10 — forces a fresh fetch for all 1025 Pokémon.
 // ─────────────────────────────────────────────────────────────────
 async function fetchPokemon(dex,allRarities=false){
-  const retries=3;
+  const retries=2;
   for(let attempt=0;attempt<retries;attempt++){
     try{
       let q;
@@ -743,9 +743,14 @@ async function fetchPokemon(dex,allRarities=false){
         q=encodeURIComponent('nationalPokedexNumbers:'+dex+' ('+rarQ+')');
       }
       const r=await fetch(API_BASE+'?q='+q+'&select=id,name,set,number,rarity,tcgplayer,images&orderBy=-set.releaseDate&pageSize=250');
-      if(r.status===429||r.status>=500){
-        // Rate limited — wait and retry
-        await new Promise(res=>setTimeout(res,1500*(attempt+1)));
+      if(r.status===429){
+        // Rate limited — worth a longer wait
+        await new Promise(res=>setTimeout(res,2000*(attempt+1)));
+        continue;
+      }
+      if(r.status>=500){
+        // Server error — short wait, one retry only
+        await new Promise(res=>setTimeout(res,500));
         continue;
       }
       if(!r.ok){cardDB[dex]=[];return;}
@@ -757,7 +762,7 @@ async function fetchPokemon(dex,allRarities=false){
       return;
     }catch(e){
       if(attempt===retries-1){if(!cardDB[dex])cardDB[dex]=[];}
-      else await new Promise(res=>setTimeout(res,800*(attempt+1)));
+      else await new Promise(res=>setTimeout(res,400));
     }
   }
 }
@@ -803,7 +808,7 @@ async function reloadCards(){
     localStorage.removeItem('pokedex_card_cache_age_v'+v);
   }
   loadedCount=0;
-  const BATCH=4,DELAY=600;
+  const BATCH=8,DELAY=300;
   const batches=[];
   for(let i=0;i<ALL_POKEMON.length;i+=BATCH)batches.push(ALL_POKEMON.slice(i,i+BATCH));
   for(const batch of batches){
@@ -815,6 +820,10 @@ async function reloadCards(){
     loadedCount=Math.min(loadedCount+batch.length,ALL_POKEMON.length);
     setStatus('loading','Reloading… '+loadedCount+'/'+ALL_POKEMON.length);
     render(true);
+    // Save partial progress every 100 Pokémon so progress survives a close
+    if(loadedCount%100===0){
+      try{localStorage.setItem(CACHE_KEY,JSON.stringify(cardDB));}catch(e){}
+    }
     await new Promise(r=>setTimeout(r,DELAY));
   }
   try{
@@ -1319,7 +1328,7 @@ function renderModalCards(cards, selectedId, filter=''){
         <div class="price-row">
           <div class="price-source"><div class="price-source-label">TCGPlayer</div><div class="price-source-val">${fmtPrice(getTcgPrice(card))}</div></div>
 
-          <div class="price-source" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div class="price-source-label">eBay Sold</div><a class="ebay-btn" href="${ebaySearchUrl(card.name,card.set.name,card.number)}" target="_blank" onclick="event.stopPropagation()">View ↗</a></div>
+          <div class="price-source"><div class="price-source-label">eBay Sold</div><a class="ebay-btn" href="${ebaySearchUrl(card.name,card.set.name,card.number)}" target="_blank" onclick="event.stopPropagation()">View ↗</a></div>
         </div>
         <div style="margin-top:6px;display:flex;gap:5px"><a class="buy-btn" href="${tcgPlayerUrl(card)}" target="_blank" onclick="event.stopPropagation()" style="flex:1;justify-content:center"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Buy</a><button onclick="addProxyById('${card.id}',event)" style="flex:1;background:none;border:1px solid rgba(45,212,191,0.4);border-radius:5px;color:var(--teal);font-size:0.68rem;padding:3px 8px;cursor:pointer">🖨 Proxy</button></div>
       </div>`;
