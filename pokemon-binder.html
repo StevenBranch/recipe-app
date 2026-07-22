@@ -1347,7 +1347,7 @@ function renderModalCards(cards, selectedId, filter=''){
       // Dual badge (teal) = in both binder AND my collection
       // Green = binder only, Blue = my collection only, Star = want list
       const ownedBadge=isOwned&&isInMine
-        ?'<div class="card-opt-owned" style="background:var(--teal)" title="In Binder + My Collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
+        ?'<div class="card-opt-owned" style="background:var(--red)" title="In Binder + My Collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
         :isOwned
         ?'<div class="card-opt-owned" title="In Binder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
         :isInMine
