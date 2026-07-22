@@ -1200,7 +1200,7 @@ async function openModal(dex,regionalKey){
       var ownedCards2=colEntries.map(function(e){return resolveCard(e,cards);}).filter(Boolean);
       if(ownedCards2.length){body+='<div>'+renderModalCards(ownedCards2,null)+'</div>';}
     }
-    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
+    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">All cards — tap to add to want list:</div>';
     body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" onfocus="onModalSearchFocus()" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(showColFirst){
     // COLLECTION FIRST
@@ -1210,7 +1210,7 @@ async function openModal(dex,regionalKey){
       if(!selCardId)selCardId=ownedCards[0]?.id||null;
       body+='<div id="m-card-list">'+renderModalCards(ownedCards,selCardId)+'</div>';
     }
-    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another card:</div>';
+    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">All cards — tap to add:</div>';
     body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" onfocus="onModalSearchFocus()" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(wantEntries.length>0){
     // HAS WANTS ONLY (no collection)
@@ -1220,7 +1220,7 @@ async function openModal(dex,regionalKey){
       if(!selCardId)selCardId=wantedCardsOnly[0]?.id||null;
       body+='<div id="m-card-list">'+renderModalCards(wantedCardsOnly,selCardId)+'</div>';
     }
-    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">Add another want:</div>';
+    body+='<div style="margin-top:0.7rem;font-size:0.72rem;color:var(--text3);margin-bottom:4px">All cards — tap to add to want list:</div>';
     body+='<div class="modal-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="m-card-search" placeholder="Search all cards…" oninput="filterModalCards(this.value)" onfocus="onModalSearchFocus()" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="search"/></div><div id="m-card-list-all"></div>';
   }else if(cards.length){
     // All / Missing mode — full searchable list
@@ -1338,13 +1338,20 @@ function renderModalCards(cards, selectedId, filter=''){
       cachePx(card);
       const sel=card.id===selectedId;
       const cardImgHtml=card.images?.small?`<img class="modal-card-img" src="${card.images.small}" alt="${card.name}" loading="lazy"/>`:'';
-      // Ownership indicator
+      // Ownership indicator — check binder collection AND myCollection
       const colE=collection[currentDex]||[];
       const wantE=wantList[currentDex]||[];
       const isOwned=colE.some(e=>e.cardId===card.id);
+      const isInMine=myCollection.some(m=>m.cardId===card.id);
       const isWant=!isOwned&&wantE.some(e=>e.cardId===card.id);
-      const ownedBadge=isOwned
-        ?'<div class="card-opt-owned"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
+      // Dual badge (teal) = in both binder AND my collection
+      // Green = binder only, Blue = my collection only, Star = want list
+      const ownedBadge=isOwned&&isInMine
+        ?'<div class="card-opt-owned" style="background:var(--teal)" title="In Binder + My Collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
+        :isOwned
+        ?'<div class="card-opt-owned" title="In Binder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
+        :isInMine
+        ?'<div class="card-opt-owned" style="background:var(--blue)" title="In My Collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>'
         :isWant?'<div class="card-opt-want">⭐</div>':'';
       html+=`<div class="card-opt${sel?' sel':''}" onclick="selCard('${card.id}')">
         ${ownedBadge}${cardImgHtml}
@@ -1379,12 +1386,12 @@ function onModalSearchFocus(){
 }
 function filterModalCards(val){
   const cards=cardDB[currentDex]||[];
-  // Use entry existence to pick the right list div
   const _colE=collection[currentDex]||[];
   const _wantE=wantList[currentDex]||[];
   const listId=(_colE.length>0||_wantE.length>0)?'m-card-list-all':'m-card-list';
   const list=document.getElementById(listId);
-  if(list)list.innerHTML=val.trim()?renderModalCards(cards,selCardId,val):'';
+  // Show all cards when empty, filtered cards when searching
+  if(list)list.innerHTML=renderModalCards(cards,selCardId,val.trim()?val:'');
 }
 function updateStickyLabel(){
   const lbl=document.getElementById('sticky-label');
